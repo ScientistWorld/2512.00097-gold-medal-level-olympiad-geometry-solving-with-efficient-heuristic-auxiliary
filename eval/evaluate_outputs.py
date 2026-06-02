@@ -15,7 +15,34 @@ EXPERIMENTS = {
             "ddar": Path("outputs/baseline_auxiliary_core.jsonl"),
             "hageo": Path("outputs/hageo_auxiliary_core.jsonl"),
         },
-    }
+        "metrics": [
+            "solve_rate",
+            "solved_count",
+            "problem_count",
+            "mean_attempt_index",
+            "mean_auxiliary_count",
+            "attempt_budget",
+            "rounds",
+            "timeout_seconds",
+            "neural_inference_used",
+        ],
+    },
+    "hageo409_scaled": {
+        "dataset": Path("data/benchmarks/hageo409_small.jsonl"),
+        "outputs": {
+            "random_aux_ddar": Path("outputs/random_aux_hageo409_small.jsonl"),
+            "hageo": Path("outputs/hageo_hageo409_small.jsonl"),
+        },
+        "metrics": [
+            "solve_rate",
+            "solved_count",
+            "problem_count",
+            "attempt_budget",
+            "rounds",
+            "timeout_seconds",
+            "neural_inference_used",
+        ],
+    },
 }
 
 
@@ -26,25 +53,44 @@ def read_jsonl(path: Path) -> list[dict]:
         return [json.loads(line) for line in f if line.strip()]
 
 
-def summarize(rows: list[dict]) -> dict:
-    if not rows:
-        return {
-            "solved_count": 0,
-            "problem_count": 0,
-            "solve_rate": 0.0,
-            "mean_attempt_index": 0.0,
-            "mean_auxiliary_count": 0.0,
-        }
+def benchmark_ids(path: Path) -> list[str]:
+    return [row["problem_id"] for row in read_jsonl(path)]
+
+
+def validate_rows(rows: list[dict], expected_ids: list[str], output_path: Path) -> None:
+    seen = [row.get("problem_id") for row in rows]
+    missing = sorted(set(expected_ids) - set(seen))
+    extra = sorted(set(seen) - set(expected_ids))
+    duplicates = sorted({pid for pid in seen if seen.count(pid) > 1})
+    if missing or extra or duplicates:
+        raise ValueError(
+            f"{output_path}: invalid coverage; missing={missing}, extra={extra}, "
+            f"duplicates={duplicates}"
+        )
+
+
+def summarize(rows: list[dict], metric_names: list[str]) -> dict:
     solved_count = sum(1 for row in rows if row.get("solved"))
-    return {
+    summary = {
         "solved_count": solved_count,
         "problem_count": len(rows),
-        "solve_rate": solved_count / len(rows),
-        "mean_attempt_index": sum(float(row.get("attempt_index", 0)) for row in rows)
-        / len(rows),
-        "mean_auxiliary_count": sum(len(row.get("auxiliary_clauses", [])) for row in rows)
-        / len(rows),
+        "solve_rate": solved_count / len(rows) if rows else 0.0,
+        "mean_attempt_index": (
+            sum(float(row.get("attempt_index", 0)) for row in rows) / len(rows) if rows else 0.0
+        ),
+        "mean_auxiliary_count": (
+            sum(len(row.get("auxiliary_clauses", [])) for row in rows) / len(rows)
+            if rows
+            else 0.0
+        ),
+        "attempt_budget": max((int(row.get("attempt_budget", 0)) for row in rows), default=0),
+        "rounds": max((int(row.get("rounds", 0)) for row in rows), default=0),
+        "timeout_seconds": max((int(row.get("timeout_seconds", 0)) for row in rows), default=0),
+        "neural_inference_used": max(
+            (int(row.get("neural_inference_used", 0)) for row in rows), default=0
+        ),
     }
+    return {name: summary[name] for name in metric_names}
 
 
 def main() -> None:
@@ -54,13 +100,17 @@ def main() -> None:
 
     scores = {"experiments": {}}
     for exp_name, config in EXPERIMENTS.items():
-        if not config["dataset"].exists():
+        dataset_path = config["dataset"]
+        if not dataset_path.exists():
             continue
+        expected_ids = benchmark_ids(dataset_path)
         results = {}
         for method_name, output_path in config["outputs"].items():
             rows = read_jsonl(output_path)
-            if rows:
-                results[method_name] = summarize(rows)
+            if not rows:
+                continue
+            validate_rows(rows, expected_ids, output_path)
+            results[method_name] = summarize(rows, config["metrics"])
         if results:
             scores["experiments"][exp_name] = {"results": results}
 

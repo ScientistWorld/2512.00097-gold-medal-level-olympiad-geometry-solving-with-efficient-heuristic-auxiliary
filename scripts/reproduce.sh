@@ -18,13 +18,15 @@ set -e
 
 cd /home/user
 
-python data/prepare_benchmarks.py
+python data/prepare_benchmarks.py --hageo-limit "${HAGEO_LIMIT:-4}"
 
 bash scripts/baseline.sh data/benchmarks/auxiliary_core.jsonl auxiliary_core
 bash scripts/method.sh data/benchmarks/auxiliary_core.jsonl auxiliary_core
 
 if [ -e data/benchmarks/hageo409_small.jsonl ]; then
   bash scripts/baseline.sh data/benchmarks/hageo409_small.jsonl hageo409_small
-  ATTEMPTS=${ATTEMPTS:-64} ROUNDS=${ROUNDS:-1} TIMEOUT=${TIMEOUT:-15} \
+  ATTEMPTS=${RANDOM_ATTEMPTS:-24} ROUNDS=${ROUNDS:-1} TIMEOUT=${TIMEOUT:-3} SEED=${RANDOM_SEED:-17} \
+    bash scripts/random_baseline.sh data/benchmarks/hageo409_small.jsonl hageo409_small
+  ATTEMPTS=${ATTEMPTS:-24} ROUNDS=${ROUNDS:-1} TIMEOUT=${TIMEOUT:-3} SEED=${SEED:-0} \
     bash scripts/method.sh data/benchmarks/hageo409_small.jsonl hageo409_small
 fi

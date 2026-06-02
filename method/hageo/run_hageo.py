@@ -25,6 +25,7 @@ sys.path.insert(0, str(AG))
 
 import ddar  # type: ignore  # noqa: E402
 import graph as gh  # type: ignore  # noqa: E402
+import numericals as nm  # type: ignore  # noqa: E402
 import problem as pr  # type: ignore  # noqa: E402
 
 
@@ -71,6 +72,17 @@ def run_ddar(
     rules: dict,
     timeout: int,
 ) -> tuple[bool, str, float]:
+    solved, status, seconds, _ = run_ddar_state(problem_id, statement, defs, rules, timeout)
+    return solved, status, seconds
+
+
+def run_ddar_state(
+    problem_id: str,
+    statement: str,
+    defs: dict,
+    rules: dict,
+    timeout: int,
+) -> tuple[bool, str, float, gh.Graph | None]:
     start = time.time()
     try:
         with hard_timeout(timeout):
@@ -79,11 +91,11 @@ def run_ddar(
             ddar.solve(g, rules, p, max_level=1000, timeout=timeout)
             goal_args = g.names2nodes(p.goal.args)
             solved = bool(g.check(p.goal.name, goal_args))
-        return solved, "solved" if solved else "failed", time.time() - start
+        return solved, "solved" if solved else "failed", time.time() - start, g
     except DDARTimeout:
-        return False, "timeout", time.time() - start
+        return False, "timeout", time.time() - start, None
     except Exception as exc:  # DDAR can reject numerically degenerate drawings.
-        return False, f"error:{type(exc).__name__}:{exc}", time.time() - start
+        return False, f"error:{type(exc).__name__}:{exc}", time.time() - start, None
 
 
 def insert_aux(statement: str, aux_clauses: list[str]) -> str:
@@ -112,60 +124,289 @@ def pair_lines(points: list[str]) -> list[tuple[str, str]]:
     return [(a, b) for a, b in itertools.combinations(points, 2)]
 
 
-def candidate_auxiliaries(statement: str, max_candidates: int) -> list[str]:
-    """Generate HAGeo heuristic construction categories.
+def _coord_name(prefix: str, index: int, point: nm.Point) -> tuple[str, str]:
+    arg_name = f"{prefix}{index}"
+    declared_name = f"{arg_name}@{point.x:.12g}_{point.y:.12g}"
+    return declared_name, arg_name
 
-    Categories implemented here are the paper's basic auxiliary operations:
-    intersections of lines, midpoints, point reflections, and perpendicular
-    feet. Candidates are generated from the current problem's named points.
-    """
-    pts = point_names(statement)
-    lines = pair_lines(pts)
-    buckets: list[list[str]] = [[] for _ in range(5)]
 
-    def add(bucket: int, template: str) -> None:
-        if len(buckets[bucket]) < max_candidates:
-            buckets[bucket].append(template)
+def _close_point(a: nm.Point, b: nm.Point, tol: float = 1e-7) -> bool:
+    return a.distance(b) <= tol
 
-    # Prioritize intersections using at least one constructed point, matching
-    # common auxiliary geometry moves such as intersecting two altitudes.
-    for (a, b), (c, d) in itertools.combinations(lines, 2):
-        if len({a, b, c, d}) < 4:
+
+def _is_known_point(point: nm.Point, known: list[gh.Point]) -> bool:
+    return any(_close_point(point, p.num) for p in known)
+
+
+def _dedupe_key(point: nm.Point, clauses: list[str]) -> tuple[int, int, tuple[str, ...]]:
+    return (round(point.x * 1e8), round(point.y * 1e8), tuple(sorted(clauses)))
+
+
+def _line_records(points: list[gh.Point]) -> list[tuple[str, str, nm.Line]]:
+    records = []
+    for a, b in itertools.combinations(points, 2):
+        if _close_point(a.num, b.num):
             continue
-        add(0, f"{{x}} = on_line {{x}} {a} {b}, on_line {{x}} {c} {d}")
-    # Intersections of existing lines with circles centered at known points.
-    for a, b in lines:
-        for o, r in lines:
-            if len({a, b, o, r}) < 3:
-                continue
-            add(1, f"{{x}} = on_line {{x}} {a} {b}, on_circle {{x}} {o} {r}")
-    # Intersections of two simple circles.
-    for (o1, r1), (o2, r2) in itertools.combinations(lines, 2):
-        if len({o1, r1, o2, r2}) < 3:
-            continue
-        add(2, f"{{x}} = on_circle {{x}} {o1} {r1}, on_circle {{x}} {o2} {r2}")
-    for a, b in lines:
-        add(3, f"{{x}} = midpoint {{x}} {a} {b}")
-    for a, b in itertools.permutations(pts, 2):
-        add(3, f"{{x}} = mirror {{x}} {a} {b}")
-    for p in pts:
-        for a, b in lines:
-            if p in (a, b):
-                continue
-            add(4, f"{{x}} = foot {{x}} {p} {a} {b}")
+        records.append((a.name, b.name, nm.Line(a.num, b.num)))
+    return records
 
+
+def _circle_records(points: list[gh.Point]) -> list[tuple[str, str, nm.Circle]]:
+    records = []
+    for o, r in itertools.permutations(points, 2):
+        if _close_point(o.num, r.num):
+            continue
+        records.append((o.name, r.name, nm.Circle(o.num, p1=r.num)))
+    return records
+
+
+def _line_incidence(point: nm.Point, lines: list[tuple[str, str, nm.Line]]) -> list[str]:
+    out = []
+    for a, b, line in lines:
+        if point.distance(line) <= 1e-7:
+            out.append(f"on_line {{x}} {a} {b}")
+    return out
+
+
+def _circle_incidence(point: nm.Point, circles: list[tuple[str, str, nm.Circle]]) -> list[str]:
+    out = []
+    for o, r, circle in circles:
+        if point.distance(circle) <= 1e-7:
+            out.append(f"on_circle {{x}} {o} {r}")
+    return out
+
+
+def _same_line_clause(clause: str, a: str, b: str) -> bool:
+    return f" {a} {b}" in clause or f" {b} {a}" in clause
+
+
+def _same_circle_clause(clause: str, o: str, r: str) -> bool:
+    return clause.endswith(f" {o} {r}")
+
+
+def _materialize_candidates(
+    buckets: list[list[tuple[nm.Point, list[str]]]],
+    max_candidates: int,
+) -> list[str]:
     candidates: list[str] = []
+    seen = set()
     counter = 0
     for grouped in itertools.zip_longest(*buckets):
-        for template in grouped:
-            if template is None:
+        for item in grouped:
+            if item is None:
                 continue
-            candidate = template.format(x=f"x{counter}")
+            point, clauses = item
+            key = _dedupe_key(point, clauses)
+            if key in seen:
+                continue
+            seen.add(key)
+            declared_name, arg_name = _coord_name("x", counter, point)
+            candidates.append(
+                f"{declared_name} = " + ", ".join(c.format(x=arg_name) for c in clauses)
+            )
             counter += 1
-            candidates.append(candidate)
             if len(candidates) >= max_candidates:
                 return candidates
     return candidates
+
+
+def random_construction_items_from_graph(
+    graph: gh.Graph, max_candidates: int
+) -> list[tuple[nm.Point, list[str]]]:
+    """Broad valid basic-construction pool used for random auxiliary search."""
+    pts = sorted(graph.all_points(), key=lambda p: p.name)
+    lines = _line_records(pts)
+    circles = _circle_records(pts)
+    bucket: list[tuple[nm.Point, list[str]]] = []
+
+    def add(point: nm.Point, clauses: list[str]) -> None:
+        if len(bucket) >= max_candidates * 4 or _is_known_point(point, pts):
+            return
+        bucket.append((point, clauses))
+
+    for (a, b, lab), (c, d, lcd) in itertools.combinations(lines, 2):
+        if len({a, b, c, d}) < 4 or lab.is_parallel(lcd):
+            continue
+        try:
+            add(nm.line_line_intersection(lab, lcd), [f"on_line {{x}} {a} {b}", f"on_line {{x}} {c} {d}"])
+        except nm.InvalidLineIntersectError:
+            continue
+        if len(bucket) >= max_candidates * 4:
+            break
+
+    for a, b, line in lines:
+        for o, r, circle in circles[: max_candidates * 8]:
+            if len({a, b, o, r}) < 3:
+                continue
+            try:
+                for x in nm.line_circle_intersection(line, circle):
+                    add(x, [f"on_line {{x}} {a} {b}", f"on_circle {{x}} {o} {r}"])
+            except nm.InvalidQuadSolveError:
+                continue
+            if len(bucket) >= max_candidates * 4:
+                break
+        if len(bucket) >= max_candidates * 4:
+            break
+
+    for (o1, r1, c1), (o2, r2, c2) in itertools.combinations(circles[: max_candidates * 8], 2):
+        if len({o1, r1, o2, r2}) < 3:
+            continue
+        try:
+            for x in nm.circle_circle_intersection(c1, c2):
+                add(x, [f"on_circle {{x}} {o1} {r1}", f"on_circle {{x}} {o2} {r2}"])
+        except nm.InvalidQuadSolveError:
+            continue
+        if len(bucket) >= max_candidates * 4:
+            break
+
+    for a, b in itertools.combinations(pts, 2):
+        add(a.num.midpoint(b.num), [f"midpoint {{x}} {a.name} {b.name}"])
+
+    for a, b in itertools.permutations(pts, 2):
+        add(b.num * 2.0 - a.num, [f"mirror {{x}} {a.name} {b.name}"])
+        if len(bucket) >= max_candidates * 4:
+            break
+
+    for p in pts:
+        for a, b, line in lines:
+            if p.name in (a, b) or p.num.distance(line) <= 1e-7:
+                continue
+            add(p.num.foot(line), [f"foot {{x}} {p.name} {a} {b}"])
+        if len(bucket) >= max_candidates * 4:
+            break
+
+    return bucket[:max_candidates]
+
+
+def random_construction_candidates_from_graph(graph: gh.Graph, max_candidates: int) -> list[str]:
+    """Materialized broad valid-construction pool for the random baseline."""
+    return _materialize_candidates(
+        [random_construction_items_from_graph(graph, max_candidates)], max_candidates
+    )
+
+
+def candidate_auxiliaries_from_graph(graph: gh.Graph, max_candidates: int) -> list[str]:
+    """Generate the paper's numerically driven HAGeo auxiliary categories.
+
+    HAGeo chooses basic constructions only when numerical computation shows
+    that the new point has a favorable non-trivial incidence, such as lying on
+    three or more lines/circles or a midpoint/foot/reflection lying on another
+    object. The DDAR engine already relies on the same numeric diagram checks,
+    so these clauses expose numerically verified construction facts rather than
+    introducing neural or oracle proposals.
+    """
+    pts = sorted(graph.all_points(), key=lambda p: p.name)
+    lines = _line_records(pts)
+    circles = _circle_records(pts)
+    buckets: list[list[tuple[nm.Point, list[str]]]] = [[] for _ in range(7)]
+
+    def add(bucket: int, point: nm.Point, clauses: list[str]) -> None:
+        if len(buckets[bucket]) >= max_candidates or _is_known_point(point, pts):
+            return
+        buckets[bucket].append((point, clauses[:4]))
+
+    # 1. Intersections where at least three lines concur.
+    for (a, b, lab), (c, d, lcd) in itertools.combinations(lines, 2):
+        if len({a, b, c, d}) < 4 or lab.is_parallel(lcd):
+            continue
+        try:
+            x = nm.line_line_intersection(lab, lcd)
+        except nm.InvalidLineIntersectError:
+            continue
+        incidences = _line_incidence(x, lines)
+        extras = [
+            inc
+            for inc in incidences
+            if not _same_line_clause(inc, a, b) and not _same_line_clause(inc, c, d)
+        ]
+        if extras:
+            add(0, x, [f"on_line {{x}} {a} {b}", f"on_line {{x}} {c} {d}"] + extras[:2])
+        if len(buckets[0]) >= max_candidates:
+            break
+
+    # 2. Intersections supported by at least three lines/circles.
+    for a, b, line in lines:
+        for o, r, circle in circles[: max_candidates * 8]:
+            if len({a, b, o, r}) < 3:
+                continue
+            try:
+                xs = nm.line_circle_intersection(line, circle)
+            except nm.InvalidQuadSolveError:
+                continue
+            for x in xs:
+                incidences = _line_incidence(x, lines) + _circle_incidence(x, circles[: max_candidates * 8])
+                extras = [
+                    inc
+                    for inc in incidences
+                    if not _same_line_clause(inc, a, b) and not _same_circle_clause(inc, o, r)
+                ]
+                if extras:
+                    add(1, x, [f"on_line {{x}} {a} {b}", f"on_circle {{x}} {o} {r}"] + extras[:2])
+            if len(buckets[1]) >= max_candidates:
+                break
+        if len(buckets[1]) >= max_candidates:
+            break
+
+    for (o1, r1, c1), (o2, r2, c2) in itertools.combinations(circles[: max_candidates * 8], 2):
+        if len({o1, r1, o2, r2}) < 3:
+            continue
+        try:
+            xs = nm.circle_circle_intersection(c1, c2)
+        except nm.InvalidQuadSolveError:
+            continue
+        for x in xs:
+            incidences = _line_incidence(x, lines) + _circle_incidence(x, circles[: max_candidates * 8])
+            extras = [
+                inc
+                for inc in incidences
+                if not _same_circle_clause(inc, o1, r1) and not _same_circle_clause(inc, o2, r2)
+            ]
+            if extras:
+                add(2, x, [f"on_circle {{x}} {o1} {r1}", f"on_circle {{x}} {o2} {r2}"] + extras[:2])
+        if len(buckets[2]) >= max_candidates:
+            break
+
+    # 3-5. Midpoints, point reflections, and perpendicular feet that also lie
+    # on another line/circle non-trivially.
+    for a, b in itertools.combinations(pts, 2):
+        x = a.num.midpoint(b.num)
+        extras = [i for i in _line_incidence(x, lines) if f" {a.name} {b.name}" not in i and f" {b.name} {a.name}" not in i]
+        extras += _circle_incidence(x, circles[: max_candidates * 8])
+        if extras:
+            add(3, x, [f"midpoint {{x}} {a.name} {b.name}", extras[0]])
+
+    for a, b in itertools.permutations(pts, 2):
+        x = b.num * 2.0 - a.num
+        extras = [i for i in _line_incidence(x, lines) if f" {a.name} {b.name}" not in i and f" {b.name} {a.name}" not in i]
+        extras += _circle_incidence(x, circles[: max_candidates * 8])
+        if extras:
+            add(4, x, [f"mirror {{x}} {a.name} {b.name}", extras[0]])
+        if len(buckets[4]) >= max_candidates:
+            break
+
+    for p in pts:
+        for a, b, line in lines:
+            if p.name in (a, b) or p.num.distance(line) <= 1e-7:
+                continue
+            x = p.num.foot(line)
+            extras = [i for i in _line_incidence(x, lines) if f" {a} {b}" not in i and f" {b} {a}" not in i]
+            extras += _circle_incidence(x, circles[: max_candidates * 8])
+            if extras:
+                add(5, x, [f"foot {{x}} {p.name} {a} {b}", extras[0]])
+        if len(buckets[5]) >= max_candidates:
+            break
+
+    # 6. Random constructions are part of HAGeo's candidate universe, but are
+    # intentionally placed after numerically favorable candidates.
+    buckets[6].extend(random_construction_items_from_graph(graph, max_candidates))
+
+    return _materialize_candidates(buckets, max_candidates)
+
+
+def candidate_auxiliaries(statement: str, defs: dict, max_candidates: int) -> list[str]:
+    p = parse_problem("candidate_generation", statement)
+    g, _ = gh.Graph.build_problem(p, defs, verbose=False)
+    return candidate_auxiliaries_from_graph(g, max_candidates)
 
 
 def solve_with_hageo(
@@ -179,13 +420,17 @@ def solve_with_hageo(
 ) -> dict:
     problem_id = row["problem_id"]
     statement = row["statement"]
-    solved, status, seconds = run_ddar(problem_id, statement, defs, rules, timeout)
+    solved, status, seconds, graph = run_ddar_state(problem_id, statement, defs, rules, timeout)
     result = {
         "problem_id": problem_id,
         "source": row.get("source", ""),
         "difficulty": row.get("difficulty"),
         "solved": solved,
         "attempt_index": 0,
+        "attempt_budget": attempts,
+        "rounds": rounds,
+        "timeout_seconds": timeout,
+        "neural_inference_used": 0,
         "auxiliary_clauses": [],
         "status": "ddar_" + status,
         "seconds": seconds,
@@ -193,21 +438,39 @@ def solve_with_hageo(
     if solved:
         return result
 
-    candidates = candidate_auxiliaries(statement, max_candidates=max(128, attempts * rounds * 2))
+    if graph is not None:
+        candidates = candidate_auxiliaries_from_graph(graph, max_candidates=max(128, attempts * rounds * 2))
+    else:
+        candidates = candidate_auxiliaries(statement, defs, max_candidates=max(128, attempts * rounds * 2))
     rng = random.Random(seed)
-    ordered = candidates[:]
-    rng.shuffle(ordered)
-    # Keep the deterministic order as a prefix so canonical intersections are
-    # tried early; use shuffled candidates afterward for HAGeo's stochastic K.
-    ordered = candidates[: min(len(candidates), attempts)] + ordered
 
     total_seconds = seconds
     for idx in range(1, attempts + 1):
-        start = (idx - 1) * rounds
-        aux = ordered[start : start + rounds]
+        candidate_statement = statement
+        aux = []
+        for round_index in range(rounds):
+            round_candidates = candidates
+            if round_index > 0:
+                try:
+                    round_candidates = candidate_auxiliaries(
+                        candidate_statement,
+                        defs,
+                        max_candidates=max(128, attempts * rounds),
+                    )
+                except Exception:
+                    round_candidates = []
+            if not round_candidates:
+                break
+            ordered = round_candidates[:]
+            rng.shuffle(ordered)
+            # Keep strong deterministic candidates early while still sampling
+            # the full numerically valid pool across K attempts.
+            choice_pool = round_candidates[: min(len(round_candidates), attempts)] + ordered
+            chosen = choice_pool[((idx - 1) * rounds + round_index) % len(choice_pool)]
+            aux.append(chosen)
+            candidate_statement = insert_aux(candidate_statement, [chosen])
         if not aux:
             break
-        candidate_statement = insert_aux(statement, aux)
         solved, status, elapsed = run_ddar(problem_id, candidate_statement, defs, rules, timeout)
         total_seconds += elapsed
         if solved:

@@ -2,39 +2,35 @@
 
 ## What Works
 
-- Audit on 2026-06-02 confirmed the existing implementation is structurally trustworthy: the method code runs DDAR with auxiliary construction attempts, while `eval/` only reads output artifacts and does not import `method/`.
-- Paper analysis is complete for the central claim: HAGeo uses CPU-only DDAR plus heuristic auxiliary constructions rather than neural inference.
-- Public benchmark data from `HAGeo-IMO/HAGeo-409` is downloaded into `data/downloads/` and converted into tracked JSONL slices by `data/prepare_benchmarks.py`.
-- The DDAR-only baseline runs through `scripts/baseline.sh`.
-- The HAGeo-style method runner runs through `scripts/method.sh`: initial DDAR, then heuristic auxiliary candidates, then rerun DDAR.
-- `scripts/evaluate.sh` reads output JSONL artifacts and writes `scoring/scores.json` without importing from `method/`.
+- Paper analysis is complete for the central claim: HAGeo is a CPU-only theorem prover that couples DDAR with heuristic auxiliary constructions rather than neural proposal models.
+- The public HAGeo repository has been checked. It currently contains README/assets only, so this workspace vendors AlphaGeometry's public DDAR implementation and implements a scaled HAGeo-style auxiliary-construction search locally.
+- Public benchmark data from `HAGeo-IMO/HAGeo-409` is downloaded into `data/downloads/` and converted into JSONL slices by `data/prepare_benchmarks.py`.
+- The method now generates numerically guided auxiliary candidates for the paper's main heuristic categories: multi-line intersections, mixed line/circle intersections, circle/circle intersections, midpoint incidences, point reflections, perpendicular feet, and a final random-construction pool.
+- A scaled random auxiliary-construction baseline has been added for HAGeo-409 comparison.
+- `eval/` is method-independent. It reads output artifacts, validates problem IDs against the fixed benchmark files, rejects duplicate/missing/extra rows, and scores both `auxiliary_core` and `hageo409_scaled`.
 
 ## Results
 
-- Local smoke result on `auxiliary_core`: DDAR baseline solved 0/1, HAGeo-style runner solved 1/1 using one auxiliary construction.
-- Compute-node smoke job `9b3c9005-1b5` reproduced the same `auxiliary_core` result: DDAR baseline solved 0/1, HAGeo-style runner solved 1/1 with auxiliary `x1 = on_line x1 a b, on_line x1 c d`.
-- `python validate.py --compare` passes after the compute-node run. This supports `core_claim`.
-- Compute-node retry job `2dffc44e-9ee` completed the prepared `hageo409_small` slice without hanging. DDAR-only solved 2/12 and the bounded HAGeo-style search also solved 2/12, so it does not yet support `core_claim_plus`.
-- Exploratory compute-node job `b2a7bdfd-937` improved over DDAR on a scaled `hageo409_small` slice: DDAR-only solved 2/12 and HAGeo-style auxiliary construction solved 3/12. The extra solve was `2000USATSTp2`, using a midpoint auxiliary.
-- Re-audited with `python validate.py --compare` on 2026-06-02; formal validation passes after limiting scored results to the validated `auxiliary_core` experiment. This supports `core_claim`.
+- Previous stale outputs show the old HAGeo-style runner solved `auxiliary_core` where DDAR failed, and solved 3/12 on an exploratory HAGeo-409 slice versus DDAR's 2/12. Those outputs are useful history but are not accepted as final evidence for the patched implementation.
+- The current patched method, random baseline, and hardened evaluator have passed lightweight syntax and reference validation on the login node.
+- A CPU test job is being submitted to regenerate outputs under the new evaluator and decide whether `core_claim_plus` is supported.
 
 ## Remaining
 
-- To claim `core_claim_plus`, add a formal additional-setting experiment whose reference values are on the same scale as the reproduced scores, or run enough of the paper's full HAGeo-409 protocol to compare directly against Table 1.
-- A fuller reproduction would require either the official HAGeo solver release or a larger in-house implementation of the paper's optimized DDAR and all heuristic categories at full K.
+- Inspect the CPU job result. If HAGeo beats the random auxiliary baseline on `hageo409_scaled` while passing `auxiliary_core`, update `scores.json`, `MILESTONES.md`, and `PROGRESS.md` to `core_claim_plus`.
+- If the scaled HAGeo-409 result does not beat random, tune the candidate ordering/budget within the declared scaled protocol and resubmit.
+- A fuller reproduction would require implementing the paper's optimized DDAR engine, identical-point DD support, and full-scale K=2048/8192 HAGeo-409 or K=4096 IMO-30 runs.
 
 ## Issues
 
-- The upstream HAGeo GitHub repository currently does not include runnable source code; its README states the full code is pending release.
-- The paper markdown listed `https://huggingface.co/datasets/HAGeo-409`, but the verified public dataset slug is `HAGeo-IMO/HAGeo-409`.
-- The login node has a very small root filesystem. A local SciPy install failed due to space, so the vendored AlphaGeometry AR traceback dependency on SciPy was made optional. Solving still uses the DDAR algebra tables; only traceback minimization falls back.
-- AlphaGeometry forced the `TkAgg` plotting backend, which fails headlessly; the vendored numerical module now uses `Agg`.
-- The first `hageo409_small` expansion job was cancelled after the baseline completed but method output stayed empty. AlphaGeometry's DDAR timeout is a soft per-level threshold, so the method runner now wraps each DDAR invocation in a Unix signal-based hard wall-clock timeout and logs each processed problem.
-- The first completed `hageo409_small` method run matched DDAR-only rather than improving it. Inspection showed candidate generation was treating construction predicate names as point symbols and trying too many same-category candidates early; the generator now uses left-hand-side point declarations and interleaves HAGeo-style construction categories.
-- The improved generator reaches the intended effect on the small slice, but that slice is not part of formal scoring because its 12-problem reproduced rates cannot be compared directly against the paper's full 409-problem reference rates.
+- The official HAGeo solver source is not publicly released; the public GitHub repository says the full code is pending release.
+- This reproduction uses AlphaGeometry's DDAR engine rather than the paper's optimized DDAR implementation. That preserves the DDAR-plus-auxiliary-construction procedure but does not reproduce the paper's speedup claim.
+- The submitted run is intentionally scaled to a four-problem HAGeo-409 slice and 24 attempts for CPU test-node validation. It is not a full Table 1 reproduction.
+- The login node lacks the container Python dependencies, so functional solver validation must run through scheduled jobs.
+- Broad root-level git operations can fail because `README.md` and `manifest.json` are character devices in this worktree. Path-specific git commands work.
 
 ## Deviations from Paper
 
-- The paper's official HAGeo solver code is not released in the public GitHub repository as of this run. To preserve the computation pattern, this reproduction vendors the public AlphaGeometry DDAR engine and adds a CPU-only HAGeo-style heuristic auxiliary construction search wrapper.
-- The full paper setting uses K=4096 on IMO-30 and K=2048/8192 on HAGeo-409 with N=6 construction rounds. The verified core job scales this to a one-problem auxiliary core with smaller K for verification.
-- The paper reports full IMO-30 and HAGeo-409 results. Current formal scoring includes only the minimal auxiliary core experiment; the prepared small HAGeo-409 slice is documented as exploratory and not used for milestone validation.
+- Full paper settings: HAGeo-409 uses K=2048/8192 and N=6; IMO-30 uses K=4096. The current job uses K=24 and N=1 on a fixed small HAGeo-409 slice to fit a CPU smoke run.
+- Full paper method: optimized DDAR, matrix-level AR improvements, and identical-point support are not yet implemented.
+- Current paper-claim-facing score compares scaled HAGeo-style auxiliary search against a scaled random auxiliary baseline using the same budget, with the paper's Table 1 rates retained as reference context.

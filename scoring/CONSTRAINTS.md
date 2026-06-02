@@ -16,8 +16,8 @@ Evaluation is CPU-only and non-neural. Do not use GPU inference, LLM calls, onli
 
 ## Search Budget
 
-Report and preserve the configured attempt count, auxiliary rounds, timeout, and seed. Solves found outside the declared budget should not be counted.
+Report and preserve the configured attempt count, auxiliary rounds, timeout, and seed. Solves found outside the declared budget should not be counted. For `hageo409_scaled`, compare the random auxiliary baseline and HAGeo-style method under the same `ATTEMPTS`, `ROUNDS`, and `TIMEOUT` values.
 
 ## Output Format
 
-Solver outputs must be JSONL rows containing at least `problem_id`, `solved`, `status`, `seconds`, and `auxiliary_clauses`. Additional fields are allowed if the evaluator ignores them.
+Solver outputs must be JSONL rows containing at least `problem_id`, `solved`, `status`, `seconds`, `auxiliary_clauses`, `attempt_budget`, `rounds`, `timeout_seconds`, and `neural_inference_used`. The evaluator rejects missing, duplicate, or extra problem IDs.
