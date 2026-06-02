@@ -14,3 +14,7 @@
 - Added HAGeo's random-construction category after the numerically favorable heuristic categories.
 - Hardened `eval/` to validate problem coverage and score both `auxiliary_core` and `hageo409_scaled`.
 - Submitting a CPU test job to verify the patched method and determine whether `core_claim_plus` is supported.
+
+### [2026-06-02 22:10] - core_claim
+- CPU job `ba58a10a-3a5` failed during the first intermediate evaluation because stale 12-problem HAGeo-409 outputs did not match the freshly prepared 4-problem benchmark.
+- Fixed the runner scripts so coordinated reproduction disables intermediate evaluation, removes stale artifacts, regenerates all outputs, and then runs one final strict evaluation.

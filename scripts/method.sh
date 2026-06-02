@@ -18,6 +18,7 @@ ATTEMPTS=${ATTEMPTS:-48}
 ROUNDS=${ROUNDS:-1}
 TIMEOUT=${TIMEOUT:-15}
 SEED=${SEED:-0}
+EVALUATE=${EVALUATE:-1}
 
 python method/hageo/run_hageo.py \
   --input "$BENCHMARK" \
@@ -27,4 +28,6 @@ python method/hageo/run_hageo.py \
   --timeout "$TIMEOUT" \
   --seed "$SEED"
 
-bash scripts/evaluate.sh
+if [ "$EVALUATE" = "1" ]; then
+  bash scripts/evaluate.sh
+fi

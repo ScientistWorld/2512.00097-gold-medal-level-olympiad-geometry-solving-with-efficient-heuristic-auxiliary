@@ -22,10 +22,13 @@ mkdir -p "$MPLCONFIGDIR"
 BENCHMARK=${1:-data/benchmarks/auxiliary_core.jsonl}
 NAME=${2:-auxiliary_core}
 TIMEOUT=${TIMEOUT:-15}
+EVALUATE=${EVALUATE:-1}
 
 python baseline/run_ddar.py \
   --input "$BENCHMARK" \
   --output "outputs/baseline_${NAME}.jsonl" \
   --timeout "$TIMEOUT"
 
-bash scripts/evaluate.sh
+if [ "$EVALUATE" = "1" ]; then
+  bash scripts/evaluate.sh
+fi

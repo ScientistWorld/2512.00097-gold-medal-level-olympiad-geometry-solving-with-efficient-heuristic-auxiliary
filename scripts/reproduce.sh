@@ -17,16 +17,26 @@
 set -e
 
 cd /home/user
+mkdir -p outputs scoring
+rm -f \
+  outputs/baseline_auxiliary_core.jsonl \
+  outputs/hageo_auxiliary_core.jsonl \
+  outputs/baseline_hageo409_small.jsonl \
+  outputs/random_aux_hageo409_small.jsonl \
+  outputs/hageo_hageo409_small.jsonl \
+  scoring/scores.json
 
 python data/prepare_benchmarks.py --hageo-limit "${HAGEO_LIMIT:-4}"
 
-bash scripts/baseline.sh data/benchmarks/auxiliary_core.jsonl auxiliary_core
-bash scripts/method.sh data/benchmarks/auxiliary_core.jsonl auxiliary_core
+EVALUATE=0 bash scripts/baseline.sh data/benchmarks/auxiliary_core.jsonl auxiliary_core
+EVALUATE=0 bash scripts/method.sh data/benchmarks/auxiliary_core.jsonl auxiliary_core
 
 if [ -e data/benchmarks/hageo409_small.jsonl ]; then
-  bash scripts/baseline.sh data/benchmarks/hageo409_small.jsonl hageo409_small
-  ATTEMPTS=${RANDOM_ATTEMPTS:-24} ROUNDS=${ROUNDS:-1} TIMEOUT=${TIMEOUT:-3} SEED=${RANDOM_SEED:-17} \
+  EVALUATE=0 bash scripts/baseline.sh data/benchmarks/hageo409_small.jsonl hageo409_small
+  ATTEMPTS=${RANDOM_ATTEMPTS:-24} ROUNDS=${ROUNDS:-1} TIMEOUT=${TIMEOUT:-3} SEED=${RANDOM_SEED:-17} EVALUATE=0 \
     bash scripts/random_baseline.sh data/benchmarks/hageo409_small.jsonl hageo409_small
-  ATTEMPTS=${ATTEMPTS:-24} ROUNDS=${ROUNDS:-1} TIMEOUT=${TIMEOUT:-3} SEED=${SEED:-0} \
+  ATTEMPTS=${ATTEMPTS:-24} ROUNDS=${ROUNDS:-1} TIMEOUT=${TIMEOUT:-3} SEED=${SEED:-0} EVALUATE=0 \
     bash scripts/method.sh data/benchmarks/hageo409_small.jsonl hageo409_small
 fi
+
+bash scripts/evaluate.sh

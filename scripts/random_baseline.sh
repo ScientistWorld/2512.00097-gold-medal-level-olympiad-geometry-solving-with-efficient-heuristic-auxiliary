@@ -13,6 +13,7 @@ ATTEMPTS=${ATTEMPTS:-48}
 ROUNDS=${ROUNDS:-1}
 TIMEOUT=${TIMEOUT:-15}
 SEED=${SEED:-17}
+EVALUATE=${EVALUATE:-1}
 
 python baseline/run_random_aux.py \
   --input "$BENCHMARK" \
@@ -22,4 +23,6 @@ python baseline/run_random_aux.py \
   --timeout "$TIMEOUT" \
   --seed "$SEED"
 
-bash scripts/evaluate.sh
+if [ "$EVALUATE" = "1" ]; then
+  bash scripts/evaluate.sh
+fi

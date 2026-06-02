@@ -13,11 +13,12 @@
 
 - Previous stale outputs show the old HAGeo-style runner solved `auxiliary_core` where DDAR failed, and solved 3/12 on an exploratory HAGeo-409 slice versus DDAR's 2/12. Those outputs are useful history but are not accepted as final evidence for the patched implementation.
 - The current patched method, random baseline, and hardened evaluator have passed lightweight syntax and reference validation on the login node.
-- A CPU test job is being submitted to regenerate outputs under the new evaluator and decide whether `core_claim_plus` is supported.
+- CPU test job `ba58a10a-3a5` failed before the method stage because `scripts/baseline.sh` evaluated immediately after writing the first fresh output, while stale HAGeo-409 outputs from an older 12-problem benchmark were still present. The evaluator correctly rejected the stale output coverage.
+- Partial runner scripts now support `EVALUATE=0`, and `scripts/run.sh`/`scripts/reproduce.sh` remove stale outputs before regenerating all artifacts and running one final evaluation.
 
 ## Remaining
 
-- Inspect the CPU job result. If HAGeo beats the random auxiliary baseline on `hageo409_scaled` while passing `auxiliary_core`, update `scores.json`, `MILESTONES.md`, and `PROGRESS.md` to `core_claim_plus`.
+- Inspect the retry CPU job result. If HAGeo beats the random auxiliary baseline on `hageo409_scaled` while passing `auxiliary_core`, update `scores.json`, `MILESTONES.md`, and `PROGRESS.md` to `core_claim_plus`.
 - If the scaled HAGeo-409 result does not beat random, tune the candidate ordering/budget within the declared scaled protocol and resubmit.
 - A fuller reproduction would require implementing the paper's optimized DDAR engine, identical-point DD support, and full-scale K=2048/8192 HAGeo-409 or K=4096 IMO-30 runs.
 
@@ -28,6 +29,7 @@
 - The submitted run is intentionally scaled to a four-problem HAGeo-409 slice and 24 attempts for CPU test-node validation. It is not a full Table 1 reproduction.
 - The login node lacks the container Python dependencies, so functional solver validation must run through scheduled jobs.
 - Broad root-level git operations can fail because `README.md` and `manifest.json` are character devices in this worktree. Path-specific git commands work.
+- Job `ba58a10a-3a5` exposed a stale-artifact hazard rather than a solver failure; strict coverage validation is kept, and coordinated runs now clean/rebuild outputs before scoring.
 
 ## Deviations from Paper
 
