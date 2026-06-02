@@ -16,5 +16,16 @@
 set -e
 
 cd /home/user
+export MPLCONFIGDIR=/home/user/tmp/matplotlib
+mkdir -p "$MPLCONFIGDIR"
 
-# TODO: run baseline
+BENCHMARK=${1:-data/benchmarks/auxiliary_core.jsonl}
+NAME=${2:-auxiliary_core}
+TIMEOUT=${TIMEOUT:-15}
+
+python baseline/run_ddar.py \
+  --input "$BENCHMARK" \
+  --output "outputs/baseline_${NAME}.jsonl" \
+  --timeout "$TIMEOUT"
+
+bash scripts/evaluate.sh

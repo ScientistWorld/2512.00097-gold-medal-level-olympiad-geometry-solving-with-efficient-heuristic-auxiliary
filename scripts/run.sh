@@ -12,9 +12,12 @@
 set -e
 
 cd /home/user
+export MPLCONFIGDIR=/home/user/tmp/matplotlib
+mkdir -p "$MPLCONFIGDIR"
 
-# Example: train a model
-python method/train.py --epochs 10 --lr 0.001
+python data/prepare_benchmarks.py
 
-# Example: evaluate
-bash scripts/evaluate.sh checkpoints/best.pt
+bash scripts/baseline.sh data/benchmarks/auxiliary_core.jsonl auxiliary_core
+ATTEMPTS=64 ROUNDS=1 TIMEOUT=15 bash scripts/method.sh data/benchmarks/auxiliary_core.jsonl auxiliary_core
+
+bash scripts/evaluate.sh

@@ -18,7 +18,13 @@ set -e
 
 cd /home/user
 
-# TODO: implement full reproduction pipeline
-# e.g.:
-#   bash scripts/baseline.sh
-#   bash scripts/method.sh
+python data/prepare_benchmarks.py
+
+bash scripts/baseline.sh data/benchmarks/auxiliary_core.jsonl auxiliary_core
+bash scripts/method.sh data/benchmarks/auxiliary_core.jsonl auxiliary_core
+
+if [ -e data/benchmarks/hageo409_small.jsonl ]; then
+  bash scripts/baseline.sh data/benchmarks/hageo409_small.jsonl hageo409_small
+  ATTEMPTS=${ATTEMPTS:-64} ROUNDS=${ROUNDS:-1} TIMEOUT=${TIMEOUT:-15} \
+    bash scripts/method.sh data/benchmarks/hageo409_small.jsonl hageo409_small
+fi

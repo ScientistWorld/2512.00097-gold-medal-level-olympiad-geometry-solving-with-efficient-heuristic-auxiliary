@@ -27,8 +27,8 @@
 #   milestone: core_claim
 #   notes: "Reproduced the core claim. Environment packaged."
 
-action: pending
-gpus: 1
-test: false
-milestone: none
-notes: ""
+action: submit
+gpus: 0
+test: true
+milestone: method_runs
+notes: "CPU smoke job: prepare benchmark, run DDAR baseline and HAGeo-style auxiliary construction solver on auxiliary_core, then evaluate scores."

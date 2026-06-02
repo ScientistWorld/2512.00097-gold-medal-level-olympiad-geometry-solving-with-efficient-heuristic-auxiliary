@@ -9,6 +9,22 @@
 set -e
 
 cd /home/user
+export MPLCONFIGDIR=/home/user/tmp/matplotlib
+mkdir -p "$MPLCONFIGDIR"
 
-# TODO: run the paper's method
-# TODO: call scripts/evaluate.sh to score
+BENCHMARK=${1:-data/benchmarks/auxiliary_core.jsonl}
+NAME=${2:-auxiliary_core}
+ATTEMPTS=${ATTEMPTS:-48}
+ROUNDS=${ROUNDS:-1}
+TIMEOUT=${TIMEOUT:-15}
+SEED=${SEED:-0}
+
+python method/hageo/run_hageo.py \
+  --input "$BENCHMARK" \
+  --output "outputs/hageo_${NAME}.jsonl" \
+  --attempts "$ATTEMPTS" \
+  --rounds "$ROUNDS" \
+  --timeout "$TIMEOUT" \
+  --seed "$SEED"
+
+bash scripts/evaluate.sh

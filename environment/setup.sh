@@ -16,4 +16,4 @@
 
 set -e
 
-# uv pip install --system <packages>
+uv pip install --system absl-py numpy matplotlib pyarrow pandas

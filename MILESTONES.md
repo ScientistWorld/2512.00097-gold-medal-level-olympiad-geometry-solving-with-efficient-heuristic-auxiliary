@@ -1,6 +1,6 @@
 # Reproduction Milestones
 
-**Current: none**
+**Current: method_runs**
 
 <!-- Milestone levels (update "Current" above as you progress):
   none             — just started, no meaningful progress yet
@@ -15,7 +15,12 @@
 
 ## Progress Log
 
-<!-- Write your progress here -->
+### [2026-06-02 17:55] - method_runs
+- Read the HAGeo paper and identified the core method: DDAR theorem proving followed by CPU-only heuristic auxiliary construction attempts.
+- Verified the released HAGeo GitHub repository currently lacks solver source code; it contains only README/assets, so the reproduction vendors AlphaGeometry's public DDAR engine and implements HAGeo-style heuristic auxiliary search around it.
+- Downloaded the public HAGeo-409 parquet benchmark and prepared fixed JSONL benchmark slices.
+- Implemented DDAR-only baseline, HAGeo-style method runner, method-agnostic evaluator, scripts, and scoring reference.
+- Local smoke run solved `auxiliary_core` with HAGeo-style auxiliary construction while DDAR-only failed; `python validate.py --compare` passes.
 
 ## Stop Justification
-- Completed at milestone `none`.
+- Not stopped; submitting a CPU job to verify the packaged runnable environment.

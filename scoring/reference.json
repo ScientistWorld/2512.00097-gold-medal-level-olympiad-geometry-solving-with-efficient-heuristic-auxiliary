@@ -1,0 +1,36 @@
+{
+  "experiments": {
+    "auxiliary_core": {
+      "description": "Minimal auxiliary-construction theorem proving case: DDAR alone is expected to fail, while one useful auxiliary point enables a proof.",
+      "weight": 0.35,
+      "primary_metric": "solve_rate",
+      "metrics": {
+        "solve_rate": {"higher_is_better": true, "coefficient": 1.0},
+        "solved_count": {"higher_is_better": true, "coefficient": 0.5},
+        "problem_count": {"higher_is_better": true, "coefficient": 0.0},
+        "mean_attempt_index": {"higher_is_better": false, "coefficient": -0.05},
+        "mean_auxiliary_count": {"higher_is_better": false, "coefficient": -0.1}
+      },
+      "results": {
+        "ddar": {"type": "baseline", "solve_rate": 0.0, "solved_count": 0, "problem_count": 1, "mean_attempt_index": 0.0, "mean_auxiliary_count": 0.0},
+        "hageo": {"type": "proposed", "solve_rate": 1.0, "solved_count": 1, "problem_count": 1, "mean_attempt_index": 1.0, "mean_auxiliary_count": 1.0}
+      }
+    },
+    "hageo409_small": {
+      "description": "Scaled HAGeo-409 subset using the public benchmark's AlphaGeometry-format statements.",
+      "weight": 0.65,
+      "primary_metric": "solve_rate",
+      "metrics": {
+        "solve_rate": {"higher_is_better": true, "coefficient": 1.0},
+        "solved_count": {"higher_is_better": true, "coefficient": 0.5},
+        "problem_count": {"higher_is_better": true, "coefficient": 0.0},
+        "mean_attempt_index": {"higher_is_better": false, "coefficient": -0.05},
+        "mean_auxiliary_count": {"higher_is_better": false, "coefficient": -0.1}
+      },
+      "results": {
+        "ddar": {"type": "baseline", "solve_rate": 0.433, "solved_count": 177, "problem_count": 409, "mean_attempt_index": 0.0, "mean_auxiliary_count": 0.0},
+        "hageo": {"type": "proposed", "solve_rate": 0.643, "solved_count": 263, "problem_count": 409, "mean_attempt_index": 2048.0, "mean_auxiliary_count": 6.0}
+      }
+    }
+  }
+}
