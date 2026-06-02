@@ -2,6 +2,7 @@
 
 ## What Works
 
+- Audit on 2026-06-02 confirmed the existing implementation and scoring are structurally trustworthy: the method code runs DDAR with auxiliary construction attempts, while `eval/` only reads output artifacts and does not import `method/`.
 - Paper analysis is complete for the central claim: HAGeo uses CPU-only DDAR plus heuristic auxiliary constructions rather than neural inference.
 - Public benchmark data from `HAGeo-IMO/HAGeo-409` is downloaded into `data/downloads/` and converted into tracked JSONL slices by `data/prepare_benchmarks.py`.
 - The DDAR-only baseline runs through `scripts/baseline.sh`.
@@ -15,6 +16,7 @@
 - `python validate.py --compare` passes after the compute-node run. This supports `core_claim`.
 - Compute-node retry job `2dffc44e-9ee` completed the prepared `hageo409_small` slice without hanging. DDAR-only solved 2/12 and the bounded HAGeo-style search also solved 2/12, so it does not yet support `core_claim_plus`.
 - Compute-node job `b2a7bdfd-937` reached `core_claim_plus`: on `hageo409_small`, DDAR-only solved 2/12 and HAGeo-style auxiliary construction solved 3/12. The extra solve was `2000USATSTp2`, using a midpoint auxiliary.
+- Re-audited with `python validate.py --compare` on 2026-06-02; validation passes and reports the same `auxiliary_core` and `hageo409_small` scores from current output artifacts.
 
 ## Remaining
 
