@@ -15,7 +15,7 @@
         },
         "hageo": {
           "attempt_budget": 64,
-          "mean_attempt_index": 8.0,
+          "mean_attempt_index": 9.0,
           "mean_auxiliary_count": 1.0,
           "neural_inference_used": 0,
           "problem_count": 1,
@@ -33,8 +33,8 @@
           "neural_inference_used": 0,
           "problem_count": 12,
           "rounds": 2,
-          "solve_rate": 0.5,
-          "solved_count": 6,
+          "solve_rate": 0.6666666666666666,
+          "solved_count": 8,
           "timeout_seconds": 5
         },
         "random_aux_ddar": {
@@ -42,8 +42,8 @@
           "neural_inference_used": 0,
           "problem_count": 12,
           "rounds": 2,
-          "solve_rate": 0.75,
-          "solved_count": 9,
+          "solve_rate": 0.6666666666666666,
+          "solved_count": 8,
           "timeout_seconds": 5
         }
       }
