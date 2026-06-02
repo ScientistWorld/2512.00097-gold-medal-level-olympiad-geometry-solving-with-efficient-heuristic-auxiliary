@@ -10,9 +10,11 @@ heuristic auxiliary construction attempts before rerunning DDAR.
 from __future__ import annotations
 
 import argparse
+import contextlib
 import itertools
 import json
 import random
+import signal
 import sys
 import time
 from pathlib import Path
@@ -24,6 +26,32 @@ sys.path.insert(0, str(AG))
 import ddar  # type: ignore  # noqa: E402
 import graph as gh  # type: ignore  # noqa: E402
 import problem as pr  # type: ignore  # noqa: E402
+
+
+class DDARTimeout(RuntimeError):
+    """Raised when a single DDAR call exceeds the hard wall-clock budget."""
+
+
+@contextlib.contextmanager
+def hard_timeout(seconds: int):
+    if seconds <= 0:
+        yield
+        return
+
+    def _raise_timeout(_signum, _frame):
+        raise DDARTimeout(f"DDAR call exceeded {seconds} seconds")
+
+    previous_handler = signal.getsignal(signal.SIGALRM)
+    previous_timer = signal.setitimer(signal.ITIMER_REAL, 0)
+    signal.signal(signal.SIGALRM, _raise_timeout)
+    signal.setitimer(signal.ITIMER_REAL, seconds)
+    try:
+        yield
+    finally:
+        signal.setitimer(signal.ITIMER_REAL, 0)
+        signal.signal(signal.SIGALRM, previous_handler)
+        if previous_timer[0] > 0:
+            signal.setitimer(signal.ITIMER_REAL, previous_timer[0], previous_timer[1])
 
 
 def load_defs_rules() -> tuple[dict, dict]:
@@ -45,12 +73,15 @@ def run_ddar(
 ) -> tuple[bool, str, float]:
     start = time.time()
     try:
-        p = parse_problem(problem_id, statement)
-        g, _ = gh.Graph.build_problem(p, defs, verbose=False)
-        ddar.solve(g, rules, p, max_level=1000, timeout=timeout)
-        goal_args = g.names2nodes(p.goal.args)
-        solved = bool(g.check(p.goal.name, goal_args))
+        with hard_timeout(timeout):
+            p = parse_problem(problem_id, statement)
+            g, _ = gh.Graph.build_problem(p, defs, verbose=False)
+            ddar.solve(g, rules, p, max_level=1000, timeout=timeout)
+            goal_args = g.names2nodes(p.goal.args)
+            solved = bool(g.check(p.goal.name, goal_args))
         return solved, "solved" if solved else "failed", time.time() - start
+    except DDARTimeout:
+        return False, "timeout", time.time() - start
     except Exception as exc:  # DDAR can reject numerically degenerate drawings.
         return False, f"error:{type(exc).__name__}:{exc}", time.time() - start
 
@@ -194,7 +225,12 @@ def main() -> None:
     rows = read_jsonl(args.input)
     args.output.parent.mkdir(parents=True, exist_ok=True)
     with args.output.open("w", encoding="utf-8") as f:
-        for row in rows:
+        for index, row in enumerate(rows, start=1):
+            print(
+                f"[hageo] {index}/{len(rows)} {row['problem_id']}",
+                file=sys.stderr,
+                flush=True,
+            )
             out = solve_with_hageo(row, defs, rules, args.attempts, args.rounds, args.timeout, args.seed)
             f.write(json.dumps(out, sort_keys=True) + "\n")
             f.flush()

@@ -22,9 +22,15 @@ def main() -> None:
     args = parser.parse_args()
 
     defs, rules = load_defs_rules()
+    rows = read_jsonl(args.input)
     args.output.parent.mkdir(parents=True, exist_ok=True)
     with args.output.open("w", encoding="utf-8") as f:
-        for row in read_jsonl(args.input):
+        for index, row in enumerate(rows, start=1):
+            print(
+                f"[ddar] {index}/{len(rows)} {row['problem_id']}",
+                file=sys.stderr,
+                flush=True,
+            )
             solved, status, seconds = run_ddar(
                 row["problem_id"], row["statement"], defs, rules, args.timeout
             )

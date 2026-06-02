@@ -27,5 +27,9 @@
 - The packaged environment reproduced the central auxiliary-construction claim on `auxiliary_core`: DDAR-only solved 0/1, while the HAGeo-style auxiliary construction runner solved 1/1 using one constructed point.
 - `python validate.py --compare` passes after the compute-node run, and `eval/` remains independent of `method/`.
 
+### [2026-06-02 18:25] - core_claim
+- Cancelled the first `hageo409_small` expansion job after DDAR-only completed but HAGeo-style method output remained empty.
+- Added a hard wall-clock timeout around every DDAR invocation and row-level progress logging, then bounded the HAGeo-409 retry attempts.
+
 ## Stop Justification
 - Not stopped; submitting a CPU job to expand coverage to the prepared `hageo409_small` slice.

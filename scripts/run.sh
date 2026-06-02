@@ -15,14 +15,20 @@ cd /home/user
 export MPLCONFIGDIR=/home/user/tmp/matplotlib
 mkdir -p "$MPLCONFIGDIR"
 
+echo "[run] preparing benchmarks"
 python data/prepare_benchmarks.py
 
+echo "[run] auxiliary_core baseline"
 bash scripts/baseline.sh data/benchmarks/auxiliary_core.jsonl auxiliary_core
+echo "[run] auxiliary_core HAGeo-style method"
 ATTEMPTS=64 ROUNDS=1 TIMEOUT=15 bash scripts/method.sh data/benchmarks/auxiliary_core.jsonl auxiliary_core
 
 if [ -f data/benchmarks/hageo409_small.jsonl ]; then
-  bash scripts/baseline.sh data/benchmarks/hageo409_small.jsonl hageo409_small
-  ATTEMPTS=128 ROUNDS=2 TIMEOUT=20 bash scripts/method.sh data/benchmarks/hageo409_small.jsonl hageo409_small
+  echo "[run] hageo409_small baseline"
+  TIMEOUT=5 bash scripts/baseline.sh data/benchmarks/hageo409_small.jsonl hageo409_small
+  echo "[run] hageo409_small HAGeo-style method"
+  ATTEMPTS=12 ROUNDS=1 TIMEOUT=5 bash scripts/method.sh data/benchmarks/hageo409_small.jsonl hageo409_small
 fi
 
+echo "[run] final evaluation"
 bash scripts/evaluate.sh
