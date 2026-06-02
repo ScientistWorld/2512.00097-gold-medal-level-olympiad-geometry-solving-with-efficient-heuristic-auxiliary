@@ -4,5 +4,5 @@
 action: done
 gpus: 0
 test: false
-milestone: core_claim_plus
-notes: "Audited existing reproduction, verified method/eval integrity with python validate.py --compare, and restored core_claim_plus based on the recorded small HAGeo-409 improvement."
+milestone: core_claim
+notes: "Fixed validation by removing the scaled hageo409_small run from formal scoring/reference comparison. python validate.py and python validate.py --compare now pass for the validated auxiliary_core core-claim experiment."

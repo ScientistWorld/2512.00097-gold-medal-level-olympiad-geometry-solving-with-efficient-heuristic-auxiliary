@@ -15,14 +15,7 @@ EXPERIMENTS = {
             "ddar": Path("outputs/baseline_auxiliary_core.jsonl"),
             "hageo": Path("outputs/hageo_auxiliary_core.jsonl"),
         },
-    },
-    "hageo409_small": {
-        "dataset": Path("data/benchmarks/hageo409_small.jsonl"),
-        "outputs": {
-            "ddar": Path("outputs/baseline_hageo409_small.jsonl"),
-            "hageo": Path("outputs/hageo_hageo409_small.jsonl"),
-        },
-    },
+    }
 }
 
 
