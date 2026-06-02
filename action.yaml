@@ -5,4 +5,4 @@ action: submit
 gpus: 0
 test: false
 milestone: core_claim
-notes: "Retry the 12-problem HAGeo-409 CPU benchmark after adding identical-point candidates and fixing HAGeo N=2 candidate indexing."
+notes: "Retry the 12-problem HAGeo-409 CPU benchmark after bounding identical-point candidate generation and adding candidate-generation timeouts."

@@ -291,9 +291,11 @@ def identical_point_items_from_graph(
     HAGeo's optimized identical-point support, so downstream DDAR calls may
     reject some of these candidates; those failures are handled by run_ddar().
     """
-    pts = sorted(graph.all_points(), key=lambda p: p.name)
-    lines = _line_records(pts)
-    circles = _circle_records(pts)
+    all_points = sorted(graph.all_points(), key=lambda p: p.name)
+    point_limit = max(32, min(len(all_points), max_candidates // 4))
+    pts = all_points[:point_limit]
+    lines = _line_records(pts)[: max(64, max_candidates)]
+    circles = _circle_records(pts)[: max(64, max_candidates)]
     bucket: list[tuple[nm.Point, list[str]]] = []
     seen: set[tuple[int, int, tuple[str, ...]]] = set()
 
@@ -475,6 +477,26 @@ def candidate_auxiliaries(statement: str, defs: dict, max_candidates: int) -> li
     return candidate_auxiliaries_from_graph(g, max_candidates)
 
 
+def safe_candidate_auxiliaries_from_graph(
+    graph: gh.Graph, max_candidates: int, timeout: int
+) -> list[str]:
+    try:
+        with hard_timeout(max(1, timeout)):
+            return candidate_auxiliaries_from_graph(graph, max_candidates)
+    except (DDARTimeout, Exception):
+        return []
+
+
+def safe_candidate_auxiliaries(
+    statement: str, defs: dict, max_candidates: int, timeout: int
+) -> list[str]:
+    try:
+        with hard_timeout(max(1, timeout)):
+            return candidate_auxiliaries(statement, defs, max_candidates)
+    except (DDARTimeout, Exception):
+        return []
+
+
 def attempt_order(candidates: list[str], attempts: int, rng: random.Random) -> list[str]:
     """Interleave ranked heuristic candidates with shuffled exploration.
 
@@ -529,9 +551,13 @@ def solve_with_hageo(
         return result
 
     if graph is not None:
-        candidates = candidate_auxiliaries_from_graph(graph, max_candidates=max(128, attempts * rounds * 4))
+        candidates = safe_candidate_auxiliaries_from_graph(
+            graph, max_candidates=max(128, attempts * rounds * 4), timeout=timeout
+        )
     else:
-        candidates = candidate_auxiliaries(statement, defs, max_candidates=max(128, attempts * rounds * 4))
+        candidates = safe_candidate_auxiliaries(
+            statement, defs, max_candidates=max(128, attempts * rounds * 4), timeout=timeout
+        )
     rng = random.Random(seed)
 
     total_seconds = seconds
@@ -541,14 +567,12 @@ def solve_with_hageo(
         for round_index in range(rounds):
             round_candidates = candidates
             if round_index > 0:
-                try:
-                    round_candidates = candidate_auxiliaries(
-                        candidate_statement,
-                        defs,
-                        max_candidates=max(128, attempts * rounds),
-                    )
-                except Exception:
-                    round_candidates = []
+                round_candidates = safe_candidate_auxiliaries(
+                    candidate_statement,
+                    defs,
+                    max_candidates=max(128, attempts * rounds),
+                    timeout=timeout,
+                )
             if not round_candidates:
                 break
             ordered = attempt_order(round_candidates, attempts, rng)

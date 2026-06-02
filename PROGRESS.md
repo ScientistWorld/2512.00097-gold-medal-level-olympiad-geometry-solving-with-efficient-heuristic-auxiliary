@@ -27,10 +27,12 @@
 - The method and random baseline now rerun DDAR after every added auxiliary within an attempt, which better matches iterative auxiliary-construction search and preserves successful intermediate states.
 - CPU job `036b6af6-cfc` completed successfully with the corrected iterative N=2 check. `auxiliary_core` still supports the core claim (DDAR 0/1, HAGeo 1/1), while the scaled HAGeo-409 comparison tied again at 8/12 for both HAGeo and random auxiliary search.
 - Per-problem inspection showed that HAGeo missed one auxiliary problem solved by random, and that the HAGeo runner's N=2 candidate indexing used only every other first-round candidate. The method now indexes first-round candidates across the full declared K=48 budget and adds the paper's identical-point auxiliary category.
+- CPU job `49edf3e0-664` was cancelled after the HAGeo stage stayed on `2019G1` for roughly twenty minutes. The partial logs show random completed normally, so the stall was isolated to HAGeo candidate generation after adding identical-point candidates.
+- Identical-point enumeration is now bounded, and HAGeo candidate generation is wrapped in the same hard timeout mechanism used for DDAR calls. If candidate generation times out for a second-round state, that attempt fails fast instead of blocking the whole run.
 
 ## Remaining
 
-- Inspect the next CPU job result for the corrected HAGeo candidate indexing plus identical-point heuristic. If HAGeo beats the random auxiliary baseline on `hageo409_scaled` while passing `auxiliary_core`, update `scores.json`, `MILESTONES.md`, and `PROGRESS.md` to `core_claim_plus`.
+- Inspect the next CPU job result for the bounded identical-point heuristic and candidate-generation timeout guard. If HAGeo beats the random auxiliary baseline on `hageo409_scaled` while passing `auxiliary_core`, update `scores.json`, `MILESTONES.md`, and `PROGRESS.md` to `core_claim_plus`.
 - If the scaled HAGeo-409 result does not beat random, tune the candidate ordering/budget within the declared scaled protocol and resubmit.
 - A fuller reproduction would require implementing the paper's optimized DDAR engine, identical-point DD support, and full-scale K=2048/8192 HAGeo-409 or K=4096 IMO-30 runs.
 
@@ -48,6 +50,7 @@
 - Job `4cb60e78-0c8` was valid but tied the random baseline on the expanded 12-problem scaled HAGeo-409 slice, so it remains only `core_claim`.
 - Job `4db0ca3b-381` exposed an implementation issue in the N=2 runner: checking only after all rounds made HAGeo lose intermediate one-auxiliary solutions.
 - Job `036b6af6-cfc` was valid but tied the random baseline at 8/12; it exposed a HAGeo-only attempt-indexing issue and a missing identical-point heuristic category.
+- Job `49edf3e0-664` was cancelled because unbounded identical-point candidate generation made HAGeo stall on the second HAGeo-409 problem.
 
 ## Deviations from Paper
 

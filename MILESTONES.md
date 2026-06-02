@@ -49,3 +49,8 @@
 - CPU job `036b6af6-cfc` completed successfully after iterative N=2 checking was fixed.
 - The corrected run solved `auxiliary_core`, and HAGeo tied the random auxiliary baseline at 8/12 on the scaled HAGeo-409 slice.
 - Added the paper's identical-point auxiliary category and fixed HAGeo's N=2 attempt indexing so the first round covers the full declared K=48 candidate budget.
+
+### [2026-06-02 23:10] - core_claim
+- CPU job `49edf3e0-664` was cancelled during the HAGeo phase after no progress beyond problem 2 for roughly twenty minutes.
+- Diagnosed the stall as unbounded identical-point candidate enumeration during HAGeo's second-round candidate regeneration.
+- Bounded identical-point enumeration and added hard timeouts around HAGeo candidate generation before retrying the same scaled benchmark.
