@@ -11,12 +11,13 @@
 ## Results
 
 - Local smoke result on `auxiliary_core`: DDAR baseline solved 0/1, HAGeo-style runner solved 1/1 using one auxiliary construction.
-- `python validate.py --compare` passes. The local result supports `method_runs`; a CPU scheduler job is being submitted to verify the packaged environment before claiming `core_claim`.
+- Compute-node smoke job `9b3c9005-1b5` reproduced the same `auxiliary_core` result: DDAR baseline solved 0/1, HAGeo-style runner solved 1/1 with auxiliary `x1 = on_line x1 a b, on_line x1 c d`.
+- `python validate.py --compare` passes after the compute-node run. This supports `core_claim`.
 
 ## Remaining
 
-- Confirm the same core run on a compute node.
-- After core verification, expand to `hageo409_small` and increase attempts/rounds if CPU budget permits.
+- Expand to `hageo409_small` and compare DDAR-only against the HAGeo-style auxiliary construction search on real HAGeo-409 AlphaGeometry statements.
+- Increase attempts/rounds if the small-slice run shows partial progress but remains far from the paper's reported HAGeo-409 trend.
 - A fuller reproduction would require either the official HAGeo solver release or a larger in-house implementation of the paper's optimized DDAR and all heuristic categories at full K.
 
 ## Issues
@@ -29,5 +30,5 @@
 ## Deviations from Paper
 
 - The paper's official HAGeo solver code is not released in the public GitHub repository as of this run. To preserve the computation pattern, this reproduction vendors the public AlphaGeometry DDAR engine and adds a CPU-only HAGeo-style heuristic auxiliary construction search wrapper.
-- The full paper setting uses K=4096 on IMO-30 and K=2048/8192 on HAGeo-409 with N=6 construction rounds. The current runnable job scales this to a one-problem auxiliary core with smaller K for verification.
-- The paper reports full IMO-30 and HAGeo-409 results. Current scoring includes a minimal auxiliary core experiment and a prepared small HAGeo-409 slice for later expansion.
+- The full paper setting uses K=4096 on IMO-30 and K=2048/8192 on HAGeo-409 with N=6 construction rounds. The verified core job scales this to a one-problem auxiliary core with smaller K for verification.
+- The paper reports full IMO-30 and HAGeo-409 results. Current scoring includes a minimal auxiliary core experiment and a prepared small HAGeo-409 slice; the next submitted job runs the small slice with bounded CPU search.

@@ -30,5 +30,5 @@
 action: submit
 gpus: 0
 test: true
-milestone: method_runs
-notes: "CPU smoke job: prepare benchmark, run DDAR baseline and HAGeo-style auxiliary construction solver on auxiliary_core, then evaluate scores."
+milestone: core_claim
+notes: "CPU expansion job: rerun auxiliary_core and add the prepared hageo409_small slice with DDAR baseline and bounded HAGeo-style auxiliary search."

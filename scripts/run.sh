@@ -20,4 +20,9 @@ python data/prepare_benchmarks.py
 bash scripts/baseline.sh data/benchmarks/auxiliary_core.jsonl auxiliary_core
 ATTEMPTS=64 ROUNDS=1 TIMEOUT=15 bash scripts/method.sh data/benchmarks/auxiliary_core.jsonl auxiliary_core
 
+if [ -f data/benchmarks/hageo409_small.jsonl ]; then
+  bash scripts/baseline.sh data/benchmarks/hageo409_small.jsonl hageo409_small
+  ATTEMPTS=128 ROUNDS=2 TIMEOUT=20 bash scripts/method.sh data/benchmarks/hageo409_small.jsonl hageo409_small
+fi
+
 bash scripts/evaluate.sh

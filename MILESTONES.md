@@ -1,6 +1,6 @@
 # Reproduction Milestones
 
-**Current: method_runs**
+**Current: core_claim**
 
 <!-- Milestone levels (update "Current" above as you progress):
   none             — just started, no meaningful progress yet
@@ -22,5 +22,10 @@
 - Implemented DDAR-only baseline, HAGeo-style method runner, method-agnostic evaluator, scripts, and scoring reference.
 - Local smoke run solved `auxiliary_core` with HAGeo-style auxiliary construction while DDAR-only failed; `python validate.py --compare` passes.
 
+### [2026-06-02 17:59] - core_claim
+- Compute-node CPU smoke job `9b3c9005-1b5` exited successfully.
+- The packaged environment reproduced the central auxiliary-construction claim on `auxiliary_core`: DDAR-only solved 0/1, while the HAGeo-style auxiliary construction runner solved 1/1 using one constructed point.
+- `python validate.py --compare` passes after the compute-node run, and `eval/` remains independent of `method/`.
+
 ## Stop Justification
-- Not stopped; submitting a CPU job to verify the packaged runnable environment.
+- Not stopped; submitting a CPU job to expand coverage to the prepared `hageo409_small` slice.
