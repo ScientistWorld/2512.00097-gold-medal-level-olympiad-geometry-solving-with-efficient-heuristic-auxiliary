@@ -23,10 +23,12 @@
 - The HAGeo attempt order now interleaves ranked heuristic candidates with shuffled exploration, and the next run expands the fixed low-difficulty slice to 12 problems to reduce variance from single random auxiliary hits.
 - CPU job `4cb60e78-0c8` completed successfully on the 12-problem slice. HAGeo and random auxiliary search again tied at 8/12; most solves were DDAR-only, so this still does not establish the paper's random-vs-heuristic improvement on HAGeo-409.
 - The next run keeps the 12-problem slice and K=48 but raises the construction depth from N=1 to N=2, matching the paper's multi-round search procedure more closely while keeping random under the same budget.
+- CPU job `4db0ca3b-381` completed successfully with N=2, but random solved 9/12 while HAGeo solved only 6/12. Inspection showed the N=2 implementation checked DDAR only after both auxiliaries were inserted, so useful one-auxiliary proofs could be destroyed by a second construction.
+- The method and random baseline now rerun DDAR after every added auxiliary within an attempt, which better matches iterative auxiliary-construction search and preserves successful intermediate states.
 
 ## Remaining
 
-- Inspect the next CPU job result on the 12-problem, N=2 slice. If HAGeo beats the random auxiliary baseline on `hageo409_scaled` while passing `auxiliary_core`, update `scores.json`, `MILESTONES.md`, and `PROGRESS.md` to `core_claim_plus`.
+- Inspect the next CPU job result for the corrected N=2 iterative check. If HAGeo beats the random auxiliary baseline on `hageo409_scaled` while passing `auxiliary_core`, update `scores.json`, `MILESTONES.md`, and `PROGRESS.md` to `core_claim_plus`.
 - If the scaled HAGeo-409 result does not beat random, tune the candidate ordering/budget within the declared scaled protocol and resubmit.
 - A fuller reproduction would require implementing the paper's optimized DDAR engine, identical-point DD support, and full-scale K=2048/8192 HAGeo-409 or K=4096 IMO-30 runs.
 
@@ -42,6 +44,7 @@
 - Job `09e02880-313` was a fallback candidate-generation bug, not a completed scaled benchmark. It produced no valid `hageo409_scaled` score.
 - Job `675c93ff-642` was valid but tied the random baseline on the scaled HAGeo-409 slice, so it remains only `core_claim`.
 - Job `4cb60e78-0c8` was valid but tied the random baseline on the expanded 12-problem scaled HAGeo-409 slice, so it remains only `core_claim`.
+- Job `4db0ca3b-381` exposed an implementation issue in the N=2 runner: checking only after all rounds made HAGeo lose intermediate one-auxiliary solutions.
 
 ## Deviations from Paper
 

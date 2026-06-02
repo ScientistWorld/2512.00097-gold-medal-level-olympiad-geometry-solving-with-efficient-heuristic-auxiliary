@@ -39,3 +39,8 @@
 - CPU job `4cb60e78-0c8` completed successfully on the 12 easiest HAGeo-409 problems.
 - HAGeo and random auxiliary search both solved 8/12 at K=48, so no higher milestone is claimed.
 - Increased the scaled protocol to N=2 construction rounds for the next run, closer to the paper's N=6 multi-round search while keeping random and HAGeo matched.
+
+### [2026-06-02 23:55] - core_claim
+- CPU job `4db0ca3b-381` completed successfully with N=2, but random solved 9/12 while HAGeo solved 6/12.
+- Found and fixed a multi-round implementation issue: DDAR was checked only after all auxiliaries in an attempt, rather than after each added auxiliary.
+- Retained `core_claim`; the corrected iterative N=2 protocol needs a clean run before any higher milestone can be claimed.

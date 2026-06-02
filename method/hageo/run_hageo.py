@@ -509,21 +509,21 @@ def solve_with_hageo(
             chosen = ordered[((idx - 1) * rounds + round_index) % len(ordered)]
             aux.append(chosen)
             candidate_statement = insert_aux(candidate_statement, [chosen])
+            solved, status, elapsed = run_ddar(problem_id, candidate_statement, defs, rules, timeout)
+            total_seconds += elapsed
+            if solved:
+                result.update(
+                    {
+                        "solved": True,
+                        "attempt_index": idx,
+                        "auxiliary_clauses": aux,
+                        "status": "hageo_" + status,
+                        "seconds": total_seconds,
+                    }
+                )
+                return result
         if not aux:
             break
-        solved, status, elapsed = run_ddar(problem_id, candidate_statement, defs, rules, timeout)
-        total_seconds += elapsed
-        if solved:
-            result.update(
-                {
-                    "solved": True,
-                    "attempt_index": idx,
-                    "auxiliary_clauses": aux,
-                    "status": "hageo_" + status,
-                    "seconds": total_seconds,
-                }
-            )
-            return result
     result["seconds"] = total_seconds
     result["status"] = "hageo_failed"
     return result

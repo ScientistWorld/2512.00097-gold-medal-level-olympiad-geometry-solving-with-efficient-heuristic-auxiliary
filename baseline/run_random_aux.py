@@ -74,19 +74,19 @@ def solve_with_random_aux(
             aux = rng.choice(candidates)
             chosen.append(aux)
             candidate_statement = insert_aux(candidate_statement, [aux])
-        solved, status, elapsed = run_ddar(problem_id, candidate_statement, defs, rules, timeout)
-        total_seconds += elapsed
-        if solved:
-            result.update(
-                {
-                    "solved": True,
-                    "attempt_index": idx,
-                    "auxiliary_clauses": chosen,
-                    "status": "random_aux_" + status,
-                    "seconds": total_seconds,
-                }
-            )
-            return result
+            solved, status, elapsed = run_ddar(problem_id, candidate_statement, defs, rules, timeout)
+            total_seconds += elapsed
+            if solved:
+                result.update(
+                    {
+                        "solved": True,
+                        "attempt_index": idx,
+                        "auxiliary_clauses": chosen,
+                        "status": "random_aux_" + status,
+                        "seconds": total_seconds,
+                    }
+                )
+                return result
 
     result["seconds"] = total_seconds
     result["status"] = "random_aux_failed"
