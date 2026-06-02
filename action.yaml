@@ -31,4 +31,4 @@ action: submit
 gpus: 0
 test: true
 milestone: core_claim
-notes: "CPU retry: hard-timeout DDAR calls, rerun auxiliary_core, and run a bounded hageo409_small DDAR-vs-HAGeo probe with progress logging."
+notes: "CPU retry: rerun auxiliary_core and hageo409_small after fixing auxiliary candidate generation to use declared points and interleaved HAGeo construction categories."

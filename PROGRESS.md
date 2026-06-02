@@ -13,10 +13,11 @@
 - Local smoke result on `auxiliary_core`: DDAR baseline solved 0/1, HAGeo-style runner solved 1/1 using one auxiliary construction.
 - Compute-node smoke job `9b3c9005-1b5` reproduced the same `auxiliary_core` result: DDAR baseline solved 0/1, HAGeo-style runner solved 1/1 with auxiliary `x1 = on_line x1 a b, on_line x1 c d`.
 - `python validate.py --compare` passes after the compute-node run. This supports `core_claim`.
+- Compute-node retry job `2dffc44e-9ee` completed the prepared `hageo409_small` slice without hanging. DDAR-only solved 2/12 and the bounded HAGeo-style search also solved 2/12, so it does not yet support `core_claim_plus`.
 
 ## Remaining
 
-- Retry `hageo409_small` after adding hard per-DDAR-call timeouts and visible progress logging, then compare DDAR-only against the HAGeo-style auxiliary construction search on real HAGeo-409 AlphaGeometry statements.
+- Retry `hageo409_small` after improving auxiliary candidate generation to use declared point symbols only and interleave line, circle, midpoint, mirror, and foot construction categories.
 - Increase attempts/rounds if the small-slice run shows partial progress but remains far from the paper's reported HAGeo-409 trend.
 - A fuller reproduction would require either the official HAGeo solver release or a larger in-house implementation of the paper's optimized DDAR and all heuristic categories at full K.
 
@@ -27,6 +28,7 @@
 - The login node has a very small root filesystem. A local SciPy install failed due to space, so the vendored AlphaGeometry AR traceback dependency on SciPy was made optional. Solving still uses the DDAR algebra tables; only traceback minimization falls back.
 - AlphaGeometry forced the `TkAgg` plotting backend, which fails headlessly; the vendored numerical module now uses `Agg`.
 - The first `hageo409_small` expansion job was cancelled after the baseline completed but method output stayed empty. AlphaGeometry's DDAR timeout is a soft per-level threshold, so the method runner now wraps each DDAR invocation in a Unix signal-based hard wall-clock timeout and logs each processed problem.
+- The first completed `hageo409_small` method run matched DDAR-only rather than improving it. Inspection showed candidate generation was treating construction predicate names as point symbols and trying too many same-category candidates early; the generator now uses left-hand-side point declarations and interleaves HAGeo-style construction categories.
 
 ## Deviations from Paper
 

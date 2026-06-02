@@ -92,6 +92,12 @@ def insert_aux(statement: str, aux_clauses: list[str]) -> str:
 
 
 def point_names(statement: str) -> list[str]:
+    """Return declared point symbols in construction order.
+
+    AlphaGeometry clauses declare constructed points on the left-hand side.
+    The right-hand side also contains predicate names such as ``on_line`` and
+    ``triangle``; treating those as points pollutes HAGeo's auxiliary search.
+    """
     setup = statement.split(" ? ", 1)[0]
     names: list[str] = []
     for clause in setup.split("; "):
@@ -99,10 +105,6 @@ def point_names(statement: str) -> list[str]:
         for name in lhs.split():
             if name and name not in names:
                 names.append(name)
-        rhs = clause.split(" = ", 1)[1] if " = " in clause else ""
-        for token in rhs.replace(",", " ").split():
-            if token.isidentifier() and token not in names:
-                names.append(token)
     return names
 
 
@@ -118,33 +120,55 @@ def candidate_auxiliaries(statement: str, max_candidates: int) -> list[str]:
     feet. Candidates are generated from the current problem's named points.
     """
     pts = point_names(statement)
-    candidates: list[str] = []
     counter = 0
 
-    def add(template: str) -> None:
+    def instantiate(template: str) -> str:
         nonlocal counter
-        if len(candidates) >= max_candidates:
-            return
         name = f"x{counter}"
         counter += 1
-        candidates.append(template.format(x=name))
+        return template.format(x=name)
 
     lines = pair_lines(pts)
+    buckets: list[list[str]] = [[] for _ in range(5)]
+
+    def add(bucket: int, template: str) -> None:
+        buckets[bucket].append(instantiate(template))
+
     # Prioritize intersections using at least one constructed point, matching
     # common auxiliary geometry moves such as intersecting two altitudes.
     for (a, b), (c, d) in itertools.combinations(lines, 2):
         if len({a, b, c, d}) < 4:
             continue
-        add(f"{{x}} = on_line {{x}} {a} {b}, on_line {{x}} {c} {d}")
+        add(0, f"{{x}} = on_line {{x}} {a} {b}, on_line {{x}} {c} {d}")
+    # Intersections of existing lines with circles centered at known points.
     for a, b in lines:
-        add(f"{{x}} = midpoint {{x}} {a} {b}")
+        for o, r in lines:
+            if len({a, b, o, r}) < 3:
+                continue
+            add(1, f"{{x}} = on_line {{x}} {a} {b}, on_circle {{x}} {o} {r}")
+    # Intersections of two simple circles.
+    for (o1, r1), (o2, r2) in itertools.combinations(lines, 2):
+        if len({o1, r1, o2, r2}) < 3:
+            continue
+        add(2, f"{{x}} = on_circle {{x}} {o1} {r1}, on_circle {{x}} {o2} {r2}")
+    for a, b in lines:
+        add(3, f"{{x}} = midpoint {{x}} {a} {b}")
     for a, b in itertools.permutations(pts, 2):
-        add(f"{{x}} = mirror {{x}} {a} {b}")
+        add(3, f"{{x}} = mirror {{x}} {a} {b}")
     for p in pts:
         for a, b in lines:
             if p in (a, b):
                 continue
-            add(f"{{x}} = foot {{x}} {p} {a} {b}")
+            add(4, f"{{x}} = foot {{x}} {p} {a} {b}")
+
+    candidates: list[str] = []
+    for grouped in itertools.zip_longest(*buckets):
+        for candidate in grouped:
+            if candidate is None:
+                continue
+            candidates.append(candidate)
+            if len(candidates) >= max_candidates:
+                return candidates
     return candidates
 
 

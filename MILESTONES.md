@@ -31,5 +31,10 @@
 - Cancelled the first `hageo409_small` expansion job after DDAR-only completed but HAGeo-style method output remained empty.
 - Added a hard wall-clock timeout around every DDAR invocation and row-level progress logging, then bounded the HAGeo-409 retry attempts.
 
+### [2026-06-02 18:38] - core_claim
+- Compute-node job `2dffc44e-9ee` completed `hageo409_small` without hanging.
+- DDAR-only and the bounded HAGeo-style method both solved 2/12 on this slice, so `core_claim_plus` is not yet met.
+- Improved auxiliary candidate generation to avoid predicate tokens and interleave multiple HAGeo construction categories before submitting another bounded expansion attempt.
+
 ## Stop Justification
 - Not stopped; submitting a CPU job to expand coverage to the prepared `hageo409_small` slice.
