@@ -12,4 +12,4 @@
 - Kept the small HAGeo-409 run documented as exploratory evidence, but did not claim it as a validated milestone.
 
 ## Stop Justification
-- Completed at milestone `core_claim`.
+- Completed at milestone `core_claim_plus`.
