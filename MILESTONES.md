@@ -24,3 +24,8 @@
 - `auxiliary_core` remains reproduced: DDAR solved 0/1 while the HAGeo-style auxiliary search solved 1/1 without neural inference.
 - The first-four HAGeo-409 scaled slice did not support `core_claim_plus` because both random auxiliary search and HAGeo solved 0/4.
 - Updated benchmark preparation to use a reproducible low-difficulty HAGeo-409 slice and increased the CPU-scaled budget for the next run.
+
+### [2026-06-02 22:50] - core_claim
+- CPU job `09e02880-313` failed during random auxiliary candidate generation on a HAGeo-409 problem with a `cyclic` goal.
+- Fixed candidate fallback generation to ignore theorem goals and build only the construction graph with a dummy goal.
+- Retained `core_claim`; the difficulty-sorted HAGeo-409 retry still needs a clean run before any higher milestone can be claimed.

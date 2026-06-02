@@ -5,4 +5,4 @@ action: submit
 gpus: 0
 test: true
 milestone: core_claim
-notes: "Run difficulty-sorted six-problem HAGeo-409 CPU retry with K=48, N=1, timeout=5s, comparing HAGeo against random auxiliary search plus auxiliary_core."
+notes: "Retry difficulty-sorted six-problem HAGeo-409 CPU run after fixing setup-only fallback candidate generation for cyclic-goal problems."

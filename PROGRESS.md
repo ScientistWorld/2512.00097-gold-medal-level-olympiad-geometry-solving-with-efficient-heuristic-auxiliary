@@ -17,6 +17,8 @@
 - Partial runner scripts now support `EVALUATE=0`, and `scripts/run.sh`/`scripts/reproduce.sh` remove stale outputs before regenerating all artifacts and running one final evaluation.
 - CPU test job `e113a384-f00` completed successfully. The method still supports `core_claim` on `auxiliary_core` (DDAR 0/1, HAGeo 1/1), but the first-four HAGeo-409 slice was uninformative because both scaled random auxiliary search and HAGeo scored 0/4.
 - Benchmark preparation now supports a reproducible difficulty-sorted HAGeo-409 slice. The next job uses the six easiest formal problems with a larger declared CPU budget to test whether `core_claim_plus` is supported on an additional paper benchmark setting.
+- CPU test job `09e02880-313` failed during the random auxiliary baseline on the first difficulty-sorted HAGeo-409 problem. DDAR had timed out before returning a graph, and fallback candidate generation rebuilt the full problem including a `cyclic` theorem goal that AlphaGeometry's numeric checker cannot parse in that path.
+- Candidate fallback generation now rebuilds only the construction setup with a harmless dummy goal, and DDAR timeout paths retain any graph that had already been built.
 
 ## Remaining
 
@@ -33,6 +35,7 @@
 - Broad root-level git operations can fail because `README.md` and `manifest.json` are character devices in this worktree. Path-specific git commands work.
 - Job `ba58a10a-3a5` exposed a stale-artifact hazard rather than a solver failure; strict coverage validation is kept, and coordinated runs now clean/rebuild outputs before scoring.
 - Job `e113a384-f00` showed that the original first-four HAGeo-409 slice and 24-attempt budget did not distinguish the heuristic from random. This is not counted as `core_claim_plus`.
+- Job `09e02880-313` was a fallback candidate-generation bug, not a completed scaled benchmark. It produced no valid `hageo409_scaled` score.
 
 ## Deviations from Paper
 

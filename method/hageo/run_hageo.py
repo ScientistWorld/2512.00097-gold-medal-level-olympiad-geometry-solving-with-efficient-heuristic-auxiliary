@@ -84,6 +84,7 @@ def run_ddar_state(
     timeout: int,
 ) -> tuple[bool, str, float, gh.Graph | None]:
     start = time.time()
+    g: gh.Graph | None = None
     try:
         with hard_timeout(timeout):
             p = parse_problem(problem_id, statement)
@@ -93,7 +94,7 @@ def run_ddar_state(
             solved = bool(g.check(p.goal.name, goal_args))
         return solved, "solved" if solved else "failed", time.time() - start, g
     except DDARTimeout:
-        return False, "timeout", time.time() - start, None
+        return False, "timeout", time.time() - start, g
     except Exception as exc:  # DDAR can reject numerically degenerate drawings.
         return False, f"error:{type(exc).__name__}:{exc}", time.time() - start, None
 
@@ -403,9 +404,28 @@ def candidate_auxiliaries_from_graph(graph: gh.Graph, max_candidates: int) -> li
     return _materialize_candidates(buckets, max_candidates)
 
 
-def candidate_auxiliaries(statement: str, defs: dict, max_candidates: int) -> list[str]:
-    p = parse_problem("candidate_generation", statement)
+def setup_graph(statement: str, defs: dict) -> gh.Graph:
+    """Build only the construction graph; the theorem goal is irrelevant here."""
+    setup = statement.split(" ? ", 1)[0]
+    names = point_names(statement)
+    if len(names) >= 2:
+        dummy_goal = f"coll {names[0]} {names[1]} {names[0]}"
+    elif names:
+        dummy_goal = f"cong {names[0]} {names[0]} {names[0]} {names[0]}"
+    else:
+        raise ValueError("cannot build candidate graph without declared points")
+    p = parse_problem("candidate_generation", f"{setup} ? {dummy_goal}")
     g, _ = gh.Graph.build_problem(p, defs, verbose=False)
+    return g
+
+
+def random_construction_candidates(statement: str, defs: dict, max_candidates: int) -> list[str]:
+    g = setup_graph(statement, defs)
+    return random_construction_candidates_from_graph(g, max_candidates)
+
+
+def candidate_auxiliaries(statement: str, defs: dict, max_candidates: int) -> list[str]:
+    g = setup_graph(statement, defs)
     return candidate_auxiliaries_from_graph(g, max_candidates)
 
 

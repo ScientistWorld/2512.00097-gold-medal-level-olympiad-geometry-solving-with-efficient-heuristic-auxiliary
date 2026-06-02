@@ -14,9 +14,9 @@ ROOT = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(ROOT / "method" / "hageo"))
 
 from run_hageo import (  # noqa: E402
-    candidate_auxiliaries,
     insert_aux,
     load_defs_rules,
+    random_construction_candidates,
     random_construction_candidates_from_graph,
     read_jsonl,
     run_ddar,
@@ -58,7 +58,7 @@ def solve_with_random_aux(
             graph, max_candidates=max(128, attempts * rounds * 4)
         )
     else:
-        candidates = candidate_auxiliaries(
+        candidates = random_construction_candidates(
             statement, defs, max_candidates=max(128, attempts * rounds * 4)
         )
     if not candidates:
