@@ -44,3 +44,8 @@
 - CPU job `4db0ca3b-381` completed successfully with N=2, but random solved 9/12 while HAGeo solved 6/12.
 - Found and fixed a multi-round implementation issue: DDAR was checked only after all auxiliaries in an attempt, rather than after each added auxiliary.
 - Retained `core_claim`; the corrected iterative N=2 protocol needs a clean run before any higher milestone can be claimed.
+
+### [2026-06-02 22:28] - core_claim
+- CPU job `036b6af6-cfc` completed successfully after iterative N=2 checking was fixed.
+- The corrected run solved `auxiliary_core`, and HAGeo tied the random auxiliary baseline at 8/12 on the scaled HAGeo-409 slice.
+- Added the paper's identical-point auxiliary category and fixed HAGeo's N=2 attempt indexing so the first round covers the full declared K=48 candidate budget.

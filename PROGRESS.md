@@ -25,10 +25,12 @@
 - The next run keeps the 12-problem slice and K=48 but raises the construction depth from N=1 to N=2, matching the paper's multi-round search procedure more closely while keeping random under the same budget.
 - CPU job `4db0ca3b-381` completed successfully with N=2, but random solved 9/12 while HAGeo solved only 6/12. Inspection showed the N=2 implementation checked DDAR only after both auxiliaries were inserted, so useful one-auxiliary proofs could be destroyed by a second construction.
 - The method and random baseline now rerun DDAR after every added auxiliary within an attempt, which better matches iterative auxiliary-construction search and preserves successful intermediate states.
+- CPU job `036b6af6-cfc` completed successfully with the corrected iterative N=2 check. `auxiliary_core` still supports the core claim (DDAR 0/1, HAGeo 1/1), while the scaled HAGeo-409 comparison tied again at 8/12 for both HAGeo and random auxiliary search.
+- Per-problem inspection showed that HAGeo missed one auxiliary problem solved by random, and that the HAGeo runner's N=2 candidate indexing used only every other first-round candidate. The method now indexes first-round candidates across the full declared K=48 budget and adds the paper's identical-point auxiliary category.
 
 ## Remaining
 
-- Inspect the next CPU job result for the corrected N=2 iterative check. If HAGeo beats the random auxiliary baseline on `hageo409_scaled` while passing `auxiliary_core`, update `scores.json`, `MILESTONES.md`, and `PROGRESS.md` to `core_claim_plus`.
+- Inspect the next CPU job result for the corrected HAGeo candidate indexing plus identical-point heuristic. If HAGeo beats the random auxiliary baseline on `hageo409_scaled` while passing `auxiliary_core`, update `scores.json`, `MILESTONES.md`, and `PROGRESS.md` to `core_claim_plus`.
 - If the scaled HAGeo-409 result does not beat random, tune the candidate ordering/budget within the declared scaled protocol and resubmit.
 - A fuller reproduction would require implementing the paper's optimized DDAR engine, identical-point DD support, and full-scale K=2048/8192 HAGeo-409 or K=4096 IMO-30 runs.
 
@@ -45,9 +47,10 @@
 - Job `675c93ff-642` was valid but tied the random baseline on the scaled HAGeo-409 slice, so it remains only `core_claim`.
 - Job `4cb60e78-0c8` was valid but tied the random baseline on the expanded 12-problem scaled HAGeo-409 slice, so it remains only `core_claim`.
 - Job `4db0ca3b-381` exposed an implementation issue in the N=2 runner: checking only after all rounds made HAGeo lose intermediate one-auxiliary solutions.
+- Job `036b6af6-cfc` was valid but tied the random baseline at 8/12; it exposed a HAGeo-only attempt-indexing issue and a missing identical-point heuristic category.
 
 ## Deviations from Paper
 
 - Full paper settings: HAGeo-409 uses K=2048/8192 and N=6; IMO-30 uses K=4096. The current CPU-scaled runner uses a low-difficulty 12-problem HAGeo-409 slice, K=48, and N=2 to fit a CPU validation run.
-- Full paper method: optimized DDAR, matrix-level AR improvements, and identical-point support are not yet implemented.
+- Full paper method: optimized DDAR, matrix-level AR improvements, and HAGeo's optimized identical-point DD support are not yet implemented. The auxiliary generator now proposes identical-point constructions, but the upstream AlphaGeometry DDAR engine may reject or fail to exploit some of them.
 - Current paper-claim-facing score compares scaled HAGeo-style auxiliary search against a scaled random auxiliary baseline using the same budget, with the paper's Table 1 rates retained as reference context.

@@ -279,6 +279,49 @@ def random_construction_items_from_graph(
     return bucket[:max_candidates]
 
 
+def identical_point_items_from_graph(
+    graph: gh.Graph, max_candidates: int
+) -> list[tuple[nm.Point, list[str]]]:
+    """Existing points that can be reintroduced as multi-object intersections.
+
+    The HAGeo paper includes a special identical-point heuristic: when a known
+    point is numerically the intersection of multiple already-available objects,
+    adding a new construction for that same location can expose the useful
+    incidence path to DDAR. AlphaGeometry's upstream engine does not include
+    HAGeo's optimized identical-point support, so downstream DDAR calls may
+    reject some of these candidates; those failures are handled by run_ddar().
+    """
+    pts = sorted(graph.all_points(), key=lambda p: p.name)
+    lines = _line_records(pts)
+    circles = _circle_records(pts)
+    bucket: list[tuple[nm.Point, list[str]]] = []
+    seen: set[tuple[int, int, tuple[str, ...]]] = set()
+
+    for p in pts:
+        incidences = [
+            f"on_line {{x}} {a} {b}"
+            for a, b, line in lines
+            if p.name not in (a, b) and p.num.distance(line) <= 1e-7
+        ]
+        incidences += [
+            f"on_circle {{x}} {o} {r}"
+            for o, r, circle in circles
+            if p.name not in (o, r) and p.num.distance(circle) <= 1e-7
+        ]
+        if len(incidences) < 2:
+            continue
+        for clauses in itertools.combinations(incidences[:8], 2):
+            item = (p.num, list(clauses))
+            key = _dedupe_key(*item)
+            if key in seen:
+                continue
+            seen.add(key)
+            bucket.append(item)
+            if len(bucket) >= max_candidates:
+                return bucket
+    return bucket
+
+
 def random_construction_candidates_from_graph(graph: gh.Graph, max_candidates: int) -> list[str]:
     """Materialized broad valid-construction pool for the random baseline."""
     return _materialize_candidates(
@@ -299,7 +342,7 @@ def candidate_auxiliaries_from_graph(graph: gh.Graph, max_candidates: int) -> li
     pts = sorted(graph.all_points(), key=lambda p: p.name)
     lines = _line_records(pts)
     circles = _circle_records(pts)
-    buckets: list[list[tuple[nm.Point, list[str]]]] = [[] for _ in range(7)]
+    buckets: list[list[tuple[nm.Point, list[str]]]] = [[] for _ in range(8)]
 
     def add(bucket: int, point: nm.Point, clauses: list[str]) -> None:
         if len(buckets[bucket]) >= max_candidates or _is_known_point(point, pts):
@@ -397,9 +440,12 @@ def candidate_auxiliaries_from_graph(graph: gh.Graph, max_candidates: int) -> li
         if len(buckets[5]) >= max_candidates:
             break
 
-    # 6. Random constructions are part of HAGeo's candidate universe, but are
+    # 6. Identical-point constructions are part of the paper's HAGeo heuristic.
+    buckets[6].extend(identical_point_items_from_graph(graph, max_candidates))
+
+    # 7. Random constructions are part of HAGeo's candidate universe, but are
     # intentionally placed after numerically favorable candidates.
-    buckets[6].extend(random_construction_items_from_graph(graph, max_candidates))
+    buckets[7].extend(random_construction_items_from_graph(graph, max_candidates))
 
     return _materialize_candidates(buckets, max_candidates)
 
@@ -483,9 +529,9 @@ def solve_with_hageo(
         return result
 
     if graph is not None:
-        candidates = candidate_auxiliaries_from_graph(graph, max_candidates=max(128, attempts * rounds * 2))
+        candidates = candidate_auxiliaries_from_graph(graph, max_candidates=max(128, attempts * rounds * 4))
     else:
-        candidates = candidate_auxiliaries(statement, defs, max_candidates=max(128, attempts * rounds * 2))
+        candidates = candidate_auxiliaries(statement, defs, max_candidates=max(128, attempts * rounds * 4))
     rng = random.Random(seed)
 
     total_seconds = seconds
@@ -505,8 +551,8 @@ def solve_with_hageo(
                     round_candidates = []
             if not round_candidates:
                 break
-            ordered = attempt_order(round_candidates, attempts * rounds, rng)
-            chosen = ordered[((idx - 1) * rounds + round_index) % len(ordered)]
+            ordered = attempt_order(round_candidates, attempts, rng)
+            chosen = ordered[(idx - 1) % len(ordered)]
             aux.append(chosen)
             candidate_statement = insert_aux(candidate_statement, [chosen])
             solved, status, elapsed = run_ddar(problem_id, candidate_statement, defs, rules, timeout)
