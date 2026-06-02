@@ -120,19 +120,12 @@ def candidate_auxiliaries(statement: str, max_candidates: int) -> list[str]:
     feet. Candidates are generated from the current problem's named points.
     """
     pts = point_names(statement)
-    counter = 0
-
-    def instantiate(template: str) -> str:
-        nonlocal counter
-        name = f"x{counter}"
-        counter += 1
-        return template.format(x=name)
-
     lines = pair_lines(pts)
     buckets: list[list[str]] = [[] for _ in range(5)]
 
     def add(bucket: int, template: str) -> None:
-        buckets[bucket].append(instantiate(template))
+        if len(buckets[bucket]) < max_candidates:
+            buckets[bucket].append(template)
 
     # Prioritize intersections using at least one constructed point, matching
     # common auxiliary geometry moves such as intersecting two altitudes.
@@ -162,10 +155,13 @@ def candidate_auxiliaries(statement: str, max_candidates: int) -> list[str]:
             add(4, f"{{x}} = foot {{x}} {p} {a} {b}")
 
     candidates: list[str] = []
+    counter = 0
     for grouped in itertools.zip_longest(*buckets):
-        for candidate in grouped:
-            if candidate is None:
+        for template in grouped:
+            if template is None:
                 continue
+            candidate = template.format(x=f"x{counter}")
+            counter += 1
             candidates.append(candidate)
             if len(candidates) >= max_candidates:
                 return candidates

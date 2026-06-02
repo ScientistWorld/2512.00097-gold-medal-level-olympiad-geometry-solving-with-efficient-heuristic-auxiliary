@@ -27,7 +27,7 @@ if [ -f data/benchmarks/hageo409_small.jsonl ]; then
   echo "[run] hageo409_small baseline"
   TIMEOUT=5 bash scripts/baseline.sh data/benchmarks/hageo409_small.jsonl hageo409_small
   echo "[run] hageo409_small HAGeo-style method"
-  ATTEMPTS=24 ROUNDS=1 TIMEOUT=4 bash scripts/method.sh data/benchmarks/hageo409_small.jsonl hageo409_small
+  ATTEMPTS=48 ROUNDS=1 TIMEOUT=4 bash scripts/method.sh data/benchmarks/hageo409_small.jsonl hageo409_small
 fi
 
 echo "[run] final evaluation"

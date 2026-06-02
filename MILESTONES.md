@@ -1,6 +1,6 @@
 # Reproduction Milestones
 
-**Current: core_claim**
+**Current: core_claim_plus**
 
 <!-- Milestone levels (update "Current" above as you progress):
   none             — just started, no meaningful progress yet
@@ -36,5 +36,10 @@
 - DDAR-only and the bounded HAGeo-style method both solved 2/12 on this slice, so `core_claim_plus` is not yet met.
 - Improved auxiliary candidate generation to avoid predicate tokens and interleave multiple HAGeo construction categories before submitting another bounded expansion attempt.
 
+### [2026-06-02 18:48] - core_claim_plus
+- Compute-node job `b2a7bdfd-937` improved the real HAGeo-409 small slice: DDAR-only solved 2/12, while the HAGeo-style auxiliary search solved 3/12.
+- The additional solved problem required a constructed midpoint auxiliary, matching the paper's claim that heuristic auxiliary construction can extend DDAR.
+- Tightened candidate bookkeeping and increased the bounded small-slice attempt budget for one more expansion run.
+
 ## Stop Justification
-- Not stopped; submitting a CPU job to expand coverage to the prepared `hageo409_small` slice.
+- Not stopped; submitting a CPU job to test a larger bounded `hageo409_small` auxiliary-search budget.

@@ -14,11 +14,11 @@
 - Compute-node smoke job `9b3c9005-1b5` reproduced the same `auxiliary_core` result: DDAR baseline solved 0/1, HAGeo-style runner solved 1/1 with auxiliary `x1 = on_line x1 a b, on_line x1 c d`.
 - `python validate.py --compare` passes after the compute-node run. This supports `core_claim`.
 - Compute-node retry job `2dffc44e-9ee` completed the prepared `hageo409_small` slice without hanging. DDAR-only solved 2/12 and the bounded HAGeo-style search also solved 2/12, so it does not yet support `core_claim_plus`.
+- Compute-node job `b2a7bdfd-937` reached `core_claim_plus`: on `hageo409_small`, DDAR-only solved 2/12 and HAGeo-style auxiliary construction solved 3/12. The extra solve was `2000USATSTp2`, using a midpoint auxiliary.
 
 ## Remaining
 
-- Retry `hageo409_small` after improving auxiliary candidate generation to use declared point symbols only and interleave line, circle, midpoint, mirror, and foot construction categories.
-- Increase attempts/rounds if the small-slice run shows partial progress but remains far from the paper's reported HAGeo-409 trend.
+- Run one larger bounded `hageo409_small` attempt budget now that auxiliary construction improves over DDAR on this slice.
 - A fuller reproduction would require either the official HAGeo solver release or a larger in-house implementation of the paper's optimized DDAR and all heuristic categories at full K.
 
 ## Issues
@@ -29,6 +29,7 @@
 - AlphaGeometry forced the `TkAgg` plotting backend, which fails headlessly; the vendored numerical module now uses `Agg`.
 - The first `hageo409_small` expansion job was cancelled after the baseline completed but method output stayed empty. AlphaGeometry's DDAR timeout is a soft per-level threshold, so the method runner now wraps each DDAR invocation in a Unix signal-based hard wall-clock timeout and logs each processed problem.
 - The first completed `hageo409_small` method run matched DDAR-only rather than improving it. Inspection showed candidate generation was treating construction predicate names as point symbols and trying too many same-category candidates early; the generator now uses left-hand-side point declarations and interleaves HAGeo-style construction categories.
+- The improved generator reaches the intended effect on the small slice, but the reproduction remains scaled down from the paper's K=2048/8192 HAGeo-409 setting.
 
 ## Deviations from Paper
 

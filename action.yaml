@@ -30,5 +30,5 @@
 action: submit
 gpus: 0
 test: true
-milestone: core_claim
-notes: "CPU retry: rerun auxiliary_core and hageo409_small after fixing auxiliary candidate generation to use declared points and interleaved HAGeo construction categories."
+milestone: core_claim_plus
+notes: "CPU expansion: rerun auxiliary_core and hageo409_small with compact bounded auxiliary candidates and ATTEMPTS=48 to test whether HAGeo improves beyond 3/12."
