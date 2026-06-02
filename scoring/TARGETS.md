@@ -1,50 +1,58 @@
 # Evaluation Targets
 
-<!-- Do not edit this unless you decide to stop -->
+These targets define what future scientist agents should optimize and what constraints they must preserve. They are high-level and should correspond to experiments recorded in `scores.json`.
 
-<!--
-Describe what a scientist could optimize and how to measure it.
+## PRIMARY: imo30_solve_rate
 
-If a paper claims "we get X without sacrificing Y." Your targets must
-capture BOTH sides. Without constraint targets, a scientist can trivially
-"improve" by breaking the property the paper was designed to satisfy.
+Tests headline performance on the standard IMO-30 Olympiad geometry benchmark.
+- **Metric:** solve_rate (higher is better)
+- **Companion metric:** solved_count (higher is better)
+- **How to run evaluation:** run the compliant prover on the fixed IMO-30 formal problem set under the benchmark time and resource budget; count only evaluator-accepted proofs.
 
-Three kinds of targets:
+## PRIMARY: hageo409_solve_rate_k2048
 
-  PRIMARY    — the main thing the paper optimizes (accuracy, PSNR, etc.)
-  CONSTRAINT — what the paper must maintain (security, fairness, param count,
-               baseline comparison). Constraint metrics guard against cheating:
-               a scientist who ignores the constraint should score WORSE.
-  ABLATION   — what breaks when the key idea is removed (wrong-key test,
-               no-module test). Proves the method actually does something. 
-               This can be ignored if truly not important.
+Tests overall performance on the larger HAGeo-409 benchmark at the main attempt budget.
+- **Metric:** solve_rate (higher is better)
+- **Companion metric:** solved_count (higher is better)
+- **How to run evaluation:** run the compliant prover on all fixed HAGeo-409 problems with K=2,048 attempts; count only evaluator-accepted proofs.
 
-For each target, write:
-- What the experiment tests (one sentence)
-- The primary metric and direction (higher/lower is better)
-- How to run evaluation
+## PRIMARY: hageo409_solve_rate_k8192
 
-Every target here MUST appear in both reference.json and scores.json.
-Do not list targets you cannot measure — phantom targets are worse than
-missing targets.
+Tests scaling of task success when the attempt budget is increased.
+- **Metric:** solve_rate (higher is better)
+- **Companion metric:** solved_count (higher is better)
+- **How to run evaluation:** run the compliant prover on all fixed HAGeo-409 problems with K=8,192 attempts; count only evaluator-accepted proofs.
 
-Example for a steganography paper:
+## PRIMARY: hageo409_difficulty_band_rates
 
-## Primary: reconstruction_quality
-Cover and hidden scene PSNR on Blender Synthetic.
-- **Metric**: psnr (higher is better)
+Tests whether the system improves across the benchmark difficulty distribution rather than only on easy problems.
+- **Metric:** mean_band_solve_rate (higher is better)
+- **Companion metrics:** solve_rate for [1,3), [3,4), [4,5), [5,6), and [6,7] difficulty bands (higher is better)
+- **How to run evaluation:** compute solved counts and solve rates separately for each fixed HAGeo-409 difficulty band using the same run outputs as the corresponding HAGeo-409 evaluation.
 
-## Constraint: key_security
-Wrong-key rendering must produce incoherent output.
-- **Metric**: wrong_key_psnr (lower is better — high means security is broken)
+## CONSTRAINT: proof_validity
 
-## Ablation: vs_standalone_baseline
-Cover quality should match standalone model (no hidden scene embedded).
-- **Metric**: psnr_gap (lower is better — large gap means hiding costs quality)
+Tests whether claimed solutions are accepted as valid geometry proofs or certificates.
+- **Metric:** valid_claim_rate (higher is better)
+- **Failure rule:** invalid or unchecked claimed solves must not count toward solve-rate metrics.
+- **How to run evaluation:** pass every claimed solve through the evaluator or proof-checking procedure and report accepted claims divided by total claimed solves.
 
-Delete this comment block and fill in your actual targets below.
--->
+## CONSTRAINT: cpu_only_non_neural_inference
 
-<!-- This is high-level. IT IS ABOUT CONCEPT, NOT NUMBERS. DO NOT INCLUDE ANY ACTUAL VALUES FROM THE PAPER OR YOUR EXPERIMENTS HERE. -->
+Tests whether the central resource claim is preserved: inference must not rely on neural proposal models or GPU computation.
+- **Metric:** violation_count (lower is better)
+- **Failure rule:** any GPU-backed inference, neural model inference, or external online service use during evaluation makes the run non-compliant.
+- **How to run evaluation:** record runtime configuration, dependencies, hardware usage, and method logs for the evaluation run.
 
-<!-- This should EXACTLY corresponds to the structure in your scores.json. -->
+## CONSTRAINT: runtime_budget
+
+Tests whether improvements come from better reasoning under the benchmark budget rather than unbounded computation.
+- **Metric:** wall_clock_seconds (lower is better when solve rate is comparable)
+- **Failure rule:** solves obtained after the declared time or attempt limit must not count in the compliant score.
+- **How to run evaluation:** measure elapsed wall-clock time for each benchmark run and enforce the configured per-problem and total budgets.
+
+## ABLATION: better_than_random_baseline
+
+Tests whether the system's improvements are not merely due to spending attempts on generic randomized search.
+- **Metric:** solve_rate_gap_vs_random (higher is better)
+- **How to run evaluation:** compare the compliant system against the fixed random baseline at the same benchmark, attempt budget, and resource setting.

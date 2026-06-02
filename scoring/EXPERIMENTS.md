@@ -1,59 +1,35 @@
 # Experiment Overview
 
-<!-- Do not edit this unless you decide to stop -->
+This file describes what each expected scoring experiment is trying to establish. It intentionally avoids describing any method internals.
 
-<!--
-Describe, at a high level, what each experiment in `scores.json` is trying to
-establish.
+## imo30_solve_rate
 
-This file is for future scientist agents. They should be able to read it and
-understand what each experiment is about WITHOUT learning the paper's method.
+Tests whether the system reaches strong performance on the established 30-problem Olympiad geometry benchmark. This experiment supports comparison to prior work on the familiar headline setting, but it should not be treated as sufficient by itself because the benchmark is small.
 
-Rules:
-- This must correspond EXACTLY to the experiments in `scores.json`
-- The section heading for each experiment must be the exact experiment name from the keys in `scores.json`
-- Describe the experiment's scientific purpose, not the implementation
-- Do NOT describe the method, architecture, algorithm, loss, or training recipe
-- Do NOT include numerical results from the paper or your reproduction
-- If an experiment is not in `scores.json`, do not list it here
+## hageo409_solve_rate_k2048
 
-Good examples (these should be fuller and more specific than a one-line label,
-but still stay method-agnostic):
+Tests overall theorem-proving success on the larger 409-problem benchmark at the main attempt budget. This is the central broad-coverage evaluation because it uses more problems and includes a wider range of human-rated difficulty.
 
-## main_benchmark
-Tests whether the reproduced system succeeds on the paper's central evaluation
-task under the main benchmark setting used to support the headline claim. This
-should make clear that the experiment exists to measure overall task success in
-the paper's standard evaluation setup, not to describe the internal mechanism
-used to obtain that result.
+## hageo409_solve_rate_k8192
 
-## robustness_shift
-Tests whether the main claimed effect still holds when the evaluation setting is
-made harder or shifted away from the paper's primary benchmark condition. This
-should explain what kind of robustness question is being asked at a high level:
-whether the paper's conclusion remains valid outside the narrow default
-evaluation case.
+Tests whether the system continues to make useful progress when the allowed search budget is increased. The purpose is to measure scalable problem-solving performance under a fixed larger budget, not to give unlimited computation.
 
-## wrong_key_security
-Tests whether the protected or hidden signal remains inaccessible under the
-incorrect-access condition used in the paper's evaluation. This should explain
-that the purpose is to validate the paper's security or privacy claim at a high
-level, without describing the concrete mechanism used to protect the signal.
+## hageo409_difficulty_band_rates
 
-## component_ablation
-Tests whether the paper's reported improvement is actually attributable to the
-claimed source of benefit, rather than to unrelated aspects of the overall
-system or evaluation setup. This should explain that the experiment exists to
-separate the claimed causal contribution from generic confounders, without
-describing the implementation details of the component being varied.
+Tests whether benchmark performance holds across easy, medium, and hard geometry problems. This experiment helps identify systems that improve aggregate scores mostly by solving easy instances while failing to advance on harder ones.
 
-Bad examples:
-- "Runs the 8-layer transformer with contrastive loss and cosine scheduler"
-- "Uses the paper's memory module to improve retrieval"
+## proof_validity
 
-Delete this comment block and fill in your actual experiments below.
--->
+Tests whether claimed solves are actually accepted as valid proofs or certificates. This protects the benchmark from inflated solve rates caused by unsupported conclusions or evaluator mismatches.
 
-<!-- This is high-level only. Explain WHAT the experiment is trying to show, NOT HOW the method works. -->
+## cpu_only_non_neural_inference
 
-<!-- The experiment headings here should EXACTLY match the experiment-name keys in your scores.json. -->
+Tests whether the run preserves the resource setting needed for the paper's central comparison. The purpose is to distinguish compliant CPU-only theorem proving from systems that use neural inference or external services.
+
+## runtime_budget
+
+Tests whether reported solves occur within the declared wall-clock and attempt limits. This keeps comparisons focused on reasoning quality and efficiency under the benchmark budget.
+
+## better_than_random_baseline
+
+Tests whether the submitted system improves over a generic randomized-search reference under the same benchmark conditions. This helps establish that score gains reflect more than simply spending the same number of attempts without useful guidance.

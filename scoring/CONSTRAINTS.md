@@ -1,78 +1,38 @@
 # Scientist Constraints
 
-<!-- Do not edit this unless you decide to stop -->
+These constraints define what must remain fixed when a future scientist tries to improve on this benchmark. They are intended to keep comparisons focused on automated Euclidean geometry reasoning under the paper's resource assumptions.
 
-<!--
-A scientist agent will attempt to improve on your reproduced results.
-These constraints define what the scientist must hold fixed, so that
-any improvement reflects genuine methodological innovation — not just
-throwing more resources at the problem.
+## Problem Sets
 
-CONTEXT: Your reproduction becomes a benchmark environment. The scientist
-gets your code, data, evaluation pipeline, and these constraints. They
-must beat your scores while respecting every constraint listed here.
-Without good constraints, a scientist can trivially "improve" by swapping
-in a larger model, using a richer dataset that is simply publicly avaliable, or more 
-— none of which demonstrate real scientific insight.
-
-Your job is to act as a judge: distinguish between flexible innovation
-and non-genuine improvement. Constraints should block trivial gains
-(e.g. just swapping in a bigger model) while leaving room for creative
-methodology (e.g. a clever augmentation strategy, a better loss
-function, a novel use of existing tools). When in doubt, ask: "does
-this require insight, or just more resources?" Lock down the resources,
-leave the insight open. Do not block innovation.
-
-For example, if a scientist downloads online IMDB reviews to supplement a
-sentiment dataset, that's resource scaling. But if they use an LLM to
-augment the existing training data, that's methodology — they designed
-that pipeline. This is just an example, but keep this kind of distinction 
-in mind when writing constraints.
-
-Be SPECIFIC to this paper. Generic constraints are useless. Name the
-exact model, the exact dataset, the exact splits. Explain the reasoning
-so the scientist understands the intent behind each constraint, not
-just the rule — this helps them judge edge cases on their own.
-
-Think about at least:
-- Model: architecture, size, pretrained weights
-- Data: which datasets, which splits, whether external data is allowed
-
-You may add other constraint categories if relevant to this paper
-(e.g. training procedure, evaluation protocol, problem formulation).
-
-Example for a sentiment analysis paper:
-
-## Model
-The scientist must use BERT-base-uncased (110M parameters, HuggingFace
-`bert-base-uncased`). The paper's contribution is a novel fine-tuning
-strategy, not architecture design. Switching to a larger model (e.g.
-DeBERTa-v3-large, 304M params) would improve accuracy but would not
-demonstrate any methodological insight. The scientist may modify the
-fine-tuning procedure, add adapter layers, change the classification
-head, or alter the training loop — but the base encoder must remain
-BERT-base-uncased with its standard pretrained weights.
+The scientist must evaluate on the provided formal IMO-30 and HAGeo-409 problem files without editing premises, conclusions, difficulty labels, or problem inclusion. The paper's benchmark claim depends on fixed geometry instances, especially the HAGeo-409 difficulty distribution. Removing hard problems, correcting only favorable translations, or adding alternative versions changes the task.
 
 ## Data
-The scientist must use only the provided SST-2 binary sentiment
-dataset (67,349 training examples, 872 validation, 1,821 test).
-No external sentiment corpora or additional human-labeled data.
-The test split must not be used for training or validation.
 
-Delete this comment block and fill in your actual constraints below.
+No additional geometry problem corpora, theorem databases, proof traces, contest archives, or human-written solution sets may be used for training, tuning, retrieval, or rule mining. The scientist may use only the provided benchmark data and any data shipped in the reproduction environment. This prevents improvements that come from importing more geometry knowledge rather than improving the benchmarked reasoning approach.
 
-At the very end, write a compliance checklist for the scientist agent.
-Each item should be a concrete, verifiable condition the scientist can
-check off before submitting. These should mirror your constraints above
-but phrased as yes/no checks.
+## Inference Resources
 
-Example checklist (for the sentiment analysis example above):
+Compliant evaluation must run without GPU computation, neural model inference, LLM calls, or online services. The paper's central claim is CPU-only geometry proving without neural auxiliary proposal at inference time. A method that uses an LLM, a neural guidance model, or a remote prover may be scientifically interesting, but it is not a compliant improvement for this benchmark.
+
+## Attempt and Time Budgets
+
+The scientist must keep the configured attempt budgets and wall-clock limits fixed for each reported experiment. HAGeo-409 comparisons should use the declared K=2,048 and K=8,192 settings, and IMO-30 should follow the reproduction's declared benchmark budget. Solves found after the budget expires must be excluded from compliant scores.
+
+## Evaluation Procedure
+
+All methods must use the same evaluator and proof-validity criteria. A problem is solved only when the evaluator accepts the conclusion as proved. Manual inspection may be reported as an audit, but it must not replace the automated scoring path unless the reproduction explicitly defines that audit as part of the metric for every method.
+
+## Problem Representation
+
+Evaluation must use the fixed formal construction representation supplied with the benchmark. The scientist must not retranslate natural-language problems, add missing assumptions, simplify conclusions, or expose answer-specific hints during evaluation. Any preprocessing must be deterministic and applied uniformly to all methods.
 
 ## Compliance Checklist
-- [ ] Model is BERT-base-uncased (110M params), not a larger variant
-- [ ] No external sentiment datasets used beyond SST-2
-- [ ] Test split not used for training or validation
 
-ONLY WRITE ABOUT WHAT TO RESTRICT. NEVER WRITE ABOUT WHAT REMAINS OPEN.
-
--->
+- [ ] IMO-30 and HAGeo-409 problem files are unchanged.
+- [ ] HAGeo-409 difficulty labels and band assignments are unchanged.
+- [ ] No external geometry datasets, proof traces, theorem databases, contest archives, or solution collections are used.
+- [ ] No GPU computation, neural model inference, LLM calls, or online services are used during evaluation.
+- [ ] Attempt budgets match the reported experiment settings.
+- [ ] Wall-clock limits are enforced and over-budget solves are excluded.
+- [ ] The same evaluator/proof-validity criteria are used for all compared methods.
+- [ ] Formal problem representations are not retranslated or manually edited for evaluation.
