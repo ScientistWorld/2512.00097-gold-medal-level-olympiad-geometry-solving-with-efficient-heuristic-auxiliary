@@ -158,4 +158,4 @@ All methods should be evaluated under the declared hardware and time constraints
 **Current: core_claim**
 
 ## Stop Justification
-- Completed at milestone `core_claim_plus`.
+- Completed at milestone `core_claim`.

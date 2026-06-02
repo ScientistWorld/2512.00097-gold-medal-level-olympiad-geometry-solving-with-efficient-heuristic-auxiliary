@@ -1,8 +1,8 @@
 # IMPORTANT: Once you set action to 'submit' or 'done', STOP immediately.
 # Do NOT sleep, poll, or wait for jobs. The system reads this file
 # only after your turn ends. Sleeping blocks the entire pipeline.
-action: done
-gpus: 0
+action: pending
+gpus: 1
 test: false
 milestone: core_claim
-notes: "Fixed validation by removing the scaled hageo409_small run from formal scoring/reference comparison. python validate.py and python validate.py --compare now pass for the validated auxiliary_core core-claim experiment."
+notes: ""
