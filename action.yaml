@@ -5,4 +5,4 @@ action: submit
 gpus: 0
 test: true
 milestone: core_claim
-notes: "Retry CPU test after fixing stale-output evaluation ordering. Regenerates auxiliary_core plus 4-problem hageo409_scaled DDAR/random/HAGeo outputs, then runs one final strict evaluation."
+notes: "Run difficulty-sorted six-problem HAGeo-409 CPU retry with K=48, N=1, timeout=5s, comparing HAGeo against random auxiliary search plus auxiliary_core."

@@ -26,16 +26,18 @@ rm -f \
   outputs/hageo_hageo409_small.jsonl \
   scoring/scores.json
 
-python data/prepare_benchmarks.py --hageo-limit "${HAGEO_LIMIT:-4}"
+python data/prepare_benchmarks.py \
+  --hageo-limit "${HAGEO_LIMIT:-6}" \
+  --hageo-sort "${HAGEO_SORT:-difficulty}"
 
 EVALUATE=0 bash scripts/baseline.sh data/benchmarks/auxiliary_core.jsonl auxiliary_core
 EVALUATE=0 bash scripts/method.sh data/benchmarks/auxiliary_core.jsonl auxiliary_core
 
 if [ -e data/benchmarks/hageo409_small.jsonl ]; then
   EVALUATE=0 bash scripts/baseline.sh data/benchmarks/hageo409_small.jsonl hageo409_small
-  ATTEMPTS=${RANDOM_ATTEMPTS:-24} ROUNDS=${ROUNDS:-1} TIMEOUT=${TIMEOUT:-3} SEED=${RANDOM_SEED:-17} EVALUATE=0 \
+  ATTEMPTS=${RANDOM_ATTEMPTS:-48} ROUNDS=${ROUNDS:-1} TIMEOUT=${TIMEOUT:-5} SEED=${RANDOM_SEED:-17} EVALUATE=0 \
     bash scripts/random_baseline.sh data/benchmarks/hageo409_small.jsonl hageo409_small
-  ATTEMPTS=${ATTEMPTS:-24} ROUNDS=${ROUNDS:-1} TIMEOUT=${TIMEOUT:-3} SEED=${SEED:-0} EVALUATE=0 \
+  ATTEMPTS=${ATTEMPTS:-48} ROUNDS=${ROUNDS:-1} TIMEOUT=${TIMEOUT:-5} SEED=${SEED:-0} EVALUATE=0 \
     bash scripts/method.sh data/benchmarks/hageo409_small.jsonl hageo409_small
 fi
 

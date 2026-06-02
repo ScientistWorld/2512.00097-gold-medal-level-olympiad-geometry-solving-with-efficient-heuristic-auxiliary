@@ -25,7 +25,14 @@ rm -f \
   scoring/scores.json
 
 echo "[run] preparing benchmarks"
-python data/prepare_benchmarks.py --hageo-limit 4
+HAGEO_LIMIT=${HAGEO_LIMIT:-6}
+HAGEO_SORT=${HAGEO_SORT:-difficulty}
+HAGEO_ATTEMPTS=${HAGEO_ATTEMPTS:-48}
+HAGEO_RANDOM_ATTEMPTS=${HAGEO_RANDOM_ATTEMPTS:-48}
+HAGEO_ROUNDS=${HAGEO_ROUNDS:-1}
+HAGEO_TIMEOUT=${HAGEO_TIMEOUT:-5}
+python data/prepare_benchmarks.py --hageo-limit "$HAGEO_LIMIT" --hageo-sort "$HAGEO_SORT"
+echo "[run] hageo409_small config: limit=$HAGEO_LIMIT sort=$HAGEO_SORT attempts=$HAGEO_ATTEMPTS random_attempts=$HAGEO_RANDOM_ATTEMPTS rounds=$HAGEO_ROUNDS timeout=$HAGEO_TIMEOUT"
 
 echo "[run] auxiliary_core baseline"
 EVALUATE=0 bash scripts/baseline.sh data/benchmarks/auxiliary_core.jsonl auxiliary_core
@@ -35,12 +42,12 @@ ATTEMPTS=64 ROUNDS=1 TIMEOUT=15 EVALUATE=0 \
 
 if [ -f data/benchmarks/hageo409_small.jsonl ]; then
   echo "[run] hageo409_small baseline"
-  TIMEOUT=3 EVALUATE=0 bash scripts/baseline.sh data/benchmarks/hageo409_small.jsonl hageo409_small
+  TIMEOUT="$HAGEO_TIMEOUT" EVALUATE=0 bash scripts/baseline.sh data/benchmarks/hageo409_small.jsonl hageo409_small
   echo "[run] hageo409_small random auxiliary baseline"
-  ATTEMPTS=24 ROUNDS=1 TIMEOUT=3 SEED=17 EVALUATE=0 \
+  ATTEMPTS="$HAGEO_RANDOM_ATTEMPTS" ROUNDS="$HAGEO_ROUNDS" TIMEOUT="$HAGEO_TIMEOUT" SEED=17 EVALUATE=0 \
     bash scripts/random_baseline.sh data/benchmarks/hageo409_small.jsonl hageo409_small
   echo "[run] hageo409_small HAGeo-style method"
-  ATTEMPTS=24 ROUNDS=1 TIMEOUT=3 SEED=0 EVALUATE=0 \
+  ATTEMPTS="$HAGEO_ATTEMPTS" ROUNDS="$HAGEO_ROUNDS" TIMEOUT="$HAGEO_TIMEOUT" SEED=0 EVALUATE=0 \
     bash scripts/method.sh data/benchmarks/hageo409_small.jsonl hageo409_small
 fi
 

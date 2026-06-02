@@ -4,7 +4,7 @@ This file describes what each scored experiment is trying to establish. It inten
 
 ## hageo409_scaled
 
-This experiment checks whether a solver improves over a random auxiliary-construction baseline on a fixed slice of the HAGeo-409 formal benchmark while staying within a declared CPU-only search budget. It is the current paper-claim-facing target because the paper's main benchmark comparison is HAGeo versus random auxiliary construction on HAGeo-409.
+This experiment checks whether a solver improves over a random auxiliary-construction baseline on a fixed low-difficulty slice of the HAGeo-409 formal benchmark while staying within a declared CPU-only search budget. It is the current paper-claim-facing target because the paper's main benchmark comparison is HAGeo versus random auxiliary construction on HAGeo-409.
 
 ## auxiliary_core
 

@@ -30,11 +30,11 @@ def write_jsonl(rows: list[dict], path: Path) -> None:
             f.write(json.dumps(row, sort_keys=True) + "\n")
 
 
-def load_hageo409(path: Path, limit: int) -> list[dict]:
+def load_hageo409(path: Path, limit: int, sort_by: str) -> list[dict]:
     table = pq.read_table(path)
     columns = table.to_pydict()
     rows = []
-    for idx in range(min(limit, table.num_rows)):
+    for idx in range(table.num_rows):
         statement = columns["AlphaGeometry"][idx]
         if not statement or " ? " not in statement:
             continue
@@ -47,7 +47,11 @@ def load_hageo409(path: Path, limit: int) -> list[dict]:
                 "natural_language": columns["Natural_Language"][idx],
             }
         )
-    return rows
+    if sort_by == "difficulty":
+        rows.sort(key=lambda row: (row["difficulty"], row["problem_id"]))
+    elif sort_by != "original":
+        raise ValueError(f"unsupported --hageo-sort value: {sort_by}")
+    return rows[:limit]
 
 
 def main() -> None:
@@ -59,13 +63,19 @@ def main() -> None:
     )
     parser.add_argument("--out-dir", default="data/benchmarks", type=Path)
     parser.add_argument("--hageo-limit", default=12, type=int)
+    parser.add_argument(
+        "--hageo-sort",
+        choices=["original", "difficulty"],
+        default="original",
+        help="Order used before slicing the portable HAGeo-409 subset.",
+    )
     args = parser.parse_args()
 
     args.out_dir.mkdir(parents=True, exist_ok=True)
     write_jsonl([ORTHOCENTER], args.out_dir / "auxiliary_core.jsonl")
     if args.parquet.exists():
         write_jsonl(
-            load_hageo409(args.parquet, args.hageo_limit),
+            load_hageo409(args.parquet, args.hageo_limit, args.hageo_sort),
             args.out_dir / "hageo409_small.jsonl",
         )
 
