@@ -27,7 +27,7 @@ rm -f \
   scoring/scores.json
 
 python data/prepare_benchmarks.py \
-  --hageo-limit "${HAGEO_LIMIT:-6}" \
+  --hageo-limit "${HAGEO_LIMIT:-12}" \
   --hageo-sort "${HAGEO_SORT:-difficulty}"
 
 EVALUATE=0 bash scripts/baseline.sh data/benchmarks/auxiliary_core.jsonl auxiliary_core

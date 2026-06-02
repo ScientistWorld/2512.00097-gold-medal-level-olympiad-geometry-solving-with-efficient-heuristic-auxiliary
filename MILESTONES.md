@@ -29,3 +29,8 @@
 - CPU job `09e02880-313` failed during random auxiliary candidate generation on a HAGeo-409 problem with a `cyclic` goal.
 - Fixed candidate fallback generation to ignore theorem goals and build only the construction graph with a dummy goal.
 - Retained `core_claim`; the difficulty-sorted HAGeo-409 retry still needs a clean run before any higher milestone can be claimed.
+
+### [2026-06-02 23:15] - core_claim
+- CPU job `675c93ff-642` completed successfully on the six easiest HAGeo-409 problems.
+- HAGeo and random auxiliary search both solved 3/6 at K=48, so no higher milestone is claimed.
+- Updated HAGeo's attempt schedule to interleave ranked heuristic candidates with shuffled exploration and expanded the next fixed HAGeo-409 slice to 12 problems.

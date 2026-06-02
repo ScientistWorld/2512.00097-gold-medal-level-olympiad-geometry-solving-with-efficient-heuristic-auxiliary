@@ -429,6 +429,30 @@ def candidate_auxiliaries(statement: str, defs: dict, max_candidates: int) -> li
     return candidate_auxiliaries_from_graph(g, max_candidates)
 
 
+def attempt_order(candidates: list[str], attempts: int, rng: random.Random) -> list[str]:
+    """Interleave ranked heuristic candidates with shuffled exploration.
+
+    HAGeo is a heuristic search procedure rather than a single greedy choice.
+    Keeping only the first K ranked candidates can miss the paper's random
+    construction category, so each budget gets both early high-priority
+    candidates and broad valid-construction exploration.
+    """
+    ranked = candidates[: min(len(candidates), attempts)]
+    shuffled = candidates[:]
+    rng.shuffle(shuffled)
+    ordered: list[str] = []
+    seen: set[str] = set()
+    for ranked_candidate, shuffled_candidate in itertools.zip_longest(ranked, shuffled):
+        for candidate in (ranked_candidate, shuffled_candidate):
+            if candidate is None or candidate in seen:
+                continue
+            ordered.append(candidate)
+            seen.add(candidate)
+            if len(ordered) >= attempts:
+                return ordered
+    return ordered
+
+
 def solve_with_hageo(
     row: dict,
     defs: dict,
@@ -481,12 +505,8 @@ def solve_with_hageo(
                     round_candidates = []
             if not round_candidates:
                 break
-            ordered = round_candidates[:]
-            rng.shuffle(ordered)
-            # Keep strong deterministic candidates early while still sampling
-            # the full numerically valid pool across K attempts.
-            choice_pool = round_candidates[: min(len(round_candidates), attempts)] + ordered
-            chosen = choice_pool[((idx - 1) * rounds + round_index) % len(choice_pool)]
+            ordered = attempt_order(round_candidates, attempts * rounds, rng)
+            chosen = ordered[((idx - 1) * rounds + round_index) % len(ordered)]
             aux.append(chosen)
             candidate_statement = insert_aux(candidate_statement, [chosen])
         if not aux:

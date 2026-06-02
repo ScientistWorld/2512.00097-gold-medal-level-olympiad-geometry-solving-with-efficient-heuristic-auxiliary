@@ -25,7 +25,7 @@ rm -f \
   scoring/scores.json
 
 echo "[run] preparing benchmarks"
-HAGEO_LIMIT=${HAGEO_LIMIT:-6}
+HAGEO_LIMIT=${HAGEO_LIMIT:-12}
 HAGEO_SORT=${HAGEO_SORT:-difficulty}
 HAGEO_ATTEMPTS=${HAGEO_ATTEMPTS:-48}
 HAGEO_RANDOM_ATTEMPTS=${HAGEO_RANDOM_ATTEMPTS:-48}

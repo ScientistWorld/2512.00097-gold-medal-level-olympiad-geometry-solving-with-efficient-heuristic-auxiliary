@@ -3,6 +3,6 @@
 # only after your turn ends. Sleeping blocks the entire pipeline.
 action: submit
 gpus: 0
-test: true
+test: false
 milestone: core_claim
-notes: "Retry difficulty-sorted six-problem HAGeo-409 CPU run after fixing setup-only fallback candidate generation for cyclic-goal problems."
+notes: "Run 12-problem difficulty-sorted HAGeo-409 CPU benchmark with interleaved HAGeo attempt ordering; compare K=48 HAGeo against K=48 random auxiliary search."
