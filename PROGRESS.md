@@ -21,10 +21,12 @@
 - Candidate fallback generation now rebuilds only the construction setup with a harmless dummy goal, and DDAR timeout paths retain any graph that had already been built.
 - CPU test job `675c93ff-642` completed successfully on the six easiest HAGeo-409 problems. HAGeo and random auxiliary search both solved 3/6, so this does not support `core_claim_plus`; two of those solves were DDAR-only for both methods, and each auxiliary method solved one additional problem.
 - The HAGeo attempt order now interleaves ranked heuristic candidates with shuffled exploration, and the next run expands the fixed low-difficulty slice to 12 problems to reduce variance from single random auxiliary hits.
+- CPU job `4cb60e78-0c8` completed successfully on the 12-problem slice. HAGeo and random auxiliary search again tied at 8/12; most solves were DDAR-only, so this still does not establish the paper's random-vs-heuristic improvement on HAGeo-409.
+- The next run keeps the 12-problem slice and K=48 but raises the construction depth from N=1 to N=2, matching the paper's multi-round search procedure more closely while keeping random under the same budget.
 
 ## Remaining
 
-- Inspect the next CPU job result on the 12-problem slice. If HAGeo beats the random auxiliary baseline on `hageo409_scaled` while passing `auxiliary_core`, update `scores.json`, `MILESTONES.md`, and `PROGRESS.md` to `core_claim_plus`.
+- Inspect the next CPU job result on the 12-problem, N=2 slice. If HAGeo beats the random auxiliary baseline on `hageo409_scaled` while passing `auxiliary_core`, update `scores.json`, `MILESTONES.md`, and `PROGRESS.md` to `core_claim_plus`.
 - If the scaled HAGeo-409 result does not beat random, tune the candidate ordering/budget within the declared scaled protocol and resubmit.
 - A fuller reproduction would require implementing the paper's optimized DDAR engine, identical-point DD support, and full-scale K=2048/8192 HAGeo-409 or K=4096 IMO-30 runs.
 
@@ -39,9 +41,10 @@
 - Job `e113a384-f00` showed that the original first-four HAGeo-409 slice and 24-attempt budget did not distinguish the heuristic from random. This is not counted as `core_claim_plus`.
 - Job `09e02880-313` was a fallback candidate-generation bug, not a completed scaled benchmark. It produced no valid `hageo409_scaled` score.
 - Job `675c93ff-642` was valid but tied the random baseline on the scaled HAGeo-409 slice, so it remains only `core_claim`.
+- Job `4cb60e78-0c8` was valid but tied the random baseline on the expanded 12-problem scaled HAGeo-409 slice, so it remains only `core_claim`.
 
 ## Deviations from Paper
 
-- Full paper settings: HAGeo-409 uses K=2048/8192 and N=6; IMO-30 uses K=4096. The current CPU-scaled runner uses a low-difficulty 12-problem HAGeo-409 slice, K=48, and N=1 to fit a CPU validation run.
+- Full paper settings: HAGeo-409 uses K=2048/8192 and N=6; IMO-30 uses K=4096. The current CPU-scaled runner uses a low-difficulty 12-problem HAGeo-409 slice, K=48, and N=2 to fit a CPU validation run.
 - Full paper method: optimized DDAR, matrix-level AR improvements, and identical-point support are not yet implemented.
 - Current paper-claim-facing score compares scaled HAGeo-style auxiliary search against a scaled random auxiliary baseline using the same budget, with the paper's Table 1 rates retained as reference context.

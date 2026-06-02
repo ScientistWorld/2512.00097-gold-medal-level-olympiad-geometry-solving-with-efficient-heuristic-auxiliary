@@ -34,3 +34,8 @@
 - CPU job `675c93ff-642` completed successfully on the six easiest HAGeo-409 problems.
 - HAGeo and random auxiliary search both solved 3/6 at K=48, so no higher milestone is claimed.
 - Updated HAGeo's attempt schedule to interleave ranked heuristic candidates with shuffled exploration and expanded the next fixed HAGeo-409 slice to 12 problems.
+
+### [2026-06-02 23:45] - core_claim
+- CPU job `4cb60e78-0c8` completed successfully on the 12 easiest HAGeo-409 problems.
+- HAGeo and random auxiliary search both solved 8/12 at K=48, so no higher milestone is claimed.
+- Increased the scaled protocol to N=2 construction rounds for the next run, closer to the paper's N=6 multi-round search while keeping random and HAGeo matched.

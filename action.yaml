@@ -5,4 +5,4 @@ action: submit
 gpus: 0
 test: false
 milestone: core_claim
-notes: "Run 12-problem difficulty-sorted HAGeo-409 CPU benchmark with interleaved HAGeo attempt ordering; compare K=48 HAGeo against K=48 random auxiliary search."
+notes: "Run 12-problem difficulty-sorted HAGeo-409 CPU benchmark with N=2 construction rounds, K=48, comparing HAGeo against random auxiliary search."
