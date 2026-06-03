@@ -35,9 +35,9 @@ EVALUATE=0 bash scripts/method.sh data/benchmarks/auxiliary_core.jsonl auxiliary
 
 if [ -e data/benchmarks/hageo409_small.jsonl ]; then
   EVALUATE=0 bash scripts/baseline.sh data/benchmarks/hageo409_small.jsonl hageo409_small
-  ATTEMPTS=${RANDOM_ATTEMPTS:-48} ROUNDS=${ROUNDS:-2} TIMEOUT=${TIMEOUT:-5} SEED=${RANDOM_SEED:-17} EVALUATE=0 \
+  ATTEMPTS=${RANDOM_ATTEMPTS:-64} ROUNDS=${ROUNDS:-2} TIMEOUT=${TIMEOUT:-5} SEED=${RANDOM_SEED:-17} EVALUATE=0 \
     bash scripts/random_baseline.sh data/benchmarks/hageo409_small.jsonl hageo409_small
-  ATTEMPTS=${ATTEMPTS:-48} ROUNDS=${ROUNDS:-2} TIMEOUT=${TIMEOUT:-5} SEED=${SEED:-0} EVALUATE=0 \
+  ATTEMPTS=${ATTEMPTS:-64} ROUNDS=${ROUNDS:-2} TIMEOUT=${TIMEOUT:-5} SEED=${SEED:-0} EVALUATE=0 \
     bash scripts/method.sh data/benchmarks/hageo409_small.jsonl hageo409_small
 fi
 

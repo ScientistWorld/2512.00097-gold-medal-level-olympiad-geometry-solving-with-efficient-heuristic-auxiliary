@@ -14,6 +14,7 @@ ROOT = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(ROOT / "method" / "hageo"))
 
 from run_hageo import (  # noqa: E402
+    freshen_aux_clause,
     insert_aux,
     load_defs_rules,
     random_construction_candidates,
@@ -69,11 +70,17 @@ def solve_with_random_aux(
     total_seconds = seconds
     for idx in range(1, attempts + 1):
         chosen = []
+        used_candidates = set()
         candidate_statement = statement
-        for _round_index in range(rounds):
-            aux = rng.choice(candidates)
-            chosen.append(aux)
-            candidate_statement = insert_aux(candidate_statement, [aux])
+        for round_index in range(rounds):
+            available = [candidate for candidate in candidates if candidate not in used_candidates]
+            if not available:
+                break
+            aux = rng.choice(available)
+            used_candidates.add(aux)
+            fresh_aux = freshen_aux_clause(aux, f"r{idx}r{round_index}")
+            chosen.append(fresh_aux)
+            candidate_statement = insert_aux(candidate_statement, [fresh_aux])
             solved, status, elapsed = run_ddar(problem_id, candidate_statement, defs, rules, timeout)
             total_seconds += elapsed
             if solved:

@@ -54,3 +54,8 @@
 - CPU job `49edf3e0-664` was cancelled during the HAGeo phase after no progress beyond problem 2 for roughly twenty minutes.
 - Diagnosed the stall as unbounded identical-point candidate enumeration during HAGeo's second-round candidate regeneration.
 - Bounded identical-point enumeration and added hard timeouts around HAGeo candidate generation before retrying the same scaled benchmark.
+
+### [2026-06-03 00:07] - core_claim
+- CPU job `299ca567-06f` completed successfully with bounded identical-point generation and candidate-generation timeouts.
+- `auxiliary_core` still supports the core claim, but scaled HAGeo-409 did not support `core_claim_plus`: random auxiliary search solved 10/12 while HAGeo solved 8/12.
+- Fixed two-round auxiliary insertion so generated point names are fresh for both HAGeo and random, and so HAGeo falls back to its initial heuristic pool when second-round candidate regeneration is unavailable.

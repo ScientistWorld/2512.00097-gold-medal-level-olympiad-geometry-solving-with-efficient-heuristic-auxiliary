@@ -14,6 +14,7 @@ import contextlib
 import itertools
 import json
 import random
+import re
 import signal
 import sys
 import time
@@ -102,6 +103,25 @@ def run_ddar_state(
 def insert_aux(statement: str, aux_clauses: list[str]) -> str:
     setup, goal = statement.split(" ? ", 1)
     return setup + "; " + "; ".join(aux_clauses) + " ? " + goal
+
+
+def freshen_aux_clause(aux_clause: str, new_name: str) -> str:
+    """Rename the constructed auxiliary point before inserting a clause.
+
+    Candidate lists are materialized with local names such as ``x0``. In a
+    multi-round search, regenerating candidates after adding an auxiliary can
+    reuse those local names and make the constructed statement invalid. The
+    paper's search treats auxiliary constructions as fresh diagram points, so
+    each insertion receives a deterministic fresh point symbol.
+    """
+    lhs, rhs = aux_clause.split(" = ", 1)
+    old_name = lhs.split("@", 1)[0]
+    if "@" in lhs:
+        new_lhs = f"{new_name}@{lhs.split('@', 1)[1]}"
+    else:
+        new_lhs = new_name
+    new_rhs = re.sub(rf"\b{re.escape(old_name)}\b", new_name, rhs)
+    return f"{new_lhs} = {new_rhs}"
 
 
 def point_names(statement: str) -> list[str]:
@@ -571,19 +591,27 @@ def solve_with_hageo(
     for idx in range(1, attempts + 1):
         candidate_statement = statement
         aux = []
+        used_candidates = set()
         for round_index in range(rounds):
             round_candidates = candidates
             if round_index > 0:
-                round_candidates = safe_candidate_auxiliaries(
+                regenerated = safe_candidate_auxiliaries(
                     candidate_statement,
                     defs,
                     max_candidates=max(128, attempts * rounds),
                     timeout=timeout,
                 )
+                if regenerated:
+                    round_candidates = regenerated
             if not round_candidates:
                 break
-            ordered = attempt_order(round_candidates, attempts, rng)
-            chosen = ordered[(idx - 1) % len(ordered)]
+            available_candidates = [c for c in round_candidates if c not in used_candidates]
+            if not available_candidates:
+                break
+            ordered = attempt_order(available_candidates, attempts, rng)
+            raw_chosen = ordered[(idx - 1) % len(ordered)]
+            used_candidates.add(raw_chosen)
+            chosen = freshen_aux_clause(raw_chosen, f"z{idx}r{round_index}")
             aux.append(chosen)
             candidate_statement = insert_aux(candidate_statement, [chosen])
             solved, status, elapsed = run_ddar(problem_id, candidate_statement, defs, rules, timeout)
