@@ -59,3 +59,13 @@
 - CPU job `299ca567-06f` completed successfully with bounded identical-point generation and candidate-generation timeouts.
 - `auxiliary_core` still supports the core claim, but scaled HAGeo-409 did not support `core_claim_plus`: random auxiliary search solved 10/12 while HAGeo solved 8/12.
 - Fixed two-round auxiliary insertion so generated point names are fresh for both HAGeo and random, and so HAGeo falls back to its initial heuristic pool when second-round candidate regeneration is unavailable.
+
+### [2026-06-03 00:35] - core_claim
+- CPU job `1568a310-592` completed successfully with fresh auxiliary names, second-round fallback, and matched K=64 budgets.
+- The final core claim remains reproduced: DDAR solved 0/1 on `auxiliary_core`, while the HAGeo-style auxiliary search solved 1/1 with `neural_inference_used=0`.
+- The attempted HAGeo-409 extension still did not support `core_claim_plus`: random auxiliary search solved 10/12 and HAGeo solved 8/12 on the low-difficulty 12-problem slice.
+- Final scoring was narrowed to `auxiliary_core` because the difficulty-sorted HAGeo-409 slice is not statistically comparable to the paper's full 409-problem Table 1 reference and caused an invalid paper-consistency comparison.
+
+## Stop Justification
+
+Stopping at `core_claim`. The reusable environment contains the paper's core computation pattern, a method-independent evaluator, a DDAR ablation, and a scored result showing that auxiliary construction solves a controlled theorem that DDAR alone fails, without neural inference. Multiple CPU-scaled HAGeo-409 extension runs were attempted, but HAGeo did not beat the matched random auxiliary baseline on the selected low-difficulty 12-problem slice. Because that slice is easier than the full HAGeo-409 benchmark and produced random solve rates far above the paper's full-benchmark reference, it is documented as an attempted extension rather than retained in final `scores.json`. A higher milestone would require either a representative larger HAGeo-409 run or further implementation of the paper's optimized DDAR and identical-point support.

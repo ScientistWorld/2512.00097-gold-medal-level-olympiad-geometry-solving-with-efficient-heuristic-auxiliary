@@ -7,7 +7,7 @@
 - Public benchmark data from `HAGeo-IMO/HAGeo-409` is downloaded into `data/downloads/` and converted into JSONL slices by `data/prepare_benchmarks.py`.
 - The method now generates numerically guided auxiliary candidates for the paper's main heuristic categories: multi-line intersections, mixed line/circle intersections, circle/circle intersections, midpoint incidences, point reflections, perpendicular feet, and a final random-construction pool.
 - A scaled random auxiliary-construction baseline has been added for HAGeo-409 comparison.
-- `eval/` is method-independent. It reads output artifacts, validates problem IDs against the fixed benchmark files, rejects duplicate/missing/extra rows, and scores both `auxiliary_core` and `hageo409_scaled`.
+- `eval/` is method-independent. It reads output artifacts, validates problem IDs against the fixed benchmark file, rejects duplicate/missing/extra rows, and scores the final `auxiliary_core` experiment.
 
 ## Results
 
@@ -31,12 +31,13 @@
 - Identical-point enumeration is now bounded, and HAGeo candidate generation is wrapped in the same hard timeout mechanism used for DDAR calls. If candidate generation times out for a second-round state, that attempt fails fast instead of blocking the whole run.
 - CPU job `299ca567-06f` completed successfully with those timeout guards. `auxiliary_core` remains reproduced, but the scaled HAGeo-409 comparison still did not support a higher milestone: HAGeo solved 8/12 while the matched random auxiliary baseline solved 10/12 at K=48, N=2, timeout=5.
 - Inspection of the per-problem outputs showed that HAGeo was still brittle in two-round search: regenerated candidate lists could reuse local constructed-point names such as `x0`, and attempts could stop when second-round candidate regeneration timed out even though the initial HAGeo candidate pool remained valid. Auxiliary insertions now freshen constructed-point names in both HAGeo and the random baseline, and HAGeo falls back to its initial heuristic pool when second-round regeneration is unavailable.
-- The next submitted run keeps the 12-problem difficulty-sorted HAGeo-409 slice and N=2, but raises the matched HAGeo/random attempt budget to K=64 to give the corrected two-round search a fairer scaled test.
+- CPU job `1568a310-592` completed successfully with fresh auxiliary names, second-round fallback, and matched K=64 budgets. `auxiliary_core` still supports `core_claim`: DDAR solved 0/1 and HAGeo solved 1/1 with `neural_inference_used=0`.
+- The K=64 HAGeo-409 extension still did not support `core_claim_plus`: random auxiliary search solved 10/12, while HAGeo solved 8/12 on the low-difficulty 12-problem slice.
+- Final `scoring/scores.json` includes only `auxiliary_core`. The HAGeo-409 slice is documented as an attempted extension because its low-difficulty selection makes its solve rates incompatible with the paper's full 409-problem reference rates.
 
 ## Remaining
 
-- Inspect the next CPU job result for the fresh-name and second-round fallback fixes. If HAGeo beats the random auxiliary baseline on `hageo409_scaled` while passing `auxiliary_core`, update `scores.json`, `MILESTONES.md`, and `PROGRESS.md` to `core_claim_plus`.
-- If the scaled HAGeo-409 result does not beat random, tune the candidate ordering/budget within the declared scaled protocol and resubmit.
+- To reach `core_claim_plus`, a future run should use a more representative HAGeo-409 subset or a larger full-benchmark run where random auxiliary solve rates are comparable to the paper's Table 1 baseline.
 - A fuller reproduction would require implementing the paper's optimized DDAR engine, identical-point DD support, and full-scale K=2048/8192 HAGeo-409 or K=4096 IMO-30 runs.
 
 ## Issues
@@ -55,9 +56,11 @@
 - Job `036b6af6-cfc` was valid but tied the random baseline at 8/12; it exposed a HAGeo-only attempt-indexing issue and a missing identical-point heuristic category.
 - Job `49edf3e0-664` was cancelled because unbounded identical-point candidate generation made HAGeo stall on the second HAGeo-409 problem.
 - Job `299ca567-06f` was valid but HAGeo underperformed random on the scaled HAGeo-409 benchmark, so it remains only `core_claim`. It exposed two multi-round search issues: non-fresh generated auxiliary names and overly strict aborts when second-round candidate regeneration was unavailable.
+- Job `1568a310-592` was valid but again HAGeo underperformed random on the low-difficulty HAGeo-409 slice at K=64. This confirms the extension is not sufficient for `core_claim_plus`.
+- The validator rejected scoring the low-difficulty HAGeo-409 slice under the `hageo409_scaled` reference name because the random baseline's 10/12 solve rate was far from the paper's full-benchmark 204/409 reference. The final scorer therefore reports only the comparable `auxiliary_core` experiment.
 
 ## Deviations from Paper
 
-- Full paper settings: HAGeo-409 uses K=2048/8192 and N=6; IMO-30 uses K=4096. The current CPU-scaled runner uses a low-difficulty 12-problem HAGeo-409 slice, K=64, and N=2 to fit a CPU validation run.
+- Full paper settings: HAGeo-409 uses K=2048/8192 and N=6; IMO-30 uses K=4096. Attempted CPU-scaled extension runs used a low-difficulty 12-problem HAGeo-409 slice, K=64, and N=2, but those extension results are not final-scored because the slice is not comparable to the paper's full benchmark.
 - Full paper method: optimized DDAR, matrix-level AR improvements, and HAGeo's optimized identical-point DD support are not yet implemented. The auxiliary generator now proposes identical-point constructions, but the upstream AlphaGeometry DDAR engine may reject or fail to exploit some of them.
-- Current paper-claim-facing score compares scaled HAGeo-style auxiliary search against a scaled random auxiliary baseline using the same budget, with the paper's Table 1 rates retained as reference context.
+- The final paper-claim-facing score is the controlled `auxiliary_core` ablation: DDAR alone fails and HAGeo-style auxiliary construction succeeds within a declared CPU-only budget.

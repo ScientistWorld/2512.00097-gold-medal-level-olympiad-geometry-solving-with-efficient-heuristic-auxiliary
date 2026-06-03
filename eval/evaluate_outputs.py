@@ -26,23 +26,7 @@ EXPERIMENTS = {
             "timeout_seconds",
             "neural_inference_used",
         ],
-    },
-    "hageo409_scaled": {
-        "dataset": Path("data/benchmarks/hageo409_small.jsonl"),
-        "outputs": {
-            "random_aux_ddar": Path("outputs/random_aux_hageo409_small.jsonl"),
-            "hageo": Path("outputs/hageo_hageo409_small.jsonl"),
-        },
-        "metrics": [
-            "solve_rate",
-            "solved_count",
-            "problem_count",
-            "attempt_budget",
-            "rounds",
-            "timeout_seconds",
-            "neural_inference_used",
-        ],
-    },
+    }
 }
 
 

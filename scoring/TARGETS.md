@@ -1,19 +1,35 @@
 # Evaluation Targets
 
-## PRIMARY: hageo409_scaled
+The final scored target is `auxiliary_core`, the minimum experiment that supports the paper's central claim: a CPU-only geometry prover can solve a theorem that DDAR alone misses by adding a useful auxiliary construction, without neural proposal models.
 
-Scores a fixed HAGeo-409 slice against the paper's central comparison: CPU-only HAGeo-style heuristic auxiliary construction should outperform a random auxiliary-construction baseline under the same declared attempt, round, timeout, and seed budget.
+Run evaluation with:
 
-- **Benefit metric:** `solve_rate` (higher is better)
-- **Companion metrics:** `solved_count` and `problem_count`
-- **Constraint metrics:** `attempt_budget`, `rounds`, `timeout_seconds`, and `neural_inference_used`
-- **Paper reference:** Table 1 total rates for Random@2048 (204/409, 49.9%) and HAGeo@2048 (263/409, 64.3%)
-- **Current scale:** the runnable job uses the prepared `data/benchmarks/hageo409_small.jsonl` slice and a smaller budget for CPU smoke validation.
+```bash
+bash scripts/evaluate.sh
+python validate.py
+```
 
-## SECONDARY: auxiliary_core
+## PRIMARY: auxiliary_core
 
-Checks that the environment can distinguish a DDAR-only prover from a prover that uses a useful auxiliary construction on a controlled theorem.
+What it tests: solve the controlled auxiliary-construction theorem in `data/benchmarks/auxiliary_core.jsonl`.
 
-- **Benefit metric:** `solve_rate` (higher is better)
-- **Companion metrics:** `solved_count`, `problem_count`, `mean_attempt_index`, and `mean_auxiliary_count`
-- **Constraint metrics:** `attempt_budget`, `rounds`, `timeout_seconds`, and `neural_inference_used`
+- **Primary metric:** `solve_rate` (higher is better)
+- **Reported benefit metrics:** `solved_count`, `problem_count`, `mean_attempt_index`, and `mean_auxiliary_count`
+- **Success condition for this reproduction:** `hageo.solve_rate` is 1.0 on the benchmark.
+
+## CONSTRAINT: auxiliary_core
+
+What must be maintained: the solve must remain CPU-only and within the declared search budget.
+
+- **Constraint metrics:** `neural_inference_used`, `attempt_budget`, `rounds`, and `timeout_seconds`
+- **Direction:** lower is better for `neural_inference_used`, `attempt_budget`, `rounds`, and `timeout_seconds`; `neural_inference_used` must remain 0.
+- **Reason:** the paper's claim is not just that an auxiliary can solve the problem, but that the method avoids neural language-model proposals during proof search.
+
+## ABLATION: auxiliary_core
+
+What breaks when the key idea is removed: DDAR alone should fail on the same theorem.
+
+- **Ablation method:** `ddar`
+- **Primary metric:** `solve_rate` (higher is better)
+- **Expected reproduced behavior:** `ddar.solve_rate` is 0.0 while `hageo.solve_rate` is 1.0.
+- **Reason:** this verifies that the scored solve is due to auxiliary construction rather than the base prover already solving the problem.

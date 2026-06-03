@@ -1,7 +1,7 @@
 # Research Direction
 
-This benchmark studies CPU-only automated Euclidean geometry theorem proving with formal construction-language inputs.
+This benchmark studies CPU-only automated Euclidean geometry theorem proving from formal construction-language inputs.
 
-In-scope improvements include better symbolic deduction, algebraic reasoning, auxiliary construction proposal, construction ordering, pruning, caching, proof-state scoring, and CPU parallelization. The approach should remain a non-neural geometry prover operating on the fixed formal problems.
+In-scope improvements include symbolic deduction, algebraic reasoning, auxiliary construction proposal, construction ordering, pruning, caching, and proof-state scoring. The approach should remain a non-neural geometry prover that operates on the fixed formal problem files and emits the same JSONL output format.
 
-Out of scope are natural-language retranslation, benchmark editing, external theorem/proof databases, neural or LLM proposal models during evaluation, online services, and winning by increasing the declared attempt or time budgets rather than improving reasoning.
+Out of scope are natural-language retranslation, benchmark editing, external theorem or proof databases, neural or LLM proposal models during evaluation, online services, and switching to a fundamentally different paradigm that bypasses auxiliary-construction search.
