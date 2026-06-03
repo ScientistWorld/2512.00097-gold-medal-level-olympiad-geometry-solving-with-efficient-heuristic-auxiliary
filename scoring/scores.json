@@ -29,7 +29,7 @@
     "hageo409_scaled": {
       "results": {
         "hageo": {
-          "attempt_budget": 48,
+          "attempt_budget": 64,
           "neural_inference_used": 0,
           "problem_count": 12,
           "rounds": 2,
@@ -38,7 +38,7 @@
           "timeout_seconds": 5
         },
         "random_aux_ddar": {
-          "attempt_budget": 48,
+          "attempt_budget": 64,
           "neural_inference_used": 0,
           "problem_count": 12,
           "rounds": 2,
