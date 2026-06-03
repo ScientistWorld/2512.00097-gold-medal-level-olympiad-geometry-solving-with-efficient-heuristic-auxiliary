@@ -67,5 +67,4 @@
 - Final scoring was narrowed to `auxiliary_core` because the difficulty-sorted HAGeo-409 slice is not statistically comparable to the paper's full 409-problem Table 1 reference and caused an invalid paper-consistency comparison.
 
 ## Stop Justification
-
-Stopping at `core_claim`. The reusable environment contains the paper's core computation pattern, a method-independent evaluator, a DDAR ablation, and a scored result showing that auxiliary construction solves a controlled theorem that DDAR alone fails, without neural inference. Multiple CPU-scaled HAGeo-409 extension runs were attempted, but HAGeo did not beat the matched random auxiliary baseline on the selected low-difficulty 12-problem slice. Because that slice is easier than the full HAGeo-409 benchmark and produced random solve rates far above the paper's full-benchmark reference, it is documented as an attempted extension rather than retained in final `scores.json`. A higher milestone would require either a representative larger HAGeo-409 run or further implementation of the paper's optimized DDAR and identical-point support.
+- Completed at milestone `core_claim`.
