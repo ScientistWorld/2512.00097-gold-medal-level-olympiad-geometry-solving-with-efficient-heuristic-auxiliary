@@ -498,26 +498,33 @@ def safe_candidate_auxiliaries(
 
 
 def attempt_order(candidates: list[str], attempts: int, rng: random.Random) -> list[str]:
-    """Interleave ranked heuristic candidates with shuffled exploration.
+    """Mix high-priority heuristic candidates with broad randomized exploration.
 
-    HAGeo is a heuristic search procedure rather than a single greedy choice.
-    Keeping only the first K ranked candidates can miss the paper's random
-    construction category, so each budget gets both early high-priority
-    candidates and broad valid-construction exploration.
+    The paper samples auxiliary constructions from the heuristic candidate set.
+    A purely ranked order overfits to early incidence categories, while a purely
+    shuffled order can miss obvious high-incidence constructions at small K. The
+    scaled runner therefore reserves a small prefix for ranked candidates and
+    spends most attempts on a deterministic shuffled traversal of the full pool.
     """
-    ranked = candidates[: min(len(candidates), attempts)]
+    ranked_quota = max(1, min(len(candidates), attempts // 4))
+    ranked = candidates[:ranked_quota]
     shuffled = candidates[:]
     rng.shuffle(shuffled)
     ordered: list[str] = []
     seen: set[str] = set()
-    for ranked_candidate, shuffled_candidate in itertools.zip_longest(ranked, shuffled):
-        for candidate in (ranked_candidate, shuffled_candidate):
-            if candidate is None or candidate in seen:
-                continue
+    for candidate in ranked:
+        if candidate not in seen:
             ordered.append(candidate)
             seen.add(candidate)
             if len(ordered) >= attempts:
                 return ordered
+    for candidate in shuffled:
+        if candidate in seen:
+            continue
+        ordered.append(candidate)
+        seen.add(candidate)
+        if len(ordered) >= attempts:
+            return ordered
     return ordered
 
 
