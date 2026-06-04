@@ -33,4 +33,12 @@ if [ ! -e data/downloads/HAGeo-409/README.md ]; then
     -o data/downloads/HAGeo-409/README.md
 fi
 
-python data/prepare_benchmarks.py
+if python -c "import pyarrow" >/dev/null 2>&1; then
+  python data/prepare_benchmarks.py
+elif [ -s data/benchmarks/auxiliary_core.jsonl ] && [ -s data/benchmarks/hageo409_small.jsonl ]; then
+  echo "pyarrow is unavailable; using tracked benchmark JSONL files."
+else
+  echo "pyarrow is required to generate data/benchmarks/*.jsonl from the HAGeo parquet." >&2
+  echo "Run environment/setup.sh first, or install pyarrow in this Python environment." >&2
+  exit 1
+fi
