@@ -1,6 +1,6 @@
-# Split scoring is complete.
-action: done
+# Regenerate artifacts after HAGeo small-K attempt scheduling and run-script fixes.
+action: submit
 gpus: 0
-test: false
+test: true
 milestone: core_claim
-notes: "Final verification passed at core_claim after removing method-agnostic leakage and revalidating scoring/downloads."
+notes: "CPU test job to regenerate outputs/scores after systematic HAGeo candidate coverage and canonical run.sh scoring fixes."

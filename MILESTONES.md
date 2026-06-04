@@ -94,5 +94,8 @@
 - Rephrased strict method-agnostic documentation to avoid unnecessary solution-method leakage.
 - Verified download URLs and reran `evaluate.sh`, `evaluate_train.sh`, `evaluate_test.sh`, and `validate.py --compare`; all checks passed.
 
-## Stop Justification
-- Completed at milestone `core_claim`.
+### [2026-06-04 13:44] - core_claim
+- Continued beyond the previous wrap-up after auditing the workspace and subagent findings.
+- Fixed `scripts/run.sh` so compute jobs regenerate solver artifacts and refresh canonical `scoring/scores.json` before train/test scoring.
+- Updated HAGeo's scaled attempt schedule to cover the heuristic candidate pool systematically at small K instead of depending on a shuffled tail.
+- Retained `core_claim`; submitting a CPU test job to verify whether the extension improves enough for a higher milestone.

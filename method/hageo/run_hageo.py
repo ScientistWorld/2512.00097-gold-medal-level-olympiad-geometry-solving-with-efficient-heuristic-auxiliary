@@ -518,32 +518,56 @@ def safe_candidate_auxiliaries(
 
 
 def attempt_order(candidates: list[str], attempts: int, rng: random.Random) -> list[str]:
-    """Mix high-priority heuristic candidates with broad randomized exploration.
+    """Mix high-priority heuristic candidates with broad systematic exploration.
 
     The paper samples auxiliary constructions from the heuristic candidate set.
-    A purely ranked order overfits to early incidence categories, while a purely
-    shuffled order can miss obvious high-incidence constructions at small K. The
-    scaled runner therefore reserves a small prefix for ranked candidates and
-    spends most attempts on a deterministic shuffled traversal of the full pool.
+    At paper scale this is robust because K is large (2048/4096/8192). In the
+    scaled benchmark here K is much smaller, so a purely shuffled traversal can
+    spend the whole budget in one unlucky part of the pool. The runner therefore
+    reserves a prefix for ranked candidates, then covers the remaining pool with
+    sequential and low-discrepancy passes.
     """
     ranked_quota = max(1, min(len(candidates), attempts // 4))
     ranked = candidates[:ranked_quota]
-    shuffled = candidates[:]
-    rng.shuffle(shuffled)
     ordered: list[str] = []
     seen: set[str] = set()
-    for candidate in ranked:
-        if candidate not in seen:
-            ordered.append(candidate)
-            seen.add(candidate)
-            if len(ordered) >= attempts:
-                return ordered
-    for candidate in shuffled:
+
+    def append(candidate: str) -> bool:
         if candidate in seen:
-            continue
+            return False
         ordered.append(candidate)
         seen.add(candidate)
-        if len(ordered) >= attempts:
+        return len(ordered) >= attempts
+
+    for candidate in ranked:
+        if append(candidate):
+            return ordered
+
+    remaining = [candidate for candidate in candidates if candidate not in seen]
+    sequential_quota = max(0, min(len(remaining), attempts // 2))
+    for candidate in remaining[:sequential_quota]:
+        if append(candidate):
+            return ordered
+
+    remaining = [candidate for candidate in remaining[sequential_quota:] if candidate not in seen]
+    slots = attempts - len(ordered)
+    if remaining and slots > 0:
+        if len(remaining) <= slots:
+            stratified = remaining
+        else:
+            stride = len(remaining) / slots
+            stratified = [remaining[min(len(remaining) - 1, int(i * stride))] for i in range(slots)]
+        for candidate in stratified:
+            if append(candidate):
+                return ordered
+
+    # Fill any duplicate-induced gaps with a seed-controlled traversal. This is
+    # normally unused, but keeps the schedule complete for unusual candidate
+    # pools with repeated materializations.
+    remaining = [candidate for candidate in candidates if candidate not in seen]
+    rng.shuffle(remaining)
+    for candidate in remaining:
+        if append(candidate):
             return ordered
     return ordered
 

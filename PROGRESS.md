@@ -42,6 +42,8 @@
 - CPU job `05b0ca7b-d9e` completed successfully after the candidate traversal fix. Final `scoring/scores.json` now contains both scored targets. `auxiliary_core` reproduces the core claim: DDAR solves 0/1 and HAGeo solves 1/1 with no neural inference. The low-difficulty HAGeo-409 extension is valid but negative for a higher milestone: random auxiliary search solves 10/12 while HAGeo solves 8/12 at the matched K=64, N=2, timeout=5 budget.
 - The main evaluator now writes the declared `upper_band_solve_rate` and `difficulty_weighted_solve_rate` metrics for `hageo409_low_difficulty`. After regenerating scores, random auxiliary search scores 0.889 upper-band / 0.848 difficulty-weighted, while HAGeo scores 0.778 upper-band / 0.689 difficulty-weighted on the same 12-problem slice.
 - `bash scripts/evaluate.sh` and `python validate.py --compare` pass after the evaluator metric fix.
+- A follow-up audit found that `scripts/run.sh` refreshed only `scores_train.json` and `scores_test.json`, leaving the canonical `scoring/scores.json` at risk of becoming stale. The job script now runs `scripts/reproduce.sh`, `scripts/evaluate.sh`, and then the split evaluators.
+- HAGeo's scaled attempt ordering now keeps the same paper heuristic categories but replaces the small-budget shuffled tail with ranked, sequential, and low-discrepancy coverage. This is intended to reduce variance when K is far below the paper's 2048/4096/8192 attempt settings.
 
 ## Remaining
 
@@ -69,6 +71,7 @@
 - Job `196e03fd-d4f` was cancelled because the K=256 CPU test-node retry was too slow to produce a complete extension score. This was a budget/runtime issue, not a solver correctness result.
 - Job `05b0ca7b-d9e` completed successfully, but it still did not support `core_claim_plus`: the fixed HAGeo candidate traversal kept `auxiliary_core` solved but did not close the low-difficulty HAGeo-409 gap against random auxiliary search.
 - The final evaluator metric patch did not require a new compute job because it only summarizes already-generated output artifacts; it does not change solver outputs or rerun the method.
+- The attempt-ordering patch requires a fresh CPU job because it changes method outputs on the HAGeo-409 extension.
 
 ## Deviations from Paper
 
