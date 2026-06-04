@@ -78,5 +78,11 @@
 - Fixed HAGeo's first-round candidate traversal so a K=64 retry covers a stable heuristic candidate order under the same CPU-only constraints.
 - Retained `core_claim`; the next job will regenerate the low-difficulty extension before any higher milestone is claimed.
 
+### [2026-06-04 13:11] - core_claim
+- CPU job `05b0ca7b-d9e` completed end-to-end and regenerated all scored artifacts.
+- `auxiliary_core` remains reproduced: DDAR solves 0/1 while HAGeo solves 1/1, with `neural_inference_used=0`.
+- The low-difficulty HAGeo-409 extension is valid but does not support `core_claim_plus`: random auxiliary search solves 10/12 and HAGeo solves 8/12 under the matched K=64, N=2, timeout=5 budget.
+- Final milestone remains `core_claim`.
+
 ## Stop Justification
-- Completed at milestone `core_claim`; the previous `core_claim_plus` note was stale and is not supported by the current scored extension.
+- Completed at milestone `core_claim`; the scored low-difficulty HAGeo-409 extension was attempted and validated but does not show HAGeo beating the matched random auxiliary baseline.

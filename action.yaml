@@ -1,8 +1,6 @@
 # IMPORTANT: Once you set action to 'submit' or 'done', STOP immediately.
 # Do NOT sleep, poll, or wait for jobs. The system reads this file
 # only after your turn ends. Sleeping blocks the entire pipeline.
-action: submit
-gpus: 0
-test: true
+action: done
 milestone: core_claim
-notes: "Retry CPU-only reproduction after cancelling slow K=256 run: regenerate all artifacts and score auxiliary_core plus the low-difficulty HAGeo-409 extension at matched K=64, N=2 budgets with fixed HAGeo candidate traversal."
+notes: "Completed at core_claim. The core auxiliary-construction claim is reproduced; the validated low-difficulty HAGeo-409 extension under matched K=64, N=2 budgets did not beat random auxiliary search, so no higher milestone is claimed."
