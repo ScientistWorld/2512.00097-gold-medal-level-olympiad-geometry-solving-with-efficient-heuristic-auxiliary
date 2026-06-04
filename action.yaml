@@ -3,4 +3,4 @@ action: done
 gpus: 0
 test: false
 milestone: core_claim
-notes: "Made download.sh reproducible from fresh clones without local pyarrow; HAGeo URLs and validator pass."
+notes: "Core claim reproduced and packaged. Final evaluator writes all declared metrics; evaluate.sh and validate.py --compare pass."

@@ -40,6 +40,8 @@
 - CPU job `196e03fd-d4f` was cancelled after the matched K=256 random auxiliary baseline consumed most of the one-hour CPU test window and HAGeo had completed only 2/12 extension problems. The run showed K=256 is not practical for test-node iteration.
 - The next submitted CPU job restores the matched low-difficulty extension to K=64, N=2 and fixes HAGeo first-round candidate traversal so the declared attempt budget covers a stable heuristic order instead of rebuilding a shuffled order on every attempt.
 - CPU job `05b0ca7b-d9e` completed successfully after the candidate traversal fix. Final `scoring/scores.json` now contains both scored targets. `auxiliary_core` reproduces the core claim: DDAR solves 0/1 and HAGeo solves 1/1 with no neural inference. The low-difficulty HAGeo-409 extension is valid but negative for a higher milestone: random auxiliary search solves 10/12 while HAGeo solves 8/12 at the matched K=64, N=2, timeout=5 budget.
+- The main evaluator now writes the declared `upper_band_solve_rate` and `difficulty_weighted_solve_rate` metrics for `hageo409_low_difficulty`. After regenerating scores, random auxiliary search scores 0.889 upper-band / 0.848 difficulty-weighted, while HAGeo scores 0.778 upper-band / 0.689 difficulty-weighted on the same 12-problem slice.
+- `bash scripts/evaluate.sh` and `python validate.py --compare` pass after the evaluator metric fix.
 
 ## Remaining
 
@@ -66,6 +68,7 @@
 - The validator rejected scoring the low-difficulty HAGeo-409 slice under the `hageo409_scaled` full-benchmark reference name because the random baseline's 10/12 solve rate was far from the paper's full-benchmark 204/409 reference. This has been fixed by renaming the scored extension to `hageo409_low_difficulty` and comparing it with the paper's [1,3) difficulty band.
 - Job `196e03fd-d4f` was cancelled because the K=256 CPU test-node retry was too slow to produce a complete extension score. This was a budget/runtime issue, not a solver correctness result.
 - Job `05b0ca7b-d9e` completed successfully, but it still did not support `core_claim_plus`: the fixed HAGeo candidate traversal kept `auxiliary_core` solved but did not close the low-difficulty HAGeo-409 gap against random auxiliary search.
+- The final evaluator metric patch did not require a new compute job because it only summarizes already-generated output artifacts; it does not change solver outputs or rerun the method.
 
 ## Deviations from Paper
 

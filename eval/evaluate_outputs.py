@@ -39,6 +39,8 @@ EXPERIMENTS = {
             "solve_rate",
             "solved_count",
             "problem_count",
+            "upper_band_solve_rate",
+            "difficulty_weighted_solve_rate",
             "attempt_budget",
             "rounds",
             "timeout_seconds",
@@ -73,10 +75,23 @@ def validate_rows(rows: list[dict], expected_ids: list[str], output_path: Path) 
 
 def summarize(rows: list[dict], metric_names: list[str]) -> dict:
     solved_count = sum(1 for row in rows if row.get("solved"))
+    upper_band_rows = [row for row in rows if float(row.get("difficulty", 0.0)) >= 1.4]
+    difficulty_sum = sum(float(row.get("difficulty", 0.0)) for row in rows)
     summary = {
         "solved_count": solved_count,
         "problem_count": len(rows),
         "solve_rate": solved_count / len(rows) if rows else 0.0,
+        "upper_band_solve_rate": (
+            sum(1 for row in upper_band_rows if row.get("solved")) / len(upper_band_rows)
+            if upper_band_rows
+            else 0.0
+        ),
+        "difficulty_weighted_solve_rate": (
+            sum(float(row.get("difficulty", 0.0)) for row in rows if row.get("solved"))
+            / difficulty_sum
+            if difficulty_sum
+            else 0.0
+        ),
         "mean_attempt_index": (
             sum(float(row.get("attempt_index", 0)) for row in rows) / len(rows) if rows else 0.0
         ),

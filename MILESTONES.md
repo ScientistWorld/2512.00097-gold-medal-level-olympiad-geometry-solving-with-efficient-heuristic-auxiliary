@@ -84,5 +84,10 @@
 - The low-difficulty HAGeo-409 extension is valid but does not support `core_claim_plus`: random auxiliary search solves 10/12 and HAGeo solves 8/12 under the matched K=64, N=2, timeout=5 budget.
 - Final milestone remains `core_claim`.
 
+### [2026-06-04 13:37] - core_claim
+- Patched the main evaluator so `hageo409_low_difficulty` writes the declared difficulty-aware metrics into `scoring/scores.json`.
+- Re-ran `bash scripts/evaluate.sh` and `python validate.py --compare`; all checks passed.
+- Retained `core_claim`: the extension remains valid but negative for a higher milestone.
+
 ## Stop Justification
 - Completed at milestone `core_claim`.
