@@ -1,9 +1,6 @@
-# This iteration writes files only — do NOT submit compute jobs.
-# Once you set action to 'done', STOP immediately.
-# Do NOT sleep, poll, or wait. The system reads this file
-# only after your turn ends.
-action: done
+# This iteration submits a CPU-only scoring job.
+action: submit
 gpus: 0
 test: false
 milestone: core_claim
-notes: "Improvements: explicit train/test IDs, slice-local coverage validation, difficulty-triangulation metrics, metric descriptions, DESIGN_NOTES handoff. Notes: auxiliary_core remains one-problem sanity check; HAGeo split is still small."
+notes: "Run evaluate_train.sh and evaluate_test.sh against existing final outputs; populate scores_train/test for split validation."
