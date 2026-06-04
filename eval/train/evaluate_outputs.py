@@ -13,6 +13,7 @@ from pathlib import Path
 
 
 SLICE = "train"
+REGISTERED_REFERENCE = Path("scoring/reference.json")
 
 EXPERIMENTS = {
     "auxiliary_core": {
@@ -76,6 +77,17 @@ def read_jsonl(path: Path) -> list[dict]:
 
 def benchmark_ids(path: Path) -> list[str]:
     return [row["problem_id"] for row in read_jsonl(path)]
+
+
+def registered_methods(path: Path) -> dict[str, set[str]]:
+    if not path.exists():
+        return {}
+    data = json.loads(path.read_text(encoding="utf-8"))
+    experiments = data.get("experiments", {})
+    return {
+        exp_name: set(exp_data.get("results", {}))
+        for exp_name, exp_data in experiments.items()
+    }
 
 
 def validate_rows(rows: list[dict], required_ids: list[str], output_path: Path) -> None:
@@ -156,6 +168,7 @@ def main() -> None:
     parser.add_argument("--out", default="scoring/scores_train.json", type=Path)
     args = parser.parse_args()
 
+    allowed_methods = registered_methods(REGISTERED_REFERENCE)
     scores = {"slice": SLICE, "experiments": {}}
     for exp_name, config in EXPERIMENTS.items():
         dataset_path = config["dataset"]
@@ -174,6 +187,12 @@ def main() -> None:
 
         results = {}
         outputs = discover_outputs(config["output_stem"])
+        if exp_name in allowed_methods:
+            outputs = {
+                method_name: output_path
+                for method_name, output_path in outputs.items()
+                if method_name in allowed_methods[exp_name]
+            }
         if config.get("required") and not outputs:
             raise FileNotFoundError(
                 f"{exp_name}: no solver outputs found for stem {config['output_stem']!r}"

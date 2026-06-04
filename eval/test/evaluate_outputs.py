@@ -19,6 +19,7 @@ EXPERIMENTS = {
         "dataset": Path("data/benchmarks/auxiliary_core.jsonl"),
         "output_stem": "auxiliary_core",
         "required": True,
+        "max_solved_attempt_index": 8,
         "slice_ids": ["orthocenter_auxiliary"],
         "metrics": [
             "solve_rate",
@@ -89,8 +90,20 @@ def validate_rows(rows: list[dict], required_ids: list[str], output_path: Path) 
         )
 
 
-def summarize(rows: list[dict], metric_names: list[str]) -> dict:
-    solved_count = sum(1 for row in rows if row.get("solved"))
+def is_counted_solve(row: dict, max_solved_attempt_index: int | None) -> bool:
+    if not row.get("solved"):
+        return False
+    if max_solved_attempt_index is None:
+        return True
+    return int(row.get("attempt_index", 0)) <= max_solved_attempt_index
+
+
+def summarize(
+    rows: list[dict],
+    metric_names: list[str],
+    max_solved_attempt_index: int | None = None,
+) -> dict:
+    solved_count = sum(1 for row in rows if is_counted_solve(row, max_solved_attempt_index))
     upper_band_rows = [row for row in rows if float(row.get("difficulty", 0.0)) >= 1.4]
     difficulty_sum = sum(float(row.get("difficulty", 0.0)) for row in rows)
     summary = {
@@ -98,12 +111,17 @@ def summarize(rows: list[dict], metric_names: list[str]) -> dict:
         "problem_count": len(rows),
         "solve_rate": solved_count / len(rows) if rows else 0.0,
         "upper_band_solve_rate": (
-            sum(1 for row in upper_band_rows if row.get("solved")) / len(upper_band_rows)
+            sum(1 for row in upper_band_rows if is_counted_solve(row, max_solved_attempt_index))
+            / len(upper_band_rows)
             if upper_band_rows
             else 0.0
         ),
         "difficulty_weighted_solve_rate": (
-            sum(float(row.get("difficulty", 0.0)) for row in rows if row.get("solved"))
+            sum(
+                float(row.get("difficulty", 0.0))
+                for row in rows
+                if is_counted_solve(row, max_solved_attempt_index)
+            )
             / difficulty_sum
             if difficulty_sum
             else 0.0
@@ -207,7 +225,11 @@ def main() -> None:
             validate_rows(rows, selected_ids, output_path)
             selected_id_set = set(selected_ids)
             slice_rows = [row for row in rows if row.get("problem_id") in selected_id_set]
-            results[method_name] = summarize(slice_rows, config["metrics"])
+            results[method_name] = summarize(
+                slice_rows,
+                config["metrics"],
+                config.get("max_solved_attempt_index"),
+            )
 
         if results:
             scores["experiments"][exp_name] = {"results": results}

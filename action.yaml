@@ -3,4 +3,4 @@ action: submit
 gpus: 0
 test: false
 milestone: core_claim
-notes: "Run evaluate_train.sh and evaluate_test.sh against existing final outputs; populate scores_train/test for split validation."
+notes: "Rerun split scoring after schema/evaluator fixes: registered DDAR baseline and held-out auxiliary attempt-cap metric split."
