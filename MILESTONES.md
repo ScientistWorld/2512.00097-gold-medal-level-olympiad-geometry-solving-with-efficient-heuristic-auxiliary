@@ -97,5 +97,13 @@
 ### [2026-06-04 13:44] - core_claim
 - Continued beyond the previous wrap-up after auditing the workspace and subagent findings.
 - Fixed `scripts/run.sh` so compute jobs regenerate solver artifacts and refresh canonical `scoring/scores.json` before train/test scoring.
-- Updated HAGeo's scaled attempt schedule to cover the heuristic candidate pool systematically at small K instead of depending on a shuffled tail.
-- Retained `core_claim`; submitting a CPU test job to verify whether the extension improves enough for a higher milestone.
+- Proposed a small-K HAGeo scheduling change, but it was not verified by a completed job before final verification.
+
+### [2026-06-04 13:46] - core_claim
+- Final verification reverted the unverified scheduling change so `scoring/scores.json` remains consistent with the method code and completed job artifacts.
+- Tightened method-agnostic evaluation documentation and experiment descriptions.
+- Verified `python validate.py --compare`, import separation, artifact-based evaluation, and download URL availability.
+- Retained `core_claim`: the controlled core experiment is valid, while the HAGeo-409 extension remains a negative result for higher milestones.
+
+## Stop Justification
+- Completed final verification at `core_claim`. The gym is usable, with documented limitations around scaled experiments and the unreleased official optimized solver.

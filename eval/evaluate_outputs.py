@@ -11,8 +11,9 @@ from pathlib import Path
 EXPERIMENTS = {
     "auxiliary_core": {
         "dataset": Path("data/benchmarks/auxiliary_core.jsonl"),
+        "output_stem": "auxiliary_core",
         "required": True,
-        "outputs": {
+        "required_outputs": {
             "ddar": Path("outputs/baseline_auxiliary_core.jsonl"),
             "hageo": Path("outputs/hageo_auxiliary_core.jsonl"),
         },
@@ -30,8 +31,9 @@ EXPERIMENTS = {
     },
     "hageo409_low_difficulty": {
         "dataset": Path("data/benchmarks/hageo409_small.jsonl"),
+        "output_stem": "hageo409_small",
         "required": False,
-        "outputs": {
+        "required_outputs": {
             "random_aux_ddar": Path("outputs/random_aux_hageo409_small.jsonl"),
             "hageo": Path("outputs/hageo_hageo409_small.jsonl"),
         },
@@ -47,6 +49,14 @@ EXPERIMENTS = {
             "neural_inference_used",
         ],
     }
+}
+
+OUTPUT_ALIASES = {
+    "baseline_auxiliary_core": "ddar",
+    "hageo_auxiliary_core": "hageo",
+    "baseline_hageo409_small": "ddar",
+    "random_aux_hageo409_small": "random_aux_ddar",
+    "hageo_hageo409_small": "hageo",
 }
 
 
@@ -110,6 +120,31 @@ def summarize(rows: list[dict], metric_names: list[str]) -> dict:
     return {name: summary[name] for name in metric_names}
 
 
+def method_name_for_output(output_path: Path, output_stem: str) -> str | None:
+    stem = output_path.stem
+    if stem in OUTPUT_ALIASES:
+        return OUTPUT_ALIASES[stem]
+    suffix = f"_{output_stem}"
+    if stem.endswith(suffix):
+        return stem[: -len(suffix)]
+    return None
+
+
+def discover_outputs(output_stem: str, required_outputs: dict[str, Path]) -> dict[str, Path]:
+    outputs = dict(required_outputs)
+    for path in sorted(Path("outputs").glob(f"*_{output_stem}.jsonl")):
+        method_name = method_name_for_output(path, output_stem)
+        if method_name is None:
+            continue
+        if method_name in outputs and outputs[method_name] != path:
+            raise ValueError(
+                f"multiple output files map to method {method_name!r}: "
+                f"{outputs[method_name]} and {path}"
+            )
+        outputs[method_name] = path
+    return outputs
+
+
 def main() -> None:
     parser = argparse.ArgumentParser()
     parser.add_argument("--out", default="scoring/scores.json", type=Path)
@@ -124,16 +159,19 @@ def main() -> None:
             continue
         expected_ids = benchmark_ids(dataset_path)
         results = {}
-        for method_name, output_path in config["outputs"].items():
+        required_outputs = config["required_outputs"]
+        outputs = discover_outputs(config["output_stem"], required_outputs)
+        for method_name, output_path in required_outputs.items():
             if config.get("required") and not output_path.exists():
                 raise FileNotFoundError(f"required solver output is missing: {output_path}")
+        for method_name, output_path in outputs.items():
             rows = read_jsonl(output_path)
             if not rows:
                 continue
             validate_rows(rows, expected_ids, output_path)
             results[method_name] = summarize(rows, config["metrics"])
         if config.get("required") or results:
-            missing_methods = sorted(set(config["outputs"]) - set(results))
+            missing_methods = sorted(set(required_outputs) - set(results))
             if missing_methods:
                 raise FileNotFoundError(
                     f"{exp_name}: missing outputs for methods {missing_methods}"

@@ -1,6 +1,6 @@
-# Regenerate artifacts after HAGeo small-K attempt scheduling and run-script fixes.
-action: submit
+# Final verification complete.
+action: done
 gpus: 0
-test: true
+test: false
 milestone: core_claim
-notes: "CPU test job to regenerate outputs/scores after systematic HAGeo candidate coverage and canonical run.sh scoring fixes."
+notes: "Final verification passed at core_claim; gym is usable with documented scaled-reproduction limits."

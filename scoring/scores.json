@@ -28,6 +28,17 @@
     },
     "hageo409_low_difficulty": {
       "results": {
+        "ddar": {
+          "attempt_budget": 0,
+          "difficulty_weighted_solve_rate": 0.5182926829268293,
+          "neural_inference_used": 0,
+          "problem_count": 12,
+          "rounds": 0,
+          "solve_rate": 0.5,
+          "solved_count": 6,
+          "timeout_seconds": 5,
+          "upper_band_solve_rate": 0.5555555555555556
+        },
         "hageo": {
           "attempt_budget": 64,
           "difficulty_weighted_solve_rate": 0.6890243902439024,
