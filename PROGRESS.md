@@ -36,8 +36,9 @@
 - Final `scoring/scores.json` includes only `auxiliary_core`. The HAGeo-409 slice is documented as an attempted extension because its low-difficulty selection makes its solve rates incompatible with the paper's full 409-problem reference rates.
 - Continuing-agent audit on 2026-06-04 confirmed that the official HAGeo GitHub repository still contains only README/assets and says the full code is pending release. The workspace therefore remains a scaled implementation of the paper's computation pattern using AlphaGeometry's public DDAR plus HAGeo-style CPU auxiliary generation.
 - The evaluator now fails if required `auxiliary_core` benchmark or output artifacts are missing, and it scores the fixed low-difficulty HAGeo-409 slice as `hageo409_low_difficulty` against the paper's Table 1 [1,3) reference band.
-- Current artifact scores after the audit are: `auxiliary_core` DDAR 0/1 and HAGeo 1/1; `hageo409_low_difficulty` random auxiliary 10/12 and HAGeo 8/12 at K=64, N=2, timeout=5. This extension is scored but does not yet justify `core_claim_plus`.
-- The next submitted CPU job raises the matched low-difficulty extension budget to K=256, N=2 while retaining CPU-only, non-neural inference.
+- Current artifact scores after the audit are: `auxiliary_core` DDAR 0/1 and HAGeo 1/1. Partial K=256 low-difficulty extension artifacts were removed after cancellation, so `scoring/scores.json` is back to the valid core-only score until the next clean extension job finishes.
+- CPU job `196e03fd-d4f` was cancelled after the matched K=256 random auxiliary baseline consumed most of the one-hour CPU test window and HAGeo had completed only 2/12 extension problems. The run showed K=256 is not practical for test-node iteration.
+- The next submitted CPU job restores the matched low-difficulty extension to K=64, N=2 and fixes HAGeo first-round candidate traversal so the declared attempt budget covers a stable heuristic order instead of rebuilding a shuffled order on every attempt.
 
 ## Remaining
 
@@ -62,6 +63,7 @@
 - Job `299ca567-06f` was valid but HAGeo underperformed random on the scaled HAGeo-409 benchmark, so it remains only `core_claim`. It exposed two multi-round search issues: non-fresh generated auxiliary names and overly strict aborts when second-round candidate regeneration was unavailable.
 - Job `1568a310-592` was valid but again HAGeo underperformed random on the low-difficulty HAGeo-409 slice at K=64. This confirms the extension is not sufficient for `core_claim_plus`.
 - The validator rejected scoring the low-difficulty HAGeo-409 slice under the `hageo409_scaled` full-benchmark reference name because the random baseline's 10/12 solve rate was far from the paper's full-benchmark 204/409 reference. This has been fixed by renaming the scored extension to `hageo409_low_difficulty` and comparing it with the paper's [1,3) difficulty band.
+- Job `196e03fd-d4f` was cancelled because the K=256 CPU test-node retry was too slow to produce a complete extension score. This was a budget/runtime issue, not a solver correctness result.
 
 ## Deviations from Paper
 

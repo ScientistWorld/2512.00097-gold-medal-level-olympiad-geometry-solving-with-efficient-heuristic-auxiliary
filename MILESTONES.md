@@ -72,5 +72,11 @@
 - Added a properly named scored HAGeo-409 low-difficulty extension using the paper's [1,3) difficulty-band reference numbers, and updated the runner to retry that extension at K=256.
 - Retained `core_claim` until the new CPU job shows whether the extension supports `core_claim_plus`.
 
+### [2026-06-04 12:44] - core_claim
+- CPU job `196e03fd-d4f` was cancelled because the K=256 low-difficulty extension was too slow for the CPU test queue.
+- Removed partial optional extension outputs and revalidated the current core-only artifact set: DDAR solves 0/1 and HAGeo solves 1/1 on `auxiliary_core`.
+- Fixed HAGeo's first-round candidate traversal so a K=64 retry covers a stable heuristic candidate order under the same CPU-only constraints.
+- Retained `core_claim`; the next job will regenerate the low-difficulty extension before any higher milestone is claimed.
+
 ## Stop Justification
 - Completed at milestone `core_claim`; the previous `core_claim_plus` note was stale and is not supported by the current scored extension.

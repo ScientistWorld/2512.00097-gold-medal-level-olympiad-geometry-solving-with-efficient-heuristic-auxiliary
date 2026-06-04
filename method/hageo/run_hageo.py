@@ -586,6 +586,7 @@ def solve_with_hageo(
             statement, defs, max_candidates=max(128, attempts * rounds * 4), timeout=timeout
         )
     rng = random.Random(seed)
+    first_round_order = attempt_order(candidates, attempts, rng) if candidates else []
 
     total_seconds = seconds
     for idx in range(1, attempts + 1):
@@ -608,8 +609,17 @@ def solve_with_hageo(
             available_candidates = [c for c in round_candidates if c not in used_candidates]
             if not available_candidates:
                 break
-            ordered = attempt_order(available_candidates, attempts, rng)
-            raw_chosen = ordered[(idx - 1) % len(ordered)]
+            if round_index == 0:
+                ordered = [c for c in first_round_order if c in available_candidates]
+                if not ordered:
+                    ordered = attempt_order(available_candidates, attempts, rng)
+                raw_chosen = ordered[(idx - 1) % len(ordered)]
+            else:
+                # Regenerated later-round pools depend on the current diagram;
+                # seed them by attempt so retries are deterministic but varied.
+                round_rng = random.Random(seed + idx * 1009 + round_index * 9176)
+                ordered = attempt_order(available_candidates, attempts, round_rng)
+                raw_chosen = ordered[0]
             used_candidates.add(raw_chosen)
             chosen = freshen_aux_clause(raw_chosen, f"z{idx}r{round_index}")
             aux.append(chosen)
