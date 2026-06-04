@@ -1,6 +1,6 @@
-# This iteration submits a CPU-only scoring job.
-action: submit
+# Split scoring is complete.
+action: done
 gpus: 0
 test: false
 milestone: core_claim
-notes: "Rerun split scoring after schema/evaluator fixes: registered DDAR baseline and held-out auxiliary attempt-cap metric split."
+notes: "Artifact-based CPU split; 11 train metrics and 11 test metrics per HAGeo/random plus constraints. Gaps: auxiliary hageo solve_rate 1.0 train to 0.0 stricter held-out cap; HAGeo 0.833 train to 0.5 test while random_aux stays 0.833; validator passes."
