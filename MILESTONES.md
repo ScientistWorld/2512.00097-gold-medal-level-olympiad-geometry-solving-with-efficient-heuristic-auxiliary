@@ -106,4 +106,4 @@
 - Retained `core_claim`: the controlled core experiment is valid, while the HAGeo-409 extension remains a negative result for higher milestones.
 
 ## Stop Justification
-- Completed final verification at `core_claim`. The gym is usable, with documented limitations around scaled experiments and the unreleased official optimized solver.
+- Completed at milestone `core_claim`.
