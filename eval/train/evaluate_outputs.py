@@ -19,7 +19,7 @@ EXPERIMENTS = {
         "dataset": Path("data/benchmarks/auxiliary_core.jsonl"),
         "output_stem": "auxiliary_core",
         "required": True,
-        "split": "all",
+        "slice_ids": ["orthocenter_auxiliary"],
         "metrics": [
             "solve_rate",
             "solved_count",
@@ -36,11 +36,20 @@ EXPERIMENTS = {
         "dataset": Path("data/benchmarks/hageo409_small.jsonl"),
         "output_stem": "hageo409_small",
         "required": False,
-        "split": "even",
+        "slice_ids": [
+            "2014ARMOg9p6",
+            "2012EGMOp1",
+            "2012CGMOp5",
+            "2018SilkRoadp1",
+            "2020IOMetrop1",
+            "2011ARMOg10p6",
+        ],
         "metrics": [
             "solve_rate",
             "solved_count",
             "problem_count",
+            "upper_band_solve_rate",
+            "difficulty_weighted_solve_rate",
             "attempt_budget",
             "rounds",
             "timeout_seconds",
@@ -69,32 +78,36 @@ def benchmark_ids(path: Path) -> list[str]:
     return [row["problem_id"] for row in read_jsonl(path)]
 
 
-def slice_ids(ids: list[str], split: str) -> list[str]:
-    if split == "all":
-        return ids
-    if split == "even":
-        return [pid for index, pid in enumerate(ids) if index % 2 == 0]
-    raise ValueError(f"unsupported split selector: {split}")
-
-
-def validate_rows(rows: list[dict], expected_ids: list[str], output_path: Path) -> None:
+def validate_rows(rows: list[dict], required_ids: list[str], output_path: Path) -> None:
     seen = [row.get("problem_id") for row in rows]
-    missing = sorted(set(expected_ids) - set(seen))
-    extra = sorted(set(seen) - set(expected_ids))
-    duplicates = sorted({pid for pid in seen if seen.count(pid) > 1})
-    if missing or extra or duplicates:
+    missing = sorted(set(required_ids) - set(seen))
+    duplicates = sorted({pid for pid in required_ids if seen.count(pid) > 1})
+    if missing or duplicates:
         raise ValueError(
-            f"{output_path}: invalid coverage; missing={missing}, extra={extra}, "
+            f"{output_path}: invalid {SLICE} coverage; missing={missing}, "
             f"duplicates={duplicates}"
         )
 
 
 def summarize(rows: list[dict], metric_names: list[str]) -> dict:
     solved_count = sum(1 for row in rows if row.get("solved"))
+    upper_band_rows = [row for row in rows if float(row.get("difficulty", 0.0)) >= 1.4]
+    difficulty_sum = sum(float(row.get("difficulty", 0.0)) for row in rows)
     summary = {
         "solved_count": solved_count,
         "problem_count": len(rows),
         "solve_rate": solved_count / len(rows) if rows else 0.0,
+        "upper_band_solve_rate": (
+            sum(1 for row in upper_band_rows if row.get("solved")) / len(upper_band_rows)
+            if upper_band_rows
+            else 0.0
+        ),
+        "difficulty_weighted_solve_rate": (
+            sum(float(row.get("difficulty", 0.0)) for row in rows if row.get("solved"))
+            / difficulty_sum
+            if difficulty_sum
+            else 0.0
+        ),
         "mean_attempt_index": (
             sum(float(row.get("attempt_index", 0)) for row in rows) / len(rows) if rows else 0.0
         ),
@@ -152,7 +165,10 @@ def main() -> None:
             continue
 
         expected_ids = benchmark_ids(dataset_path)
-        selected_ids = set(slice_ids(expected_ids, config["split"]))
+        selected_ids = config["slice_ids"]
+        unknown_ids = sorted(set(selected_ids) - set(expected_ids))
+        if unknown_ids:
+            raise ValueError(f"{exp_name}: {SLICE} IDs missing from benchmark: {unknown_ids}")
         if not selected_ids:
             raise ValueError(f"{exp_name}: {SLICE} split selected no benchmark IDs")
 
@@ -167,8 +183,9 @@ def main() -> None:
             rows = read_jsonl(output_path)
             if not rows:
                 continue
-            validate_rows(rows, expected_ids, output_path)
-            slice_rows = [row for row in rows if row.get("problem_id") in selected_ids]
+            validate_rows(rows, selected_ids, output_path)
+            selected_id_set = set(selected_ids)
+            slice_rows = [row for row in rows if row.get("problem_id") in selected_id_set]
             results[method_name] = summarize(slice_rows, config["metrics"])
 
         if results:
