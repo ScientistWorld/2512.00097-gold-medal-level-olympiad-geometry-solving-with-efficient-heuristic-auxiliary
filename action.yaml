@@ -3,4 +3,4 @@ action: done
 gpus: 0
 test: false
 milestone: core_claim
-notes: "Artifact-based CPU split; 11 train metrics and 11 test metrics per HAGeo/random plus constraints. Gaps: auxiliary hageo solve_rate 1.0 train to 0.0 stricter held-out cap; HAGeo 0.833 train to 0.5 test while random_aux stays 0.833; validator passes."
+notes: "Artifact-based CPU split. Train: auxiliary sanity hageo 1/1 vs ddar 0/1; HAGeo DDAR 2/6, hageo 4/6, random_aux 5/6. Test: HAGeo DDAR 4/6, hageo 4/6, random_aux 5/6. Auxiliary is train-only because the one-row sanity case cannot form an independent held-out split. validate.py --post-design passes."

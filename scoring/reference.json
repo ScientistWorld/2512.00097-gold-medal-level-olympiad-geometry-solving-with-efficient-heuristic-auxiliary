@@ -8,12 +8,12 @@
         "solve_rate": {
           "higher_is_better": true,
           "coefficient": 1.0,
-          "description": "Fraction of benchmark problems solved by the submitted method within the slice's counted attempt budget."
+          "description": "Fraction of benchmark problems solved by the submitted method."
         },
         "solved_count": {
           "higher_is_better": true,
           "coefficient": 0.2,
-          "description": "Number of benchmark problems solved within the slice's counted attempt budget; included to make tiny-slice changes visible."
+          "description": "Number of benchmark problems solved; included to make tiny-slice changes visible."
         },
         "problem_count": {
           "higher_is_better": true,

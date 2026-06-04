@@ -1,58 +1,32 @@
 {
   "experiments": {
-    "auxiliary_core": {
-      "results": {
-        "ddar": {
-          "attempt_budget": 0,
-          "mean_attempt_index": 0.0,
-          "mean_auxiliary_count": 0.0,
-          "neural_inference_used": 0,
-          "problem_count": 1,
-          "rounds": 0,
-          "solve_rate": 0.0,
-          "solved_count": 0,
-          "timeout_seconds": 15
-        },
-        "hageo": {
-          "attempt_budget": 64,
-          "mean_attempt_index": 10.0,
-          "mean_auxiliary_count": 1.0,
-          "neural_inference_used": 0,
-          "problem_count": 1,
-          "rounds": 1,
-          "solve_rate": 0.0,
-          "solved_count": 0,
-          "timeout_seconds": 15
-        }
-      }
-    },
     "hageo409_low_difficulty": {
       "results": {
         "ddar": {
           "attempt_budget": 0,
-          "difficulty_weighted_solve_rate": 0.511904761904762,
+          "difficulty_weighted_solve_rate": 0.6823529411764706,
           "neural_inference_used": 0,
           "problem_count": 6,
           "rounds": 0,
-          "solve_rate": 0.5,
-          "solved_count": 3,
+          "solve_rate": 0.6666666666666666,
+          "solved_count": 4,
           "timeout_seconds": 5,
-          "upper_band_solve_rate": 0.6
+          "upper_band_solve_rate": 0.8
         },
         "hageo": {
           "attempt_budget": 64,
-          "difficulty_weighted_solve_rate": 0.511904761904762,
+          "difficulty_weighted_solve_rate": 0.6823529411764706,
           "neural_inference_used": 0,
           "problem_count": 6,
           "rounds": 2,
-          "solve_rate": 0.5,
-          "solved_count": 3,
+          "solve_rate": 0.6666666666666666,
+          "solved_count": 4,
           "timeout_seconds": 5,
-          "upper_band_solve_rate": 0.6
+          "upper_band_solve_rate": 0.8
         },
         "random_aux_ddar": {
           "attempt_budget": 64,
-          "difficulty_weighted_solve_rate": 0.8214285714285715,
+          "difficulty_weighted_solve_rate": 0.8235294117647058,
           "neural_inference_used": 0,
           "problem_count": 6,
           "rounds": 2,

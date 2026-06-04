@@ -30,29 +30,29 @@
       "results": {
         "ddar": {
           "attempt_budget": 0,
-          "difficulty_weighted_solve_rate": 0.525,
+          "difficulty_weighted_solve_rate": 0.3417721518987342,
           "neural_inference_used": 0,
           "problem_count": 6,
           "rounds": 0,
-          "solve_rate": 0.5,
-          "solved_count": 3,
+          "solve_rate": 0.3333333333333333,
+          "solved_count": 2,
           "timeout_seconds": 5,
-          "upper_band_solve_rate": 0.5
+          "upper_band_solve_rate": 0.25
         },
         "hageo": {
           "attempt_budget": 64,
-          "difficulty_weighted_solve_rate": 0.875,
+          "difficulty_weighted_solve_rate": 0.6962025316455697,
           "neural_inference_used": 0,
           "problem_count": 6,
           "rounds": 2,
-          "solve_rate": 0.8333333333333334,
-          "solved_count": 5,
+          "solve_rate": 0.6666666666666666,
+          "solved_count": 4,
           "timeout_seconds": 5,
-          "upper_band_solve_rate": 1.0
+          "upper_band_solve_rate": 0.75
         },
         "random_aux_ddar": {
           "attempt_budget": 64,
-          "difficulty_weighted_solve_rate": 0.875,
+          "difficulty_weighted_solve_rate": 0.8734177215189873,
           "neural_inference_used": 0,
           "problem_count": 6,
           "rounds": 2,

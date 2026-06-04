@@ -40,10 +40,10 @@ EXPERIMENTS = {
         "slice_ids": [
             "2014ARMOg9p6",
             "2012EGMOp1",
+            "2010AsiaPacificMOp1",
             "2012CGMOp5",
+            "2018CHNWesternMOp5",
             "2018SilkRoadp1",
-            "2020IOMetrop1",
-            "2011ARMOg10p6",
         ],
         "metrics": [
             "solve_rate",
