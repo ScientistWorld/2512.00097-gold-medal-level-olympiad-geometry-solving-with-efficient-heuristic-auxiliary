@@ -2,8 +2,8 @@
 # Once you set action to 'done', STOP immediately.
 # Do NOT sleep, poll, or wait. The system reads this file
 # only after your turn ends.
-action: done
+action: pending
 gpus: 0
 test: false
 milestone: core_claim
-notes: "Alternating 6/6 HAGeo-409 ID split with auxiliary sanity case mirrored in both slices; train/test use existing metrics; scripts written, scores produced later."
+notes: ""
