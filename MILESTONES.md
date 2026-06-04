@@ -66,5 +66,11 @@
 - The attempted HAGeo-409 extension still did not support `core_claim_plus`: random auxiliary search solved 10/12 and HAGeo solved 8/12 on the low-difficulty 12-problem slice.
 - Final scoring was narrowed to `auxiliary_core` because the difficulty-sorted HAGeo-409 slice is not statistically comparable to the paper's full 409-problem Table 1 reference and caused an invalid paper-consistency comparison.
 
+### [2026-06-04 11:59] - core_claim
+- Continuing-agent audit confirmed the implementation is a real scaled HAGeo-style DDAR plus CPU heuristic auxiliary-construction search, not a neural surrogate, but it still uses AlphaGeometry's public DDAR because the official HAGeo solver code remains unreleased.
+- Fixed evaluation so required `auxiliary_core` artifacts cannot be silently skipped.
+- Added a properly named scored HAGeo-409 low-difficulty extension using the paper's [1,3) difficulty-band reference numbers, and updated the runner to retry that extension at K=256.
+- Retained `core_claim` until the new CPU job shows whether the extension supports `core_claim_plus`.
+
 ## Stop Justification
-- Completed at milestone `core_claim_plus`.
+- Completed at milestone `core_claim`; the previous `core_claim_plus` note was stale and is not supported by the current scored extension.

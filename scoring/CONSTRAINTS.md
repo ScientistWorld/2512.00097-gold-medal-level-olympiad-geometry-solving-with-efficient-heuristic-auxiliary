@@ -18,6 +18,6 @@ Keep the DDAR-only baseline result in `outputs/baseline_auxiliary_core.jsonl` co
 
 The scored run is CPU-only and non-neural. Do not use GPU inference, LLM calls, online services, pretrained neural proposal models, or external proof databases during evaluation. Report the configured attempt count, auxiliary rounds, and timeout; solves found outside the declared budget should not be counted.
 
-## Optional Extension Data
+## Scored Extension Data
 
-The workspace also contains a difficulty-sorted 12-problem HAGeo-409 slice and output artifacts from attempted extensions. Those runs are documented in `PROGRESS.md` but are not part of final `scores.json` because their solve rates are not directly comparable to the paper's full 409-problem Table 1 reference.
+The workspace also contains a difficulty-sorted 12-problem HAGeo-409 slice in `data/benchmarks/hageo409_small.jsonl`. This slice is scored as `hageo409_low_difficulty` and is compared with the paper's Table 1 [1,3) difficulty band rather than the full 409-problem total. Keep the slice generation deterministic and report the smaller reproduced attempt budget separately from the paper's K=2048/K=8192 settings.

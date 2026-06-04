@@ -34,10 +34,14 @@
 - CPU job `1568a310-592` completed successfully with fresh auxiliary names, second-round fallback, and matched K=64 budgets. `auxiliary_core` still supports `core_claim`: DDAR solved 0/1 and HAGeo solved 1/1 with `neural_inference_used=0`.
 - The K=64 HAGeo-409 extension still did not support `core_claim_plus`: random auxiliary search solved 10/12, while HAGeo solved 8/12 on the low-difficulty 12-problem slice.
 - Final `scoring/scores.json` includes only `auxiliary_core`. The HAGeo-409 slice is documented as an attempted extension because its low-difficulty selection makes its solve rates incompatible with the paper's full 409-problem reference rates.
+- Continuing-agent audit on 2026-06-04 confirmed that the official HAGeo GitHub repository still contains only README/assets and says the full code is pending release. The workspace therefore remains a scaled implementation of the paper's computation pattern using AlphaGeometry's public DDAR plus HAGeo-style CPU auxiliary generation.
+- The evaluator now fails if required `auxiliary_core` benchmark or output artifacts are missing, and it scores the fixed low-difficulty HAGeo-409 slice as `hageo409_low_difficulty` against the paper's Table 1 [1,3) reference band.
+- Current artifact scores after the audit are: `auxiliary_core` DDAR 0/1 and HAGeo 1/1; `hageo409_low_difficulty` random auxiliary 10/12 and HAGeo 8/12 at K=64, N=2, timeout=5. This extension is scored but does not yet justify `core_claim_plus`.
+- The next submitted CPU job raises the matched low-difficulty extension budget to K=256, N=2 while retaining CPU-only, non-neural inference.
 
 ## Remaining
 
-- To reach `core_claim_plus`, a future run should use a more representative HAGeo-409 subset or a larger full-benchmark run where random auxiliary solve rates are comparable to the paper's Table 1 baseline.
+- To reach `core_claim_plus`, the scored `hageo409_low_difficulty` extension should show HAGeo beating the matched random auxiliary baseline on the fixed slice, or a future run should use a more representative HAGeo-409 subset with the same artifact-based evaluator.
 - A fuller reproduction would require implementing the paper's optimized DDAR engine, identical-point DD support, and full-scale K=2048/8192 HAGeo-409 or K=4096 IMO-30 runs.
 
 ## Issues
@@ -57,10 +61,10 @@
 - Job `49edf3e0-664` was cancelled because unbounded identical-point candidate generation made HAGeo stall on the second HAGeo-409 problem.
 - Job `299ca567-06f` was valid but HAGeo underperformed random on the scaled HAGeo-409 benchmark, so it remains only `core_claim`. It exposed two multi-round search issues: non-fresh generated auxiliary names and overly strict aborts when second-round candidate regeneration was unavailable.
 - Job `1568a310-592` was valid but again HAGeo underperformed random on the low-difficulty HAGeo-409 slice at K=64. This confirms the extension is not sufficient for `core_claim_plus`.
-- The validator rejected scoring the low-difficulty HAGeo-409 slice under the `hageo409_scaled` reference name because the random baseline's 10/12 solve rate was far from the paper's full-benchmark 204/409 reference. The final scorer therefore reports only the comparable `auxiliary_core` experiment.
+- The validator rejected scoring the low-difficulty HAGeo-409 slice under the `hageo409_scaled` full-benchmark reference name because the random baseline's 10/12 solve rate was far from the paper's full-benchmark 204/409 reference. This has been fixed by renaming the scored extension to `hageo409_low_difficulty` and comparing it with the paper's [1,3) difficulty band.
 
 ## Deviations from Paper
 
-- Full paper settings: HAGeo-409 uses K=2048/8192 and N=6; IMO-30 uses K=4096. Attempted CPU-scaled extension runs used a low-difficulty 12-problem HAGeo-409 slice, K=64, and N=2, but those extension results are not final-scored because the slice is not comparable to the paper's full benchmark.
+- Full paper settings: HAGeo-409 uses K=2048/8192 and N=6; IMO-30 uses K=4096. CPU-scaled extension runs use a low-difficulty 12-problem HAGeo-409 slice with smaller K and N=2, and are compared only with the paper's low-difficulty [1,3) band.
 - Full paper method: optimized DDAR, matrix-level AR improvements, and HAGeo's optimized identical-point DD support are not yet implemented. The auxiliary generator now proposes identical-point constructions, but the upstream AlphaGeometry DDAR engine may reject or fail to exploit some of them.
 - The final paper-claim-facing score is the controlled `auxiliary_core` ablation: DDAR alone fails and HAGeo-style auxiliary construction succeeds within a declared CPU-only budget.

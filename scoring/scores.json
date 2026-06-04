@@ -25,6 +25,28 @@
           "timeout_seconds": 15
         }
       }
+    },
+    "hageo409_low_difficulty": {
+      "results": {
+        "hageo": {
+          "attempt_budget": 64,
+          "neural_inference_used": 0,
+          "problem_count": 12,
+          "rounds": 2,
+          "solve_rate": 0.6666666666666666,
+          "solved_count": 8,
+          "timeout_seconds": 5
+        },
+        "random_aux_ddar": {
+          "attempt_budget": 64,
+          "neural_inference_used": 0,
+          "problem_count": 12,
+          "rounds": 2,
+          "solve_rate": 0.8333333333333334,
+          "solved_count": 10,
+          "timeout_seconds": 5
+        }
+      }
     }
   }
 }

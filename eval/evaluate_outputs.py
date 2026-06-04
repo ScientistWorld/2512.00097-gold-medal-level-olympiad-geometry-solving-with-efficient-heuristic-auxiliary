@@ -11,6 +11,7 @@ from pathlib import Path
 EXPERIMENTS = {
     "auxiliary_core": {
         "dataset": Path("data/benchmarks/auxiliary_core.jsonl"),
+        "required": True,
         "outputs": {
             "ddar": Path("outputs/baseline_auxiliary_core.jsonl"),
             "hageo": Path("outputs/hageo_auxiliary_core.jsonl"),
@@ -21,6 +22,23 @@ EXPERIMENTS = {
             "problem_count",
             "mean_attempt_index",
             "mean_auxiliary_count",
+            "attempt_budget",
+            "rounds",
+            "timeout_seconds",
+            "neural_inference_used",
+        ],
+    },
+    "hageo409_low_difficulty": {
+        "dataset": Path("data/benchmarks/hageo409_small.jsonl"),
+        "required": False,
+        "outputs": {
+            "random_aux_ddar": Path("outputs/random_aux_hageo409_small.jsonl"),
+            "hageo": Path("outputs/hageo_hageo409_small.jsonl"),
+        },
+        "metrics": [
+            "solve_rate",
+            "solved_count",
+            "problem_count",
             "attempt_budget",
             "rounds",
             "timeout_seconds",
@@ -86,15 +104,25 @@ def main() -> None:
     for exp_name, config in EXPERIMENTS.items():
         dataset_path = config["dataset"]
         if not dataset_path.exists():
+            if config.get("required"):
+                raise FileNotFoundError(f"required benchmark is missing: {dataset_path}")
             continue
         expected_ids = benchmark_ids(dataset_path)
         results = {}
         for method_name, output_path in config["outputs"].items():
+            if config.get("required") and not output_path.exists():
+                raise FileNotFoundError(f"required solver output is missing: {output_path}")
             rows = read_jsonl(output_path)
             if not rows:
                 continue
             validate_rows(rows, expected_ids, output_path)
             results[method_name] = summarize(rows, config["metrics"])
+        if config.get("required") or results:
+            missing_methods = sorted(set(config["outputs"]) - set(results))
+            if missing_methods:
+                raise FileNotFoundError(
+                    f"{exp_name}: missing outputs for methods {missing_methods}"
+                )
         if results:
             scores["experiments"][exp_name] = {"results": results}
 
