@@ -67,4 +67,4 @@
 - Final scoring was narrowed to `auxiliary_core` because the difficulty-sorted HAGeo-409 slice is not statistically comparable to the paper's full 409-problem Table 1 reference and caused an invalid paper-consistency comparison.
 
 ## Stop Justification
-- Completed at milestone `core_claim`.
+- Completed at milestone `core_claim_plus`.
