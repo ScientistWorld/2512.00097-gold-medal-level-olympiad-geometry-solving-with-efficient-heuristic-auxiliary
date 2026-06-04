@@ -15,15 +15,15 @@ Evaluation measures whether a submitted geometry prover can solve the benchmark 
 
 Reference levels from the paper:
 
-- **DDAR-only baseline on IMO-30:** 15/30 solved.
-- **AlphaGeometry on IMO-30:** 24/30 solved using the paper's corrected count.
-- **Random auxiliary-construction baseline on IMO-30:** 25/30 solved.
-- **HAGeo target on IMO-30:** 28/30 solved.
-- **AlphaGeometry on HAGeo-409:** 177/409 solved.
-- **Random baseline on HAGeo-409:** 204/409 solved at 2,048 attempts and 218/409 at 8,192 attempts.
-- **HAGeo target on HAGeo-409:** 263/409 solved at 2,048 attempts and 287/409 at 8,192 attempts.
+- **Base symbolic prover on IMO-30:** 15/30 solved.
+- **Prior neural-symbolic system on IMO-30:** 24/30 solved using the paper's corrected count.
+- **Stochastic construction-search baseline on IMO-30:** 25/30 solved.
+- **Paper's proposed CPU-only system on IMO-30:** 28/30 solved.
+- **Prior neural-symbolic system on HAGeo-409:** 177/409 solved.
+- **Stochastic construction-search baseline on HAGeo-409:** 204/409 solved at 2,048 attempts and 218/409 at 8,192 attempts.
+- **Paper's proposed CPU-only system on HAGeo-409:** 263/409 solved at 2,048 attempts and 287/409 at 8,192 attempts.
 
-The primary reproduction target is to match the HAGeo solve-rate pattern on HAGeo-409 and IMO-30 while preserving valid proofs and the CPU-only, non-neural inference setting. IMO-30 alone is not sufficient because the paper argues that it is small and difficulty-skewed.
+The primary reproduction target is to match the paper's solve-rate pattern on HAGeo-409 and IMO-30 while preserving valid proofs and the CPU-only, non-neural inference setting. IMO-30 alone is not sufficient because the paper argues that it is small and difficulty-skewed.
 
 ## Evaluation Protocol
 

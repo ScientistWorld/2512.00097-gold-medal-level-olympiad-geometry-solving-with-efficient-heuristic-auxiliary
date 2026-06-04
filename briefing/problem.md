@@ -8,7 +8,7 @@ Can an automated theorem prover solve challenging Olympiad-level Euclidean geome
 
 ## Why It Matters
 
-Geometry theorem proving is a long-standing test of mathematical reasoning because successful solutions often require both exact deduction and useful auxiliary constructions. A strong benchmark environment should distinguish genuinely better reasoning systems from methods that only win by using more compute, richer external knowledge, or an easier problem set.
+Geometry theorem proving is a long-standing test of mathematical reasoning because successful solutions often require exact deduction over formal geometric configurations and the ability to reason about intermediate geometric objects. A strong benchmark environment should distinguish genuinely better reasoning systems from methods that only win by using more compute, richer external knowledge, or an easier problem set.
 
 ## Success Criteria
 

@@ -19,7 +19,7 @@ ORTHOCENTER = {
         "d = on_tline d b a c, on_tline d c a b "
         "? perp a d b c"
     ),
-    "note": "DDAR alone fails; adding the intersection of AC and BD solves it.",
+    "note": "Controlled theorem-proving instance used for baseline comparison.",
 }
 
 

@@ -89,5 +89,10 @@
 - Re-ran `bash scripts/evaluate.sh` and `python validate.py --compare`; all checks passed.
 - Retained `core_claim`: the extension remains valid but negative for a higher milestone.
 
+### [2026-06-04 13:39] - core_claim
+- Final verification found and removed a solution-revealing note from the method-agnostic benchmark data.
+- Rephrased strict method-agnostic documentation to avoid unnecessary solution-method leakage.
+- Verified download URLs and reran `evaluate.sh`, `evaluate_train.sh`, `evaluate_test.sh`, and `validate.py --compare`; all checks passed.
+
 ## Stop Justification
 - Completed at milestone `core_claim`.

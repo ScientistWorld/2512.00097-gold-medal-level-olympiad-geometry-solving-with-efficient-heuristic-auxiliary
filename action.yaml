@@ -3,4 +3,4 @@ action: done
 gpus: 0
 test: false
 milestone: core_claim
-notes: "Core claim reproduced and packaged. Final evaluator writes all declared metrics; evaluate.sh and validate.py --compare pass."
+notes: "Final verification passed at core_claim after removing method-agnostic leakage and revalidating scoring/downloads."
