@@ -85,4 +85,4 @@
 - Final milestone remains `core_claim`.
 
 ## Stop Justification
-- Completed at milestone `core_claim`; the scored low-difficulty HAGeo-409 extension was attempted and validated but does not show HAGeo beating the matched random auxiliary baseline.
+- Completed at milestone `core_claim`.
