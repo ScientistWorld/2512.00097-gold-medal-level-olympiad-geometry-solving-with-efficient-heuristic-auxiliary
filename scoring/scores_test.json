@@ -30,7 +30,7 @@
       "results": {
         "ddar": {
           "attempt_budget": 0,
-          "difficulty_weighted_solve_rate": 0.5119047619047619,
+          "difficulty_weighted_solve_rate": 0.511904761904762,
           "neural_inference_used": 0,
           "problem_count": 6,
           "rounds": 0,
@@ -41,7 +41,7 @@
         },
         "hageo": {
           "attempt_budget": 64,
-          "difficulty_weighted_solve_rate": 0.5119047619047619,
+          "difficulty_weighted_solve_rate": 0.511904761904762,
           "neural_inference_used": 0,
           "problem_count": 6,
           "rounds": 2,
@@ -52,7 +52,7 @@
         },
         "random_aux_ddar": {
           "attempt_budget": 64,
-          "difficulty_weighted_solve_rate": 0.8214285714285713,
+          "difficulty_weighted_solve_rate": 0.8214285714285715,
           "neural_inference_used": 0,
           "problem_count": 6,
           "rounds": 2,
