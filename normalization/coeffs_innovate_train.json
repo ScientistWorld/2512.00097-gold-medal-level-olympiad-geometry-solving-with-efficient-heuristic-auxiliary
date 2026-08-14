@@ -1,0 +1,369 @@
+{
+  "paper_id": "2512.00097",
+  "phase": "train",
+  "cohort": [
+    "claude-opus-4-8-xhigh",
+    "claude-opus-xhigh",
+    "gpt-5.6-sol-xhigh",
+    "gpt-5.6-terra-xhigh",
+    "gpt-5.6-luna-xhigh",
+    "gpt-5.5-xhigh",
+    "glm-5-xhigh",
+    "minimax-xhigh",
+    "grok-4.3-xhigh",
+    "gemini-3-pro-preview",
+    "gemini-3.1-flash-lite-preview",
+    "kimi-k2.6-thinking",
+    "mimo-pro-xhigh",
+    "deepseek-v4-pro-xhigh"
+  ],
+  "models_present": [
+    "gpt-5.5-xhigh",
+    "gpt-5.6-luna-xhigh",
+    "gpt-5.6-sol-xhigh",
+    "gpt-5.6-terra-xhigh"
+  ],
+  "n_models": 4,
+  "n_cells": 18,
+  "last_updated": "2026-08-14T13:19:48.164671+00:00",
+  "excluded": false,
+  "typical_spread": 3.0,
+  "paper_baseline": 0.5132993648871236,
+  "cohort_raw": {
+    "gpt-5.5-xhigh": 0.46178109027949343,
+    "gpt-5.6-luna-xhigh": -0.7511182919287183,
+    "gpt-5.6-sol-xhigh": 0.1805937983075353,
+    "gpt-5.6-terra-xhigh": -0.6597042790327474
+  },
+  "cells": [
+    {
+      "experiment": "auxiliary_core",
+      "method": "hageo",
+      "metric": "attempt_budget",
+      "source": 64.0,
+      "higher_is_better": false,
+      "coefficient": 0.0012364242383798019,
+      "prior_weight": 0.015,
+      "spread": 22.233608194203057,
+      "normalizer": 22.233608194203057,
+      "effective_weight": 0.014110687868250725,
+      "cohort_imp": {
+        "gpt-5.6-sol-xhigh": 32.0,
+        "gpt-5.6-terra-xhigh": 32.0,
+        "gpt-5.6-luna-xhigh": 0.0,
+        "gpt-5.5-xhigh": 54.0
+      }
+    },
+    {
+      "experiment": "auxiliary_core",
+      "method": "hageo",
+      "metric": "mean_attempt_index",
+      "source": 10.0,
+      "higher_is_better": false,
+      "coefficient": 0.004865517790523527,
+      "prior_weight": 0.015,
+      "spread": 4.5,
+      "normalizer": 4.5,
+      "effective_weight": 0.011238602362752271,
+      "cohort_imp": {
+        "gpt-5.6-sol-xhigh": 9.0,
+        "gpt-5.6-terra-xhigh": 9.0,
+        "gpt-5.6-luna-xhigh": 9.0,
+        "gpt-5.5-xhigh": 0.0
+      }
+    },
+    {
+      "experiment": "auxiliary_core",
+      "method": "hageo",
+      "metric": "mean_auxiliary_count",
+      "source": 1.0,
+      "higher_is_better": false,
+      "coefficient": 0.006634796987077535,
+      "prior_weight": 0.03,
+      "spread": 0.0,
+      "normalizer": 3.0,
+      "effective_weight": 0.0102169112388657,
+      "cohort_imp": {
+        "gpt-5.6-sol-xhigh": 0.0,
+        "gpt-5.6-terra-xhigh": 0.0,
+        "gpt-5.6-luna-xhigh": 0.0,
+        "gpt-5.5-xhigh": 0.0
+      }
+    },
+    {
+      "experiment": "auxiliary_core",
+      "method": "hageo",
+      "metric": "neural_inference_used",
+      "source": 0.0,
+      "higher_is_better": false,
+      "coefficient": 0.03317398493538768,
+      "prior_weight": 0.15,
+      "spread": 0.0,
+      "normalizer": 3.0,
+      "effective_weight": 0.0510845561943285,
+      "cohort_imp": {
+        "gpt-5.6-sol-xhigh": 0.0,
+        "gpt-5.6-terra-xhigh": 0.0,
+        "gpt-5.6-luna-xhigh": 0.0,
+        "gpt-5.5-xhigh": 0.0
+      }
+    },
+    {
+      "experiment": "auxiliary_core",
+      "method": "hageo",
+      "metric": "problem_count",
+      "source": 1.0,
+      "higher_is_better": true,
+      "coefficient": 0.0,
+      "prior_weight": 0.0,
+      "spread": 0.0,
+      "normalizer": 3.0,
+      "effective_weight": 0.0,
+      "cohort_imp": {
+        "gpt-5.6-sol-xhigh": 0.0,
+        "gpt-5.6-terra-xhigh": 0.0,
+        "gpt-5.6-luna-xhigh": 0.0,
+        "gpt-5.5-xhigh": 0.0
+      }
+    },
+    {
+      "experiment": "auxiliary_core",
+      "method": "hageo",
+      "metric": "rounds",
+      "source": 1.0,
+      "higher_is_better": false,
+      "coefficient": 0.02559135980729907,
+      "prior_weight": 0.015,
+      "spread": 0.5,
+      "normalizer": 0.5,
+      "effective_weight": 0.006568014367842236,
+      "cohort_imp": {
+        "gpt-5.6-sol-xhigh": 0.0,
+        "gpt-5.6-terra-xhigh": 0.0,
+        "gpt-5.6-luna-xhigh": -1.0,
+        "gpt-5.5-xhigh": 0.0
+      }
+    },
+    {
+      "experiment": "auxiliary_core",
+      "method": "hageo",
+      "metric": "solve_rate",
+      "source": 1.0,
+      "higher_is_better": true,
+      "coefficient": 0.06634796987077536,
+      "prior_weight": 0.3,
+      "spread": 0.0,
+      "normalizer": 3.0,
+      "effective_weight": 0.102169112388657,
+      "cohort_imp": {
+        "gpt-5.6-sol-xhigh": 0.0,
+        "gpt-5.6-terra-xhigh": 0.0,
+        "gpt-5.6-luna-xhigh": 0.0,
+        "gpt-5.5-xhigh": 0.0
+      }
+    },
+    {
+      "experiment": "auxiliary_core",
+      "method": "hageo",
+      "metric": "solved_count",
+      "source": 1.0,
+      "higher_is_better": true,
+      "coefficient": 0.01326959397415507,
+      "prior_weight": 0.06,
+      "spread": 0.0,
+      "normalizer": 3.0,
+      "effective_weight": 0.0204338224777314,
+      "cohort_imp": {
+        "gpt-5.6-sol-xhigh": 0.0,
+        "gpt-5.6-terra-xhigh": 0.0,
+        "gpt-5.6-luna-xhigh": 0.0,
+        "gpt-5.5-xhigh": 0.0
+      }
+    },
+    {
+      "experiment": "auxiliary_core",
+      "method": "hageo",
+      "metric": "timeout_seconds",
+      "source": 15.0,
+      "higher_is_better": false,
+      "coefficient": 0.002461202394772957,
+      "prior_weight": 0.015,
+      "spread": 10.307764064044152,
+      "normalizer": 10.307764064044152,
+      "effective_weight": 0.013022144951967088,
+      "cohort_imp": {
+        "gpt-5.6-sol-xhigh": 5.0,
+        "gpt-5.6-terra-xhigh": -15.0,
+        "gpt-5.6-luna-xhigh": 0.0,
+        "gpt-5.5-xhigh": -15.0
+      }
+    },
+    {
+      "experiment": "hageo409_low_difficulty",
+      "method": "hageo",
+      "metric": "attempt_budget",
+      "source": 64.0,
+      "higher_is_better": false,
+      "coefficient": 0.005336836130020964,
+      "prior_weight": 0.06999999999999999,
+      "spread": 24.186773244895647,
+      "normalizer": 24.186773244895647,
+      "effective_weight": 0.06625711592286715,
+      "cohort_imp": {
+        "gpt-5.6-sol-xhigh": 48.0,
+        "gpt-5.6-terra-xhigh": 32.0,
+        "gpt-5.6-luna-xhigh": 0.0,
+        "gpt-5.5-xhigh": 54.0
+      }
+    },
+    {
+      "experiment": "hageo409_low_difficulty",
+      "method": "hageo",
+      "metric": "difficulty_weighted_solve_rate",
+      "source": 0.6962025316455697,
+      "higher_is_better": true,
+      "coefficient": 0.29611771066563886,
+      "prior_weight": 0.175,
+      "spread": 0.5051145770943098,
+      "normalizer": 0.5051145770943098,
+      "effective_weight": 0.07677591695069706,
+      "cohort_imp": {
+        "gpt-5.6-sol-xhigh": -1.1102230246251565e-16,
+        "gpt-5.6-terra-xhigh": -0.6962025316455697,
+        "gpt-5.6-luna-xhigh": -0.6962025316455697,
+        "gpt-5.5-xhigh": 0.30379746835443033
+      }
+    },
+    {
+      "experiment": "hageo409_low_difficulty",
+      "method": "hageo",
+      "metric": "neural_inference_used",
+      "source": 0.0,
+      "higher_is_better": false,
+      "coefficient": 0.07740596484923792,
+      "prior_weight": 0.35,
+      "spread": 0.0,
+      "normalizer": 3.0,
+      "effective_weight": 0.1191972977867665,
+      "cohort_imp": {
+        "gpt-5.6-sol-xhigh": 0.0,
+        "gpt-5.6-terra-xhigh": 0.0,
+        "gpt-5.6-luna-xhigh": 0.0,
+        "gpt-5.5-xhigh": 0.0
+      }
+    },
+    {
+      "experiment": "hageo409_low_difficulty",
+      "method": "hageo",
+      "metric": "problem_count",
+      "source": 6.0,
+      "higher_is_better": true,
+      "coefficient": 0.0,
+      "prior_weight": 0.0,
+      "spread": 0.0,
+      "normalizer": 3.0,
+      "effective_weight": 0.0,
+      "cohort_imp": {
+        "gpt-5.6-sol-xhigh": 0.0,
+        "gpt-5.6-terra-xhigh": 0.0,
+        "gpt-5.6-luna-xhigh": 0.0,
+        "gpt-5.5-xhigh": 0.0
+      }
+    },
+    {
+      "experiment": "hageo409_low_difficulty",
+      "method": "hageo",
+      "metric": "rounds",
+      "source": 2.0,
+      "higher_is_better": false,
+      "coefficient": 0.05320399501791668,
+      "prior_weight": 0.034999999999999996,
+      "spread": 0.5773502691896257,
+      "normalizer": 0.5773502691896257,
+      "effective_weight": 0.015767191547046068,
+      "cohort_imp": {
+        "gpt-5.6-sol-xhigh": 0.0,
+        "gpt-5.6-terra-xhigh": 1.0,
+        "gpt-5.6-luna-xhigh": 0.0,
+        "gpt-5.5-xhigh": 1.0
+      }
+    },
+    {
+      "experiment": "hageo409_low_difficulty",
+      "method": "hageo",
+      "metric": "solve_rate",
+      "source": 0.6666666666666666,
+      "higher_is_better": true,
+      "coefficient": 1.1942634576739561,
+      "prior_weight": 0.7,
+      "spread": 0.5,
+      "normalizer": 0.5,
+      "effective_weight": 0.30650733716597095,
+      "cohort_imp": {
+        "gpt-5.6-sol-xhigh": 0.0,
+        "gpt-5.6-terra-xhigh": -0.6666666666666666,
+        "gpt-5.6-luna-xhigh": -0.6666666666666666,
+        "gpt-5.5-xhigh": 0.33333333333333337
+      }
+    },
+    {
+      "experiment": "hageo409_low_difficulty",
+      "method": "hageo",
+      "metric": "solved_count",
+      "source": 4.0,
+      "higher_is_better": true,
+      "coefficient": 0.030962385939695164,
+      "prior_weight": 0.06999999999999999,
+      "spread": 3.0,
+      "normalizer": 3.0,
+      "effective_weight": 0.0476789191147066,
+      "cohort_imp": {
+        "gpt-5.6-sol-xhigh": 0.0,
+        "gpt-5.6-terra-xhigh": -4.0,
+        "gpt-5.6-luna-xhigh": -4.0,
+        "gpt-5.5-xhigh": 2.0
+      }
+    },
+    {
+      "experiment": "hageo409_low_difficulty",
+      "method": "hageo",
+      "metric": "timeout_seconds",
+      "source": 5.0,
+      "higher_is_better": false,
+      "coefficient": 0.004942041339899344,
+      "prior_weight": 0.034999999999999996,
+      "spread": 12.24744871391589,
+      "normalizer": 12.24744871391589,
+      "effective_weight": 0.031068674875942785,
+      "cohort_imp": {
+        "gpt-5.6-sol-xhigh": 0.0,
+        "gpt-5.6-terra-xhigh": -25.0,
+        "gpt-5.6-luna-xhigh": -10.0,
+        "gpt-5.5-xhigh": -25.0
+      }
+    },
+    {
+      "experiment": "hageo409_low_difficulty",
+      "method": "hageo",
+      "metric": "upper_band_solve_rate",
+      "source": 0.75,
+      "higher_is_better": true,
+      "coefficient": 0.4078787833966966,
+      "prior_weight": 0.24499999999999997,
+      "spread": 0.5153882032022076,
+      "normalizer": 0.5153882032022076,
+      "effective_weight": 0.10790369478560795,
+      "cohort_imp": {
+        "gpt-5.6-sol-xhigh": 0.0,
+        "gpt-5.6-terra-xhigh": -0.75,
+        "gpt-5.6-luna-xhigh": -0.75,
+        "gpt-5.5-xhigh": 0.25
+      }
+    }
+  ],
+  "mode": "innovate",
+  "pruned_cells": [],
+  "locked": true,
+  "locked_at": "2026-08-14T13:23:31.917410+00:00",
+  "locked_n_models": 4
+}
