@@ -1,2 +1,8 @@
-action: done
-notes: "Audit complete: genuine improvement reaches 5/6, weaker ablation also outranks 4/6 reference, brute force solves 6/6, and major flag/metadata/missing-result shortcuts confirmed; report and restored-workspace evidence committed."
+# Once you set action to 'submit' or 'done', STOP immediately.
+# Do NOT sleep, poll, or wait for jobs. The system reads this file
+# only after your turn ends.
+action: pending
+gpus: 0
+test: false
+milestone: core_claim
+notes: ""
