@@ -1,44 +1,10 @@
 #!/bin/bash
-# Reproduce the paper's results end-to-end.
-#
-# This script runs inside the compute container and should call
-# scripts/baseline.sh and scripts/method.sh to run baselines and
-# the paper's method, each of which calls scripts/evaluate.sh.
-#
-# Assumes:
-#   - Container is built (environment/container.sif)
-#   - Data and models are downloaded (via scripts/download.sh)
-#   - Working directory is /home/user
-#
-# This is the "gold standard" reproduction — 
-# You do not need to run this, but keep this in good shape
-# so other agents can easily run a full loop of reproduction and get the paper's numbers.
-
+# Reproduce the gym's reference numbers end to end (CPU only, no internet).
+# 1. (optional, slow) rebuild the problem sets:  python eval/test/build_split.py screen && python eval/test/build_split.py split
+# 2. (optional, slow) recompute fixed baselines:  bash scripts/baseline.sh
+# 3. score every registered proposer (the reference is proposers/hageo.sh):
 set -e
-
-cd /home/user
-mkdir -p outputs scoring
-rm -f \
-  outputs/baseline_auxiliary_core.jsonl \
-  outputs/hageo_auxiliary_core.jsonl \
-  outputs/baseline_hageo409_small.jsonl \
-  outputs/random_aux_hageo409_small.jsonl \
-  outputs/hageo_hageo409_small.jsonl \
-  scoring/scores.json
-
-python data/prepare_benchmarks.py \
-  --hageo-limit "${HAGEO_LIMIT:-12}" \
-  --hageo-sort "${HAGEO_SORT:-difficulty}"
-
-EVALUATE=0 bash scripts/baseline.sh data/benchmarks/auxiliary_core.jsonl auxiliary_core
-EVALUATE=0 bash scripts/method.sh data/benchmarks/auxiliary_core.jsonl auxiliary_core
-
-if [ -e data/benchmarks/hageo409_small.jsonl ]; then
-  EVALUATE=0 bash scripts/baseline.sh data/benchmarks/hageo409_small.jsonl hageo409_small
-  ATTEMPTS=${RANDOM_ATTEMPTS:-64} ROUNDS=${ROUNDS:-2} TIMEOUT=${TIMEOUT:-5} SEED=${RANDOM_SEED:-17} EVALUATE=0 \
-    bash scripts/random_baseline.sh data/benchmarks/hageo409_small.jsonl hageo409_small
-  ATTEMPTS=${ATTEMPTS:-64} ROUNDS=${ROUNDS:-2} TIMEOUT=${TIMEOUT:-5} SEED=${SEED:-0} EVALUATE=0 \
-    bash scripts/method.sh data/benchmarks/hageo409_small.jsonl hageo409_small
-fi
-
-bash scripts/evaluate.sh
+cd "$(dirname "$0")/.."
+bash scripts/evaluate_train.sh
+cp scoring/scores_train.json scoring/scores.json
+bash scripts/evaluate_test.sh

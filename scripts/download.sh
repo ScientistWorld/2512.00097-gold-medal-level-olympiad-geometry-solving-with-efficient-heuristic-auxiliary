@@ -1,44 +1,31 @@
 #!/bin/bash
-# Download all data and models needed for this environment.
+# Download the public artifacts this environment was built from.
 #
-# Run on a node with internet access BEFORE building the container
-# or submitting compute jobs.
+# Idempotent: skips files that already exist.  Needs internet (login node).
+# Estimated total download size: <1 MB.  Disk after download: <1 MB.
 #
-# This script should be idempotent — safe to run multiple times.
-# It should skip files that already exist.
-#
-# Update the storage estimate below as you add downloads.
-#
-# Estimated total download size: <1 MB
-# Estimated disk usage after extraction: <1 MB
-#
-# This script writes to workspace-local paths so a future user with just this
-# repository can fetch the required public benchmark files.
-
+# - HAGeo-409 (public benchmark, HuggingFace HAGeo-IMO/HAGeo-409): source of
+#   the train problems (data/benchmarks/hageo409_train.jsonl, committed) and
+#   the held-out problems (eval/test/problems.jsonl); only needed to rebuild
+#   them with eval/test/build_split.py.
+# - The AlphaGeometry DD+AR engine is vendored (Apache-2.0) under
+#   method/alphageometry/ and eval/{train,test}/ag/; its upstream source is
+#   https://github.com/google-deepmind/alphageometry (cloned below only if
+#   method/alphageometry is missing).
 set -e
-
 cd "$(dirname "$0")/.."
 
 mkdir -p data/downloads/HAGeo-409
-
-if [ ! -e data/downloads/HAGeo-409/HAGeo-409.parquet ]; then
+if [ ! -s data/downloads/HAGeo-409/HAGeo-409.parquet ]; then
   curl -L --fail \
     https://huggingface.co/datasets/HAGeo-IMO/HAGeo-409/resolve/main/HAGeo-409.parquet \
     -o data/downloads/HAGeo-409/HAGeo-409.parquet
 fi
-
-if [ ! -e data/downloads/HAGeo-409/README.md ]; then
+if [ ! -s data/downloads/HAGeo-409/README.md ]; then
   curl -L --fail \
     https://huggingface.co/datasets/HAGeo-IMO/HAGeo-409/raw/main/README.md \
     -o data/downloads/HAGeo-409/README.md
 fi
-
-if python -c "import pyarrow" >/dev/null 2>&1; then
-  python data/prepare_benchmarks.py
-elif [ -s data/benchmarks/auxiliary_core.jsonl ] && [ -s data/benchmarks/hageo409_small.jsonl ]; then
-  echo "pyarrow is unavailable; using tracked benchmark JSONL files."
-else
-  echo "pyarrow is required to generate data/benchmarks/*.jsonl from the HAGeo parquet." >&2
-  echo "Run environment/setup.sh first, or install pyarrow in this Python environment." >&2
-  exit 1
+if [ ! -s method/alphageometry/ddar.py ]; then
+  git clone --depth 1 https://github.com/google-deepmind/alphageometry method/alphageometry
 fi

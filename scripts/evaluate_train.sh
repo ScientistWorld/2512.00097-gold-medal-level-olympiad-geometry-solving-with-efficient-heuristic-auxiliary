@@ -1,13 +1,9 @@
 #!/bin/bash
-# Evaluate visible train-slice solver outputs.
+# Visible train evaluation. No arguments.
 #
-# Mirrors scripts/evaluate.sh's standalone contract: read method-agnostic
-# artifacts from outputs/ and write a scoring JSON file.
-
+# Same protocol as the hidden test on the visible train problems in
+# data/benchmarks/hageo409_train.jsonl; writes scoring/scores_train.json.
 set -e
-
-cd /home/user
-
-mkdir -p scoring
-
-python eval/train/evaluate_outputs.py --out scoring/scores_train.json
+cd "$(dirname "$0")/.."
+export MPLBACKEND=Agg MPLCONFIGDIR="${MPLCONFIGDIR:-/tmp/mpl}"
+python eval/train/evaluate.py --out scoring/scores_train.json ${EVAL_CACHE:+--cache "$EVAL_CACHE"}

@@ -1,34 +1,9 @@
 #!/bin/bash
-# Run a baseline method from the paper.
-#
-# Baselines are simple reference methods the paper compares against. 
-# Implement this only if applicable, i.e. the paper has baselines.
-# You do not need to implement all baselines to begin — 
-# just enough to validate that the evaluation pipeline works 
-# and provide a reference point. You can decide to expand more baselines later.
-# Each baseline must be actually run and scored through evaluate.sh
-# so the numbers are verified, not self-reported.
-# You can decide what this baseline script should do yourself.
-#
-# Usage:
-#   bash scripts/baseline.sh <name>
-
+# Recompute the evaluator-owned fixed baselines (DDAR alone; random auxiliary
+# constructions at the same attempt budget) for the train and test sets.
+# Normally not needed: the results are stored in eval/{train,test}/baselines.json.
 set -e
-
-cd /home/user
-export MPLCONFIGDIR=/home/user/tmp/matplotlib
-mkdir -p "$MPLCONFIGDIR"
-
-BENCHMARK=${1:-data/benchmarks/auxiliary_core.jsonl}
-NAME=${2:-auxiliary_core}
-TIMEOUT=${TIMEOUT:-15}
-EVALUATE=${EVALUATE:-1}
-
-python baseline/run_ddar.py \
-  --input "$BENCHMARK" \
-  --output "outputs/baseline_${NAME}.jsonl" \
-  --timeout "$TIMEOUT"
-
-if [ "$EVALUATE" = "1" ]; then
-  bash scripts/evaluate.sh
-fi
+cd "$(dirname "$0")/.."
+export MPLBACKEND=Agg MPLCONFIGDIR="${MPLCONFIGDIR:-/tmp/mpl}"
+python eval/train/evaluate.py --recompute-baselines --no-proposers --out outputs/baselines_train.json --details outputs/baselines_train_details.json
+python eval/test/evaluate.py --recompute-baselines --no-proposers --out outputs/baselines_test.json --details outputs/baselines_test_details.json

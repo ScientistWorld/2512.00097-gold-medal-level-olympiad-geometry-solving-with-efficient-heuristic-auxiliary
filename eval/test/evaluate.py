@@ -65,22 +65,62 @@ def worst_metrics(config: dict) -> dict:
 
 def compute_metrics(first_success: dict, problems: list[dict], config: dict) -> dict:
     k_max = int(config["max_attempts"])
-    thr = config.get("upper_half_threshold")
-    if thr is None:
-        diffs = sorted(float(p["difficulty"]) for p in problems)
-        thr = diffs[len(diffs) // 2]
-    thr = float(thr)
+    thr = float(config["hard_difficulty_threshold"])
     n = len(problems)
     solved = [p for p in problems if first_success.get(p["problem_id"]) is not None]
-    upper = [p for p in problems if float(p["difficulty"]) >= thr]
+    hard = [p for p in problems if float(p["difficulty"]) >= thr]
     auc = sum((k_max - int(first_success[p["problem_id"]]) + 1) / k_max for p in solved)
     return {
         "solve_rate": len(solved) / n,
-        "upper_half_solve_rate": (
-            sum(1 for p in upper if first_success.get(p["problem_id"]) is not None) / len(upper)
+        "hard_solve_rate": (
+            sum(1 for p in hard if first_success.get(p["problem_id"]) is not None) / len(hard)
         ),
         "pass_auc": auc / n,
     }
+
+
+def _busy(n: int) -> float:
+    t = time.perf_counter()
+    acc = 0
+    for i in range(n):
+        acc += i * i
+    return time.perf_counter() - t
+
+
+def effective_cpus() -> int:
+    """CPUs that really run in parallel (affinity mask, cgroup quota, probe).
+
+    Verification timeouts are wall-clock limits, so workers must never
+    outnumber the cores actually available.
+    """
+    try:
+        n = len(os.sched_getaffinity(0))
+    except AttributeError:
+        n = os.cpu_count() or 1
+    n = min(n, 32)
+    for quota_file, period_file in (
+        ("/sys/fs/cgroup/cpu.max", None),
+        ("/sys/fs/cgroup/cpu/cpu.cfs_quota_us", "/sys/fs/cgroup/cpu/cpu.cfs_period_us"),
+    ):
+        try:
+            if period_file is None:
+                quota, period = Path(quota_file).read_text().split()[:2]
+            else:
+                quota, period = Path(quota_file).read_text().strip(), Path(period_file).read_text().strip()
+            if quota not in ("max", "-1"):
+                n = min(n, max(1, int(float(quota) / float(period))))
+        except (OSError, ValueError):
+            pass
+    if n <= 1:
+        return 1
+    work = 3_000_000
+    single = min(_busy(work), _busy(work))
+    ctx = mp.get_context("fork")
+    started = time.perf_counter()
+    with ctx.Pool(n) as pool:
+        pool.map(_busy, [work] * n)
+    wall = time.perf_counter() - started
+    return max(1, min(n, int(n * single / max(wall, 1e-9) + 0.3)))
 
 
 # --------------------------------------------------------------------------
@@ -293,6 +333,7 @@ def main() -> None:
     parser.add_argument("--cache", type=Path, default=None, help="audit use: verification cache file")
     parser.add_argument("--workers", type=int, default=0)
     parser.add_argument("--recompute-baselines", action="store_true")
+    parser.add_argument("--no-proposers", action="store_true", help="audit use: only fixed baselines")
     parser.add_argument("--problems", type=Path, default=PROBLEMS, help="audit use: alternative problem file")
     parser.add_argument("--baselines", type=Path, default=BASELINES, help="audit use: alternative baseline file")
     args = parser.parse_args()
@@ -300,7 +341,8 @@ def main() -> None:
     config = load_config()
     problems = read_jsonl(args.problems)
     baselines_path = args.baselines
-    workers = args.workers or max(1, len(os.sched_getaffinity(0)))
+    workers = args.workers or effective_cpus()
+    print(f"[eval:{SLICE}] {len(problems)} problems, {workers} verification workers", file=sys.stderr, flush=True)
     if args.cache is not None:
         args.cache.parent.mkdir(parents=True, exist_ok=True)
         _CACHE = Cache(args.cache)
@@ -326,7 +368,8 @@ def main() -> None:
             results[name] = compute_metrics(baselines[name], problems, config)
             details[name] = {"status": "ok (fixed evaluator baseline)"}
 
-    for name, script in discover_proposers(args.only).items():
+    proposers = {} if args.no_proposers else discover_proposers(args.only)
+    for name, script in proposers.items():
         print(f"[eval:{SLICE}] proposer {name}", file=sys.stderr, flush=True)
         try:
             results[name] = evaluate_proposer(name, script, problems, coords, config, workers, details)
