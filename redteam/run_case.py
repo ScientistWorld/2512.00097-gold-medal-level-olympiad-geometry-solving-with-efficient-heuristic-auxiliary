@@ -32,9 +32,10 @@ STATIC = [
     'shortcut_missing_row',
     'shortcut_null_resources',
     'shortcut_replace_goals',
+    'shortcut_failed_impossible_costs',
 ]
 COMPUTE = ['shortcut_weak_no_aux', 'reference_seed0', 'reference_seed1', 'reference_seed2',
-           'better_fallback', 'brute_force']
+           'better_fallback', 'brute_force', 'better_systematic']
 
 
 def restore():

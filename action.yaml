@@ -1,4 +1,4 @@
 action: submit
 gpus: 0
 test: false
-notes: "Run bundled scoring audit: reference 3 seeds, genuine fallback fix, weak ablation, bounded exhaustive construction search, and isolated shortcut trials; preserve scores under redteam."
+notes: "Finish scoring audit: test genuine 64-candidate systematic construction search at reference timeout, retry corrected fallback fix, and check all-failed impossible-cost shortcut; reuse completed runs."

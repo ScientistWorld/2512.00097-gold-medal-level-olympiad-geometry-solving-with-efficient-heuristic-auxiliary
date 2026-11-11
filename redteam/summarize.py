@@ -22,7 +22,9 @@ for folder in sorted(RT.iterdir()):
 
 
 def metrics_for(report, exp):
-    return report.get('scores', {}).get('experiments', {}).get(exp, {}).get('results', {}).get('hageo', {})
+    candidate = ('shortcut_unregistered' if report.get('status', {}).get('name') == 'shortcut_unregistered_method'
+                 else 'hageo')
+    return report.get('scores', {}).get('experiments', {}).get(exp, {}).get('results', {}).get(candidate, {})
 
 
 def rank_cohort(names):

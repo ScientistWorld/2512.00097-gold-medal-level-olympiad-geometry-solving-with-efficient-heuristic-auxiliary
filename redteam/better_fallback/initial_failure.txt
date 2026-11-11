@@ -1,0 +1,34 @@
+better_fallback auxiliary_core orthocenter_auxiliary
+better_fallback hageo409_small 2014ARMOg9p6
+Traceback (most recent call last):
+  File "/home/user/method/audit_submission.py", line 245, in <module>
+    main()
+  File "/home/user/method/audit_submission.py", line 239, in main
+    genuine(args)
+  File "/home/user/method/audit_submission.py", line 125, in genuine
+    result = h.solve_with_hageo(row, defs, rules, attempts, rounds, timeout, args.seed)
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/user/method/hageo/run_hageo.py", line 599, in solve_with_hageo
+    regenerated = safe_candidate_auxiliaries(
+                  ^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/user/method/audit_submission.py", line 102, in fallback_setup
+    found = h.random_construction_candidates(statement, defs, max_candidates)
+            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/user/method/hageo/run_hageo.py", line 491, in random_construction_candidates
+    g = setup_graph(statement, defs)
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/user/method/hageo/run_hageo.py", line 486, in setup_graph
+    g, _ = gh.Graph.build_problem(p, defs, verbose=False)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/user/method/alphageometry/graph.py", line 506, in build_problem
+    adds, plevel = g.add_clause(
+                   ^^^^^^^^^^^^^
+  File "/home/user/method/alphageometry/graph.py", line 2622, in add_clause
+    nums = draw_fn()
+           ^^^^^^^^^
+  File "/home/user/method/alphageometry/graph.py", line 2608, in draw_fn
+    return nm.reduce(to_be_intersected, existing_points)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/user/method/alphageometry/numericals.py", line 1323, in reduce
+    raise ValueError(f'Cannot reduce {objs}')
+ValueError: Cannot reduce [<numericals.Line object at 0x14f10a9a2950>, <numericals.Line object at 0x14f10a9a2a50>, <numericals.Line object at 0x14f10a9a2b90>, <numericals.Line object at 0x14f10a9a2d10>]

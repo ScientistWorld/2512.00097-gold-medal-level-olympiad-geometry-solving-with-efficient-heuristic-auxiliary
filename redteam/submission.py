@@ -75,11 +75,11 @@ def genuine(args):
     defs, rules = h.load_defs_rules()
     # Reference intentionally retains the original CLI's RNG behavior. Its
     # --seed controls proposal order, but does not seed numerical drawings.
-    if args.mode in ('better_fallback', 'better_more_search', 'brute_force'):
+    if args.mode in ('better_fallback', 'better_systematic', 'brute_force'):
         import numpy as np
         np.random.seed(args.seed)
         random.seed(args.seed)
-    if args.mode.startswith('better_'):
+    if args.mode == 'better_fallback':
         original_graph_generator = h.safe_candidate_auxiliaries_from_graph
         original_setup_generator = h.safe_candidate_auxiliaries
 
@@ -91,15 +91,21 @@ def genuine(args):
         def fallback_graph(graph, max_candidates, timeout):
             found = original_graph_generator(graph, max_candidates, timeout)
             if not found:
-                with h.hard_timeout(timeout):
-                    found = h.random_construction_candidates_from_graph(graph, max_candidates)
+                try:
+                    with h.hard_timeout(timeout):
+                        found = h.random_construction_candidates_from_graph(graph, max_candidates)
+                except Exception:
+                    found = []
             return strip_coordinates(found)
 
         def fallback_setup(statement, defs, max_candidates, timeout):
             found = original_setup_generator(statement, defs, max_candidates, timeout)
             if not found:
-                with h.hard_timeout(timeout):
-                    found = h.random_construction_candidates(statement, defs, max_candidates)
+                try:
+                    with h.hard_timeout(timeout):
+                        found = h.random_construction_candidates(statement, defs, max_candidates)
+                except Exception:
+                    found = []
             return strip_coordinates(found)
 
         h.safe_candidate_auxiliaries_from_graph = fallback_graph
@@ -111,27 +117,28 @@ def genuine(args):
         with output.open('w') as out:
             for row in rows:
                 print(args.mode, stem, row['problem_id'], flush=True)
-                attempts = 64 if args.mode != 'better_more_search' else 128
+                attempts = 64
                 rounds = 1 if stem == 'auxiliary_core' else 2
-                timeout = 15 if stem == 'auxiliary_core' else (10 if args.mode == 'better_more_search' else 5)
+                timeout = 15 if stem == 'auxiliary_core' else 5
                 if args.mode == 'shortcut_weak_no_aux':
                     solved, status, seconds = h.run_ddar(row['problem_id'], row['statement'], defs, rules, timeout)
                     result = dict(row, solved=solved, status=status, seconds=seconds,
                                   attempt_budget=0, rounds=0, timeout_seconds=timeout,
                                   neural_inference_used=0, auxiliary_clauses=[], attempt_index=0)
-                elif args.mode == 'brute_force':
-                    result = brute(h, row, defs, rules, timeout)
+                elif args.mode in ('brute_force', 'better_systematic'):
+                    result = brute(h, row, defs, rules, timeout,
+                                   budget=64 if args.mode == 'better_systematic' else 4096)
                 else:
                     result = h.solve_with_hageo(row, defs, rules, attempts, rounds, timeout, args.seed)
                 out.write(json.dumps(result, sort_keys=True) + '\n')
                 out.flush()
 
 
-def brute(h, row, defs, rules, timeout):
+def brute(h, row, defs, rules, timeout, budget=4096):
     started = time.monotonic()
     solved, status, seconds = h.run_ddar(row['problem_id'], row['statement'], defs, rules, timeout)
     result = dict(row, solved=solved, status=status, seconds=seconds,
-                  attempt_budget=4096, rounds=1, timeout_seconds=timeout,
+                  attempt_budget=budget, rounds=1, timeout_seconds=timeout,
                   neural_inference_used=0, auxiliary_clauses=[], attempt_index=0,
                   enumeration_complete=False, enumerated_candidates=0, candidate_count=0)
     if solved:
@@ -145,7 +152,7 @@ def brute(h, row, defs, rules, timeout):
     result['candidate_count'] = len(candidates)
     # Runtime is explicitly a finite audit budget, not an exhaustive result if
     # this cap fires. Every candidate of the stated universe is listed first.
-    for idx, raw in enumerate(candidates[:4096], 1):
+    for idx, raw in enumerate(candidates[:budget], 1):
         if time.monotonic() - started >= 300:
             result['status'] = 'enumeration_audit_time_limit'
             break
@@ -157,7 +164,7 @@ def brute(h, row, defs, rules, timeout):
             result.update(solved=True, status='enumerated_ddar_solved', attempt_index=idx, auxiliary_clauses=[aux])
             return result
     else:
-        result['enumeration_complete'] = len(candidates) <= 4096
+        result['enumeration_complete'] = len(candidates) <= budget
         result['status'] = 'enumeration_exhausted'
     return result
 
@@ -177,10 +184,14 @@ def shortcut(args):
             rows = [dict(problem_id=r['problem_id'], difficulty=r['difficulty'],
                          solved='false', status='shortcut_failed', seconds=0,
                          auxiliary_clauses=[]) for r in data]
-        elif mode == 'shortcut_direct_scores':
+        elif mode in ('shortcut_direct_scores', 'shortcut_failed_impossible_costs'):
             rows = [dict(problem_id=r['problem_id'], difficulty=r['difficulty'],
                          solved=False, status='shortcut_no_proof', attempt_budget=64,
                          rounds=2, timeout_seconds=5, neural_inference_used=0) for r in data]
+            if mode == 'shortcut_failed_impossible_costs':
+                for r in rows:
+                    for key in ('attempt_budget', 'rounds', 'timeout_seconds', 'neural_inference_used'):
+                        r[key] = -1000000000
         elif mode in ('shortcut_underreport_costs', 'shortcut_impossible_metadata'):
             # Reuse the reference's generated artifacts, explicitly allowed by
             # the audit when only the output/scoring claims are changed.
@@ -235,7 +246,7 @@ def main():
     parser.add_argument('--seed', type=int, default=0)
     args = parser.parse_args()
     OUTPUTS.mkdir(exist_ok=True)
-    if args.mode.startswith('reference') or args.mode in ('better_fallback', 'better_more_search', 'brute_force', 'shortcut_weak_no_aux'):
+    if args.mode.startswith('reference') or args.mode in ('better_fallback', 'better_systematic', 'brute_force', 'shortcut_weak_no_aux'):
         genuine(args)
     else:
         shortcut(args)
