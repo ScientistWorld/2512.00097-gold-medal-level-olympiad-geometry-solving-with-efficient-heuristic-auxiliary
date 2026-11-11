@@ -1,0 +1,4 @@
+{
+  "head": "ad1f1267fbe9262b53dea1a5b8e7e5086130a2ca",
+  "initial_status": " M README.md\n M manifest.json\n D trajectory/turn_0001_raw.jsonl\n D trajectory/turn_0002_raw.jsonl\n D trajectory/turn_0003_raw.jsonl\n D trajectory/turn_0004_raw.jsonl\n D trajectory/turn_0005_raw.jsonl\n D trajectory/turn_0006_raw.jsonl\n D trajectory/turn_0007_raw.jsonl\n D trajectory/turn_0008_raw.jsonl\n D trajectory/turn_0009_raw.jsonl\n D trajectory/turn_0010_raw.jsonl\n D trajectory/turn_0011_raw.jsonl\n D trajectory/turn_0012_raw.jsonl\n D trajectory/turn_0013_raw.jsonl\n D trajectory/turn_0014_raw.jsonl\n D trajectory/turn_0015_raw.jsonl\n D trajectory/turn_0016_raw.jsonl\n D trajectory/turn_0017_raw.jsonl\n D trajectory/turn_0018_raw.jsonl\n D trajectory/turn_0019_raw.jsonl\n D trajectory/turn_0020_raw.jsonl\n D trajectory/turn_0021_raw.jsonl\n D trajectory/turn_0022_raw.jsonl\n?? redteam/\n"
+}
