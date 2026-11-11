@@ -1,0 +1,1 @@
+{"attempt_budget": 64, "attempt_index": 5, "auxiliary_clauses": ["z5r0 = on_line z5r0 a b, on_line z5r0 c d"], "difficulty": 2.0, "neural_inference_used": 0, "problem_id": "orthocenter_auxiliary", "rounds": 1, "seconds": 0.06194043159484863, "solved": true, "source": "alphageometry_examples", "status": "hageo_solved", "timeout_seconds": 15}
