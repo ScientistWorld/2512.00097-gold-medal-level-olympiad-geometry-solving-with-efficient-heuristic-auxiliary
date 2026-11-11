@@ -35,7 +35,7 @@ STATIC = [
     'shortcut_failed_impossible_costs',
 ]
 COMPUTE = ['shortcut_weak_no_aux', 'reference_seed0', 'reference_seed1', 'reference_seed2',
-           'better_fallback', 'brute_force', 'better_systematic']
+           'shortcut_fallback_fix', 'brute_force', 'better_systematic']
 
 
 def restore():
@@ -75,6 +75,8 @@ def execute(name):
     if (folder / 'status.json').exists() and not os.environ.get('REDTEAM_RERUN'):
         print('already saved', name, flush=True)
         return
+    for artifact in ('scores_train.json', 'scores_test.json'):
+        (folder / artifact).unlink(missing_ok=True)
     restore()
     shutil.copy2(RT / 'submission.py', ROOT / 'method/audit_submission.py')
     status = {'name': name, 'seed': int(name[-1]) if name.startswith('reference_seed') else 0,

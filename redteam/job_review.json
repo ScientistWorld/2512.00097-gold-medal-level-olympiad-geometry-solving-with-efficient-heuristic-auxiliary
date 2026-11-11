@@ -1,0 +1,39 @@
+{
+  "12ff0500-94b": {
+    "run_id": "12ff0500-94b",
+    "command": "bash /home/user/scripts/run.sh",
+    "status": "completed",
+    "returncode": 0,
+    "duration": 3483.6442675590515,
+    "submitted_at": 1794408897.3964257,
+    "started_at": 1794408925.9112558,
+    "completed_at": 1794412409.5555234,
+    "num_gpus": 0,
+    "num_cpus": 1,
+    "reviewed_workspace_logs": [
+      "jobs/12ff0500-94b/stdout.log",
+      "jobs/12ff0500-94b/stderr.log"
+    ],
+    "stdout_sha256": "51e6f5274dadb2b9dc39a1bba798bccde1c231ff7b71583f567c7f04d35b49af",
+    "stderr_sha256": "3b5b9a7d66aff546ca0b26887d5a18b96bcd3a5b3b340b712f6652c0a554d06c"
+  },
+  "6eff141e-63c": {
+    "run_id": "6eff141e-63c",
+    "command": "bash /home/user/scripts/run.sh",
+    "status": "completed",
+    "returncode": 0,
+    "duration": 1560.9072597026825,
+    "submitted_at": 1794412720.2675319,
+    "started_at": 1794432475.4321864,
+    "completed_at": 1794434036.339446,
+    "num_gpus": 0,
+    "num_cpus": 1,
+    "reviewed_workspace_logs": [
+      "jobs/6eff141e-63c/stdout.log",
+      "jobs/6eff141e-63c/stderr.log"
+    ],
+    "stdout_sha256": "ceecf3809363287a8a3221c07727f6c1239d3f2350f262028e65e3a26bea2a11",
+    "stderr_sha256": "bbfd96f2229396f1799c204de7d747845b5f6602aa7077150a07f488f66914e7"
+  },
+  "findings": "Both bundled CPU jobs completed successfully; individual rejected cases and the initial fallback exception are recorded separately in case status and failure files. The first job resumed after preemption."
+}

@@ -1,0 +1,165 @@
+{
+  "case_shell_and_python_syntax": "passed",
+  "cases": [
+    {
+      "name": "better_systematic",
+      "test_exit": 0
+    },
+    {
+      "name": "brute_force",
+      "test_exit": 0
+    },
+    {
+      "name": "reference_cached",
+      "test_exit": 0
+    },
+    {
+      "name": "reference_seed0",
+      "test_exit": 0
+    },
+    {
+      "name": "reference_seed1",
+      "test_exit": 0
+    },
+    {
+      "name": "reference_seed2",
+      "test_exit": 0
+    },
+    {
+      "name": "shortcut_constant_flags",
+      "test_exit": 0
+    },
+    {
+      "name": "shortcut_direct_scores",
+      "test_exit": 0
+    },
+    {
+      "name": "shortcut_drop_dataset",
+      "test_exit": 0
+    },
+    {
+      "name": "shortcut_empty_output",
+      "test_exit": 0
+    },
+    {
+      "name": "shortcut_failed_impossible_costs",
+      "test_exit": 0
+    },
+    {
+      "name": "shortcut_fallback_fix",
+      "test_exit": 0
+    },
+    {
+      "name": "shortcut_impossible_metadata",
+      "test_exit": 0
+    },
+    {
+      "name": "shortcut_missing_row",
+      "test_exit": 1
+    },
+    {
+      "name": "shortcut_move_baseline",
+      "test_exit": 0
+    },
+    {
+      "name": "shortcut_null_resources",
+      "test_exit": 1
+    },
+    {
+      "name": "shortcut_replace_goals",
+      "test_exit": 0
+    },
+    {
+      "name": "shortcut_truthy_false",
+      "test_exit": 0
+    },
+    {
+      "name": "shortcut_underreport_costs",
+      "test_exit": 0
+    },
+    {
+      "name": "shortcut_unregistered_method",
+      "test_exit": 0
+    },
+    {
+      "name": "shortcut_weak_no_aux",
+      "test_exit": 0
+    }
+  ],
+  "excluded_initial_infrastructure_changes": [
+    "README.md",
+    "manifest.json",
+    "trajectory/turn_0001_raw.jsonl",
+    "trajectory/turn_0002_raw.jsonl",
+    "trajectory/turn_0003_raw.jsonl",
+    "trajectory/turn_0004_raw.jsonl",
+    "trajectory/turn_0005_raw.jsonl",
+    "trajectory/turn_0006_raw.jsonl",
+    "trajectory/turn_0007_raw.jsonl",
+    "trajectory/turn_0008_raw.jsonl",
+    "trajectory/turn_0009_raw.jsonl",
+    "trajectory/turn_0010_raw.jsonl",
+    "trajectory/turn_0011_raw.jsonl",
+    "trajectory/turn_0012_raw.jsonl",
+    "trajectory/turn_0013_raw.jsonl",
+    "trajectory/turn_0014_raw.jsonl",
+    "trajectory/turn_0015_raw.jsonl",
+    "trajectory/turn_0016_raw.jsonl",
+    "trajectory/turn_0017_raw.jsonl",
+    "trajectory/turn_0018_raw.jsonl",
+    "trajectory/turn_0019_raw.jsonl",
+    "trajectory/turn_0020_raw.jsonl",
+    "trajectory/turn_0021_raw.jsonl",
+    "trajectory/turn_0022_raw.jsonl"
+  ],
+  "excluded_required_control_file": "action.yaml",
+  "initial_git_commit": "ad1f1267fbe9262b53dea1a5b8e7e5086130a2ca",
+  "installed_submission_removed": true,
+  "original_artifacts": {
+    "data/benchmarks/auxiliary_core.jsonl": {
+      "matches_original": true,
+      "sha256": "2368aedf778303197115c959c3e9b379f3d4fe48a6f9a363e182e4163307323e"
+    },
+    "data/benchmarks/hageo409_small.jsonl": {
+      "matches_original": true,
+      "sha256": "c8924d20faac98c7759baacbfc8c5362c30737ac37706e59564c373bf6701682"
+    },
+    "outputs/baseline_auxiliary_core.jsonl": {
+      "matches_original": true,
+      "sha256": "175d05aea376b764a3142b29327bc05a356958ae5e3cea6786aaaf1e573f4188"
+    },
+    "outputs/baseline_hageo409_small.jsonl": {
+      "matches_original": true,
+      "sha256": "b3bcb02efd2c9ab2d3edc146dab4657632e67a5627efc4f7463846d03b0c26bd"
+    },
+    "outputs/hageo_auxiliary_core.jsonl": {
+      "matches_original": true,
+      "sha256": "d33f32235021be6faa85c3fa69fd8f54dc74f3bcb381c22657972b9eefdc3823"
+    },
+    "outputs/hageo_hageo409_small.jsonl": {
+      "matches_original": true,
+      "sha256": "385c868ab8de319ce6cb6f6fe520adef915b0150d55644310a38b6909330610c"
+    },
+    "outputs/random_aux_hageo409_small.jsonl": {
+      "matches_original": true,
+      "sha256": "03a81eba6856de085ddedbb53495721187855533603e328cadf45b37b7cdeb33"
+    },
+    "scoring/reference.json": {
+      "matches_original": true,
+      "sha256": "b4aa012acade3a1fd2d32a56eed169284616b8f54bac6fab17ff755d9ba39266"
+    },
+    "scoring/scores.json": {
+      "matches_original": true,
+      "sha256": "7d9bb569bd0e8b6a6df8a96f4e88da9ae43a94096f25e8efb8d4976fa43282ed"
+    },
+    "scoring/scores_test.json": {
+      "matches_original": true,
+      "sha256": "f00155f5b53f53cf5cbeaf88757bb83c759677fce9429299686f90aeecf31aad"
+    },
+    "scoring/scores_train.json": {
+      "matches_original": true,
+      "sha256": "f6907b51374c7c8f560c772d4227446073abe58c6eaf4018cc4ec12f0645c7d2"
+    }
+  },
+  "unexpected_tracked_gym_differences": []
+}

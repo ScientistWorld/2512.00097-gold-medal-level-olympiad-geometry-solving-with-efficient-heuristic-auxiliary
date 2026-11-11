@@ -1,4 +1,4 @@
 #!/bin/bash
 set -euo pipefail
 cd /home/user
-python redteam/run_case.py reference_seed1
+REDTEAM_RERUN=1 python redteam/run_case.py reference_seed1

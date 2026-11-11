@@ -14,7 +14,8 @@ The original test reference is `originals/scoring/scores_test.json`, method
 `hageo`. It is distinct from the paper's full-band rates in `reference.json`.
 
 Run heavy trials in a compute job. `python redteam/run_case.py --suite` resumes
-completed cases. Set `REDTEAM_RERUN=1` to rerun a case. Each folder keeps
+completed cases. Each case's `run.sh` forces a fresh rerun; direct calls to
+the harness can use `REDTEAM_RERUN=1` to do the same. Each folder keeps
 `scores_test.json`, `scores_train.json`, `status.json`, and the solver artifacts.
 Rejected tests keep a failure status instead of a fabricated score.
 
@@ -22,9 +23,11 @@ Rejected tests keep a failure status instead of a fabricated score.
 with the reference's five-second DDAR limit and one auxiliary per attempt.
 `brute_force` uses the same construction universe with a 4096-candidate cap
 and a 300-second per-problem audit cap. Both invoke the real symbolic prover.
-`better_fallback` removes coordinates tied to a previous random drawing and
+`shortcut_fallback_fix` removes coordinates tied to a previous random drawing and
 uses basic candidates when heuristic generation fails. Its initial exception
-and failed status are preserved separately from the corrected run.
+and failed status are preserved separately from the corrected run. This folder
+was renamed from `better_fallback` after its completed test tied the reference;
+`status.json` records the original execution name. No behavior was changed.
 
 The named-cohort ranks in `summary.json` are diagnostic calculations using
 the requested absolute coefficients and population standard deviations.

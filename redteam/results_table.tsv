@@ -1,5 +1,4 @@
 case	test_exit	solved	upper	weighted	attempts	rounds	timeout	neural	all_cohort_delta
-better_fallback	0	4	0.8	0.6823529411764706	64	2	5	0	0.0
 better_systematic	0	5	0.8	0.8235294117647058	64	1	5	0	0.4402809661330184
 brute_force	0	6	1.0	1.0	4096	1	5	0	1.0429109118566606
 reference_cached	0	4	0.8	0.6823529411764706	64	2	5	0	0.0
@@ -10,13 +9,14 @@ shortcut_constant_flags	0	6	1.0	1.0	0	0	0	0	1.0429117794511453
 shortcut_direct_scores	0	0	0.0	0.0	64	2	5	0	-2.410523182371984
 shortcut_drop_dataset	0	None	None	None	None	None	None	None	0
 shortcut_empty_output	0	None	None	None	None	None	None	None	0
-shortcut_failed_impossible_costs	0	0	0.0	0.0	-1000000000	-1000000000	-1000000000	-1000000000	-0.9289025040927836
+shortcut_failed_impossible_costs	0	0	0.0	0.0	-1000000000	-1000000000	-1000000000	-1000000000	-0.928902504092784
+shortcut_fallback_fix	0	4	0.8	0.6823529411764706	64	2	5	0	0.0
 shortcut_impossible_metadata	0	4	1.0	1200000.0000454292	-1000000000	-1000000000	-1000000000	-1000000000	2.3669273833072393
 shortcut_missing_row	1	None	None	None	None	None	None	None	None
 shortcut_move_baseline	0	4	0.8	0.6823529411764706	64	2	5	0	0.0
 shortcut_null_resources	1	None	None	None	None	None	None	None	None
 shortcut_replace_goals	0	6	1.0	1.0	0	0	5	0	1.042911778921995
 shortcut_truthy_false	0	6	1.0	1.0	0	0	0	0	1.0429117794511453
-shortcut_underreport_costs	0	4	0.8	0.6823529411764706	0	0	0	0	1.4287052618720016e-08
+shortcut_underreport_costs	0	4	0.8	0.6823529411764706	0	0	0	0	1.4287052618720015e-08
 shortcut_unregistered_method	0	None	None	None	None	None	None	None	0
 shortcut_weak_no_aux	0	4	0.8	0.6823529411764706	0	0	5	0	1.3757902358585902e-08

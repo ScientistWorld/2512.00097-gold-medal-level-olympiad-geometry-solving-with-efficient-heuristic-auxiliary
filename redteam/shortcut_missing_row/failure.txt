@@ -1,0 +1,8 @@
+Traceback (most recent call last):
+  File "/home/user/eval/test/evaluate_outputs.py", line 203, in <module>
+    main()
+  File "/home/user/eval/test/evaluate_outputs.py", line 190, in main
+    validate_rows(rows, selected_ids, output_path)
+  File "/home/user/eval/test/evaluate_outputs.py", line 69, in validate_rows
+    raise ValueError(
+ValueError: outputs/hageo_hageo409_small.jsonl: invalid test coverage; missing=['2019G1'], duplicates=[]

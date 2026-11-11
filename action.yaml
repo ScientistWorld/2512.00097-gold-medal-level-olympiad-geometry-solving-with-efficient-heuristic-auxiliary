@@ -1,4 +1,2 @@
-action: submit
-gpus: 0
-test: false
-notes: "Finish scoring audit: test genuine 64-candidate systematic construction search at reference timeout, retry corrected fallback fix, and check all-failed impossible-cost shortcut; reuse completed runs."
+action: done
+notes: "Audit complete: genuine improvement reaches 5/6, weaker ablation also outranks 4/6 reference, brute force solves 6/6, and major flag/metadata/missing-result shortcuts confirmed; report and restored-workspace evidence committed."

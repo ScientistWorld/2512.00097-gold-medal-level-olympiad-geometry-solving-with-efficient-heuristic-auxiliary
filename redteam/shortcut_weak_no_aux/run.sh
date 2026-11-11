@@ -1,4 +1,4 @@
 #!/bin/bash
 set -euo pipefail
 cd /home/user
-python redteam/run_case.py shortcut_weak_no_aux
+REDTEAM_RERUN=1 python redteam/run_case.py shortcut_weak_no_aux

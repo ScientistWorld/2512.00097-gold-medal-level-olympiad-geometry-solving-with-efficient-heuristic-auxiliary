@@ -75,11 +75,11 @@ def genuine(args):
     defs, rules = h.load_defs_rules()
     # Reference intentionally retains the original CLI's RNG behavior. Its
     # --seed controls proposal order, but does not seed numerical drawings.
-    if args.mode in ('better_fallback', 'better_systematic', 'brute_force'):
+    if args.mode in ('shortcut_fallback_fix', 'better_systematic', 'brute_force'):
         import numpy as np
         np.random.seed(args.seed)
         random.seed(args.seed)
-    if args.mode == 'better_fallback':
+    if args.mode == 'shortcut_fallback_fix':
         original_graph_generator = h.safe_candidate_auxiliaries_from_graph
         original_setup_generator = h.safe_candidate_auxiliaries
 
@@ -246,7 +246,7 @@ def main():
     parser.add_argument('--seed', type=int, default=0)
     args = parser.parse_args()
     OUTPUTS.mkdir(exist_ok=True)
-    if args.mode.startswith('reference') or args.mode in ('better_fallback', 'better_systematic', 'brute_force', 'shortcut_weak_no_aux'):
+    if args.mode.startswith('reference') or args.mode in ('shortcut_fallback_fix', 'better_systematic', 'brute_force', 'shortcut_weak_no_aux'):
         genuine(args)
     else:
         shortcut(args)

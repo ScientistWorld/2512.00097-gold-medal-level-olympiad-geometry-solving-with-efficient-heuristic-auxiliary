@@ -63,7 +63,7 @@ def rank_cohort(names):
 
 
 successes = [n for n, r in reports.items() if r['status']['stages'].get('test', {}).get('returncode') == 0]
-honest = [n for n in successes if n.startswith(('reference_', 'better_')) or n in ('shortcut_weak_no_aux', 'brute_force')]
+honest = [n for n in successes if n.startswith(('reference_', 'better_')) or n in ('shortcut_weak_no_aux', 'shortcut_fallback_fix', 'brute_force')]
 summary = {'reference': original, 'runs': reports,
            'honest_cohort_rank': rank_cohort(honest),
            'all_completed_cohort_rank': rank_cohort(successes)}

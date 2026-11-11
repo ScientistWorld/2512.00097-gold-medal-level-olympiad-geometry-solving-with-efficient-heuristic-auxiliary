@@ -1,8 +1,12 @@
 #!/bin/bash
-set -euo pipefail
+# Regenerate solver artifacts, then score the canonical, train, and held-out
+# evaluation views.
+
+set -e
+
 cd /home/user
-export MPLCONFIGDIR=/home/user/redteam/matplotlib_cache
-bash redteam/better_systematic/run.sh
-bash redteam/shortcut_failed_impossible_costs/run.sh
-bash redteam/better_fallback/run.sh
-python redteam/summarize.py > redteam/results_table.tsv
+
+bash scripts/reproduce.sh
+bash scripts/evaluate.sh
+bash scripts/evaluate_train.sh /home/user/checkpoints
+bash scripts/evaluate_test.sh /home/user/checkpoints

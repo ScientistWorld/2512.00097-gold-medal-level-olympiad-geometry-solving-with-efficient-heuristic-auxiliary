@@ -1,0 +1,13 @@
+Traceback (most recent call last):
+  File "/home/user/eval/test/evaluate_outputs.py", line 203, in <module>
+    main()
+  File "/home/user/eval/test/evaluate_outputs.py", line 193, in main
+    results[method_name] = summarize(slice_rows, config["metrics"])
+                           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/user/eval/test/evaluate_outputs.py", line 102, in summarize
+    "attempt_budget": max((int(row.get("attempt_budget", 0)) for row in rows), default=0),
+                      ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/user/eval/test/evaluate_outputs.py", line 102, in <genexpr>
+    "attempt_budget": max((int(row.get("attempt_budget", 0)) for row in rows), default=0),
+                           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+TypeError: int() argument must be a string, a bytes-like object or a real number, not 'NoneType'
