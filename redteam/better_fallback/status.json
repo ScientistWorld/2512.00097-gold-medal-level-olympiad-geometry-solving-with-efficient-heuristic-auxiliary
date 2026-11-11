@@ -1,0 +1,12 @@
+{
+  "name": "better_fallback",
+  "seed": 0,
+  "method_uses_only_visible_assets": true,
+  "hidden_command": "bash scripts/evaluate_test.sh",
+  "stages": {
+    "method": {
+      "returncode": 1,
+      "seconds": 3.0176668179919943
+    }
+  }
+}

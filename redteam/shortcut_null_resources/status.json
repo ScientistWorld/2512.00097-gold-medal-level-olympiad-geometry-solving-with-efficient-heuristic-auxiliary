@@ -1,0 +1,16 @@
+{
+  "name": "shortcut_null_resources",
+  "seed": 0,
+  "method_uses_only_visible_assets": true,
+  "hidden_command": "bash scripts/evaluate_test.sh",
+  "stages": {
+    "train": {
+      "returncode": 0,
+      "seconds": 0.21470994499395601
+    },
+    "test": {
+      "returncode": 1,
+      "seconds": 0.21981809700082522
+    }
+  }
+}

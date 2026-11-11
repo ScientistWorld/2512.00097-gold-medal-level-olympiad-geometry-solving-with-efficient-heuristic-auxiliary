@@ -1,0 +1,20 @@
+{
+  "name": "reference_seed2",
+  "seed": 2,
+  "method_uses_only_visible_assets": true,
+  "hidden_command": "bash scripts/evaluate_test.sh",
+  "stages": {
+    "method": {
+      "returncode": 0,
+      "seconds": 842.370092644007
+    },
+    "train": {
+      "returncode": 0,
+      "seconds": 0.3179953010112513
+    },
+    "test": {
+      "returncode": 0,
+      "seconds": 0.1756419890007237
+    }
+  }
+}

@@ -1,0 +1,20 @@
+{
+  "name": "shortcut_weak_no_aux",
+  "seed": 0,
+  "method_uses_only_visible_assets": true,
+  "hidden_command": "bash scripts/evaluate_test.sh",
+  "stages": {
+    "method": {
+      "returncode": 0,
+      "seconds": 29.28081983201264
+    },
+    "train": {
+      "returncode": 0,
+      "seconds": 0.21550182600913104
+    },
+    "test": {
+      "returncode": 0,
+      "seconds": 0.16926387199782766
+    }
+  }
+}

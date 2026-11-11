@@ -1,0 +1,1514 @@
+{
+  "all_completed_cohort_rank": {
+    "names": [
+      "brute_force",
+      "reference_cached",
+      "reference_seed0",
+      "reference_seed1",
+      "reference_seed2",
+      "shortcut_constant_flags",
+      "shortcut_direct_scores",
+      "shortcut_drop_dataset",
+      "shortcut_empty_output",
+      "shortcut_impossible_metadata",
+      "shortcut_move_baseline",
+      "shortcut_replace_goals",
+      "shortcut_truthy_false",
+      "shortcut_underreport_costs",
+      "shortcut_unregistered_method",
+      "shortcut_weak_no_aux"
+    ],
+    "normalization": "population standard deviation across named audit attempts; zero-variance metrics contribute zero",
+    "rankings": {
+      "brute_force": {
+        "rank_delta": 1.2376878073181197,
+        "skipped_metrics": [],
+        "terms": {
+          "hageo409_low_difficulty/attempt_budget": -1.0959097006066897e-06,
+          "hageo409_low_difficulty/difficulty_weighted_solve_rate": 1.7986980503632097e-07,
+          "hageo409_low_difficulty/neural_inference_used": -0.0,
+          "hageo409_low_difficulty/rounds": 1.3590154791837165e-10,
+          "hageo409_low_difficulty/solve_rate": 0.9430054396763887,
+          "hageo409_low_difficulty/solved_count": 0.09430054396763886,
+          "hageo409_low_difficulty/timeout_seconds": -0.0,
+          "hageo409_low_difficulty/upper_band_solve_rate": 0.2003827395780861
+        }
+      },
+      "reference_cached": {
+        "rank_delta": 0.0,
+        "skipped_metrics": [],
+        "terms": {
+          "hageo409_low_difficulty/attempt_budget": -0.0,
+          "hageo409_low_difficulty/difficulty_weighted_solve_rate": 0.0,
+          "hageo409_low_difficulty/neural_inference_used": -0.0,
+          "hageo409_low_difficulty/rounds": -0.0,
+          "hageo409_low_difficulty/solve_rate": 0.0,
+          "hageo409_low_difficulty/solved_count": 0.0,
+          "hageo409_low_difficulty/timeout_seconds": -0.0,
+          "hageo409_low_difficulty/upper_band_solve_rate": 0.0
+        }
+      },
+      "reference_seed0": {
+        "rank_delta": 0.0,
+        "skipped_metrics": [],
+        "terms": {
+          "hageo409_low_difficulty/attempt_budget": -0.0,
+          "hageo409_low_difficulty/difficulty_weighted_solve_rate": 0.0,
+          "hageo409_low_difficulty/neural_inference_used": -0.0,
+          "hageo409_low_difficulty/rounds": -0.0,
+          "hageo409_low_difficulty/solve_rate": 0.0,
+          "hageo409_low_difficulty/solved_count": 0.0,
+          "hageo409_low_difficulty/timeout_seconds": -0.0,
+          "hageo409_low_difficulty/upper_band_solve_rate": 0.0
+        }
+      },
+      "reference_seed1": {
+        "rank_delta": 0.0,
+        "skipped_metrics": [],
+        "terms": {
+          "hageo409_low_difficulty/attempt_budget": -0.0,
+          "hageo409_low_difficulty/difficulty_weighted_solve_rate": 0.0,
+          "hageo409_low_difficulty/neural_inference_used": -0.0,
+          "hageo409_low_difficulty/rounds": -0.0,
+          "hageo409_low_difficulty/solve_rate": 0.0,
+          "hageo409_low_difficulty/solved_count": 0.0,
+          "hageo409_low_difficulty/timeout_seconds": -0.0,
+          "hageo409_low_difficulty/upper_band_solve_rate": 0.0
+        }
+      },
+      "reference_seed2": {
+        "rank_delta": 0.0,
+        "skipped_metrics": [],
+        "terms": {
+          "hageo409_low_difficulty/attempt_budget": -0.0,
+          "hageo409_low_difficulty/difficulty_weighted_solve_rate": 0.0,
+          "hageo409_low_difficulty/neural_inference_used": -0.0,
+          "hageo409_low_difficulty/rounds": -0.0,
+          "hageo409_low_difficulty/solve_rate": 0.0,
+          "hageo409_low_difficulty/solved_count": 0.0,
+          "hageo409_low_difficulty/timeout_seconds": -0.0,
+          "hageo409_low_difficulty/upper_band_solve_rate": 0.0
+        }
+      },
+      "shortcut_constant_flags": {
+        "rank_delta": 1.2376889214386215,
+        "skipped_metrics": [],
+        "terms": {
+          "hageo409_low_difficulty/attempt_budget": 1.7395392073122062e-08,
+          "hageo409_low_difficulty/difficulty_weighted_solve_rate": 1.7986980503632097e-07,
+          "hageo409_low_difficulty/neural_inference_used": -0.0,
+          "hageo409_low_difficulty/rounds": 2.718030958367433e-10,
+          "hageo409_low_difficulty/solve_rate": 0.9430054396763887,
+          "hageo409_low_difficulty/solved_count": 0.09430054396763886,
+          "hageo409_low_difficulty/timeout_seconds": 6.795077377624143e-10,
+          "hageo409_low_difficulty/upper_band_solve_rate": 0.2003827395780861
+        }
+      },
+      "shortcut_direct_scores": {
+        "rank_delta": -2.8761433119873883,
+        "skipped_metrics": [],
+        "terms": {
+          "hageo409_low_difficulty/attempt_budget": -0.0,
+          "hageo409_low_difficulty/difficulty_weighted_solve_rate": -3.8638698859654136e-07,
+          "hageo409_low_difficulty/neural_inference_used": -0.0,
+          "hageo409_low_difficulty/rounds": -0.0,
+          "hageo409_low_difficulty/solve_rate": -1.8860108793527772,
+          "hageo409_low_difficulty/solved_count": -0.18860108793527772,
+          "hageo409_low_difficulty/timeout_seconds": -0.0,
+          "hageo409_low_difficulty/upper_band_solve_rate": -0.8015309583123447
+        }
+      },
+      "shortcut_drop_dataset": {
+        "rank_delta": 0,
+        "skipped_metrics": [
+          "hageo409_low_difficulty/solve_rate",
+          "hageo409_low_difficulty/solved_count",
+          "hageo409_low_difficulty/upper_band_solve_rate",
+          "hageo409_low_difficulty/difficulty_weighted_solve_rate",
+          "hageo409_low_difficulty/attempt_budget",
+          "hageo409_low_difficulty/rounds",
+          "hageo409_low_difficulty/timeout_seconds",
+          "hageo409_low_difficulty/neural_inference_used"
+        ],
+        "terms": {}
+      },
+      "shortcut_empty_output": {
+        "rank_delta": 0,
+        "skipped_metrics": [
+          "hageo409_low_difficulty/solve_rate",
+          "hageo409_low_difficulty/solved_count",
+          "hageo409_low_difficulty/upper_band_solve_rate",
+          "hageo409_low_difficulty/difficulty_weighted_solve_rate",
+          "hageo409_low_difficulty/attempt_budget",
+          "hageo409_low_difficulty/rounds",
+          "hageo409_low_difficulty/timeout_seconds",
+          "hageo409_low_difficulty/neural_inference_used"
+        ],
+        "terms": {}
+      },
+      "shortcut_impossible_metadata": {
+        "rank_delta": 2.782512101288158,
+        "skipped_metrics": [],
+        "terms": {
+          "hageo409_low_difficulty/attempt_budget": 0.27180301853792427,
+          "hageo409_low_difficulty/difficulty_weighted_solve_rate": 0.6795077659981709,
+          "hageo409_low_difficulty/neural_inference_used": 1.3590154807518113,
+          "hageo409_low_difficulty/rounds": 0.13590154819017472,
+          "hageo409_low_difficulty/solve_rate": 0.0,
+          "hageo409_low_difficulty/solved_count": 0.0,
+          "hageo409_low_difficulty/timeout_seconds": 0.1359015482319906,
+          "hageo409_low_difficulty/upper_band_solve_rate": 0.2003827395780861
+        }
+      },
+      "shortcut_move_baseline": {
+        "rank_delta": 0.0,
+        "skipped_metrics": [],
+        "terms": {
+          "hageo409_low_difficulty/attempt_budget": -0.0,
+          "hageo409_low_difficulty/difficulty_weighted_solve_rate": 0.0,
+          "hageo409_low_difficulty/neural_inference_used": -0.0,
+          "hageo409_low_difficulty/rounds": -0.0,
+          "hageo409_low_difficulty/solve_rate": 0.0,
+          "hageo409_low_difficulty/solved_count": 0.0,
+          "hageo409_low_difficulty/timeout_seconds": -0.0,
+          "hageo409_low_difficulty/upper_band_solve_rate": 0.0
+        }
+      },
+      "shortcut_replace_goals": {
+        "rank_delta": 1.2376889207591137,
+        "skipped_metrics": [],
+        "terms": {
+          "hageo409_low_difficulty/attempt_budget": 1.7395392073122062e-08,
+          "hageo409_low_difficulty/difficulty_weighted_solve_rate": 1.7986980503632097e-07,
+          "hageo409_low_difficulty/neural_inference_used": -0.0,
+          "hageo409_low_difficulty/rounds": 2.718030958367433e-10,
+          "hageo409_low_difficulty/solve_rate": 0.9430054396763887,
+          "hageo409_low_difficulty/solved_count": 0.09430054396763886,
+          "hageo409_low_difficulty/timeout_seconds": -0.0,
+          "hageo409_low_difficulty/upper_band_solve_rate": 0.2003827395780861
+        }
+      },
+      "shortcut_truthy_false": {
+        "rank_delta": 1.2376889214386215,
+        "skipped_metrics": [],
+        "terms": {
+          "hageo409_low_difficulty/attempt_budget": 1.7395392073122062e-08,
+          "hageo409_low_difficulty/difficulty_weighted_solve_rate": 1.7986980503632097e-07,
+          "hageo409_low_difficulty/neural_inference_used": -0.0,
+          "hageo409_low_difficulty/rounds": 2.718030958367433e-10,
+          "hageo409_low_difficulty/solve_rate": 0.9430054396763887,
+          "hageo409_low_difficulty/solved_count": 0.09430054396763886,
+          "hageo409_low_difficulty/timeout_seconds": 6.795077377624143e-10,
+          "hageo409_low_difficulty/upper_band_solve_rate": 0.2003827395780861
+        }
+      },
+      "shortcut_underreport_costs": {
+        "rank_delta": 1.8346702906721218e-08,
+        "skipped_metrics": [],
+        "terms": {
+          "hageo409_low_difficulty/attempt_budget": 1.7395392073122062e-08,
+          "hageo409_low_difficulty/difficulty_weighted_solve_rate": 0.0,
+          "hageo409_low_difficulty/neural_inference_used": -0.0,
+          "hageo409_low_difficulty/rounds": 2.718030958367433e-10,
+          "hageo409_low_difficulty/solve_rate": 0.0,
+          "hageo409_low_difficulty/solved_count": 0.0,
+          "hageo409_low_difficulty/timeout_seconds": 6.795077377624143e-10,
+          "hageo409_low_difficulty/upper_band_solve_rate": 0.0
+        }
+      },
+      "shortcut_unregistered_method": {
+        "rank_delta": 0.0,
+        "skipped_metrics": [],
+        "terms": {
+          "hageo409_low_difficulty/attempt_budget": -0.0,
+          "hageo409_low_difficulty/difficulty_weighted_solve_rate": 0.0,
+          "hageo409_low_difficulty/neural_inference_used": -0.0,
+          "hageo409_low_difficulty/rounds": -0.0,
+          "hageo409_low_difficulty/solve_rate": 0.0,
+          "hageo409_low_difficulty/solved_count": 0.0,
+          "hageo409_low_difficulty/timeout_seconds": -0.0,
+          "hageo409_low_difficulty/upper_band_solve_rate": 0.0
+        }
+      },
+      "shortcut_weak_no_aux": {
+        "rank_delta": 1.7667195168958805e-08,
+        "skipped_metrics": [],
+        "terms": {
+          "hageo409_low_difficulty/attempt_budget": 1.7395392073122062e-08,
+          "hageo409_low_difficulty/difficulty_weighted_solve_rate": 0.0,
+          "hageo409_low_difficulty/neural_inference_used": -0.0,
+          "hageo409_low_difficulty/rounds": 2.718030958367433e-10,
+          "hageo409_low_difficulty/solve_rate": 0.0,
+          "hageo409_low_difficulty/solved_count": 0.0,
+          "hageo409_low_difficulty/timeout_seconds": -0.0,
+          "hageo409_low_difficulty/upper_band_solve_rate": 0.0
+        }
+      }
+    },
+    "sigma": {
+      "hageo409_low_difficulty/attempt_budget": 257539466.84088424,
+      "hageo409_low_difficulty/difficulty_weighted_solve_rate": 309047.06480830815,
+      "hageo409_low_difficulty/neural_inference_used": 257539376.8188564,
+      "hageo409_low_difficulty/rounds": 257539377.1160172,
+      "hageo409_low_difficulty/solve_rate": 0.24743582965269675,
+      "hageo409_low_difficulty/solved_count": 1.4846149779161806,
+      "hageo409_low_difficulty/timeout_seconds": 257539377.80939245,
+      "hageo409_low_difficulty/upper_band_solve_rate": 0.244532039551767
+    }
+  },
+  "honest_cohort_rank": {
+    "names": [
+      "brute_force",
+      "reference_cached",
+      "reference_seed0",
+      "reference_seed1",
+      "reference_seed2",
+      "shortcut_weak_no_aux"
+    ],
+    "normalization": "population standard deviation across named audit attempts; zero-variance metrics contribute zero",
+    "rankings": {
+      "brute_force": {
+        "rank_delta": 3.0517180131093307,
+        "skipped_metrics": [],
+        "terms": {
+          "hageo409_low_difficulty/attempt_budget": -0.1872128157099274,
+          "hageo409_low_difficulty/difficulty_weighted_solve_rate": 0.4695742752749558,
+          "hageo409_low_difficulty/neural_inference_used": 0,
+          "hageo409_low_difficulty/rounds": 0.04582575694955839,
+          "hageo409_low_difficulty/solve_rate": 1.8782971010998233,
+          "hageo409_low_difficulty/solved_count": 0.1878297101099823,
+          "hageo409_low_difficulty/timeout_seconds": 0,
+          "hageo409_low_difficulty/upper_band_solve_rate": 0.657403985384938
+        }
+      },
+      "reference_cached": {
+        "rank_delta": 0.0,
+        "skipped_metrics": [],
+        "terms": {
+          "hageo409_low_difficulty/attempt_budget": -0.0,
+          "hageo409_low_difficulty/difficulty_weighted_solve_rate": 0.0,
+          "hageo409_low_difficulty/neural_inference_used": 0,
+          "hageo409_low_difficulty/rounds": -0.0,
+          "hageo409_low_difficulty/solve_rate": 0.0,
+          "hageo409_low_difficulty/solved_count": 0.0,
+          "hageo409_low_difficulty/timeout_seconds": 0,
+          "hageo409_low_difficulty/upper_band_solve_rate": 0.0
+        }
+      },
+      "reference_seed0": {
+        "rank_delta": 0.0,
+        "skipped_metrics": [],
+        "terms": {
+          "hageo409_low_difficulty/attempt_budget": -0.0,
+          "hageo409_low_difficulty/difficulty_weighted_solve_rate": 0.0,
+          "hageo409_low_difficulty/neural_inference_used": 0,
+          "hageo409_low_difficulty/rounds": -0.0,
+          "hageo409_low_difficulty/solve_rate": 0.0,
+          "hageo409_low_difficulty/solved_count": 0.0,
+          "hageo409_low_difficulty/timeout_seconds": 0,
+          "hageo409_low_difficulty/upper_band_solve_rate": 0.0
+        }
+      },
+      "reference_seed1": {
+        "rank_delta": 0.0,
+        "skipped_metrics": [],
+        "terms": {
+          "hageo409_low_difficulty/attempt_budget": -0.0,
+          "hageo409_low_difficulty/difficulty_weighted_solve_rate": 0.0,
+          "hageo409_low_difficulty/neural_inference_used": 0,
+          "hageo409_low_difficulty/rounds": -0.0,
+          "hageo409_low_difficulty/solve_rate": 0.0,
+          "hageo409_low_difficulty/solved_count": 0.0,
+          "hageo409_low_difficulty/timeout_seconds": 0,
+          "hageo409_low_difficulty/upper_band_solve_rate": 0.0
+        }
+      },
+      "reference_seed2": {
+        "rank_delta": 0.0,
+        "skipped_metrics": [],
+        "terms": {
+          "hageo409_low_difficulty/attempt_budget": -0.0,
+          "hageo409_low_difficulty/difficulty_weighted_solve_rate": 0.0,
+          "hageo409_low_difficulty/neural_inference_used": 0,
+          "hageo409_low_difficulty/rounds": -0.0,
+          "hageo409_low_difficulty/solve_rate": 0.0,
+          "hageo409_low_difficulty/solved_count": 0.0,
+          "hageo409_low_difficulty/timeout_seconds": 0,
+          "hageo409_low_difficulty/upper_band_solve_rate": 0.0
+        }
+      },
+      "shortcut_weak_no_aux": {
+        "rank_delta": 0.09462314589451246,
+        "skipped_metrics": [],
+        "terms": {
+          "hageo409_low_difficulty/attempt_budget": 0.002971631995395673,
+          "hageo409_low_difficulty/difficulty_weighted_solve_rate": 0.0,
+          "hageo409_low_difficulty/neural_inference_used": 0,
+          "hageo409_low_difficulty/rounds": 0.09165151389911678,
+          "hageo409_low_difficulty/solve_rate": 0.0,
+          "hageo409_low_difficulty/solved_count": 0.0,
+          "hageo409_low_difficulty/timeout_seconds": 0,
+          "hageo409_low_difficulty/upper_band_solve_rate": 0.0
+        }
+      }
+    },
+    "sigma": {
+      "hageo409_low_difficulty/attempt_budget": 1507.5890981593388,
+      "hageo409_low_difficulty/difficulty_weighted_solve_rate": 0.11838006939704768,
+      "hageo409_low_difficulty/neural_inference_used": 0.0,
+      "hageo409_low_difficulty/rounds": 0.7637626158259734,
+      "hageo409_low_difficulty/solve_rate": 0.12422599874998833,
+      "hageo409_low_difficulty/solved_count": 0.7453559924999299,
+      "hageo409_low_difficulty/timeout_seconds": 0.0,
+      "hageo409_low_difficulty/upper_band_solve_rate": 0.07453559924999298
+    }
+  },
+  "reference": {
+    "experiments": {
+      "hageo409_low_difficulty": {
+        "results": {
+          "ddar": {
+            "attempt_budget": 0,
+            "difficulty_weighted_solve_rate": 0.6823529411764706,
+            "neural_inference_used": 0,
+            "problem_count": 6,
+            "rounds": 0,
+            "solve_rate": 0.6666666666666666,
+            "solved_count": 4,
+            "timeout_seconds": 5,
+            "upper_band_solve_rate": 0.8
+          },
+          "hageo": {
+            "attempt_budget": 64,
+            "difficulty_weighted_solve_rate": 0.6823529411764706,
+            "neural_inference_used": 0,
+            "problem_count": 6,
+            "rounds": 2,
+            "solve_rate": 0.6666666666666666,
+            "solved_count": 4,
+            "timeout_seconds": 5,
+            "upper_band_solve_rate": 0.8
+          },
+          "random_aux_ddar": {
+            "attempt_budget": 64,
+            "difficulty_weighted_solve_rate": 0.8235294117647058,
+            "neural_inference_used": 0,
+            "problem_count": 6,
+            "rounds": 2,
+            "solve_rate": 0.8333333333333334,
+            "solved_count": 5,
+            "timeout_seconds": 5,
+            "upper_band_solve_rate": 0.8
+          }
+        }
+      }
+    },
+    "slice": "test"
+  },
+  "runs": {
+    "better_fallback": {
+      "status": {
+        "hidden_command": "bash scripts/evaluate_test.sh",
+        "method_uses_only_visible_assets": true,
+        "name": "better_fallback",
+        "seed": 0,
+        "stages": {
+          "method": {
+            "returncode": 1,
+            "seconds": 3.0176668179919943
+          }
+        }
+      }
+    },
+    "brute_force": {
+      "scores": {
+        "experiments": {
+          "hageo409_low_difficulty": {
+            "results": {
+              "ddar": {
+                "attempt_budget": 0,
+                "difficulty_weighted_solve_rate": 0.6823529411764706,
+                "neural_inference_used": 0,
+                "problem_count": 6,
+                "rounds": 0,
+                "solve_rate": 0.6666666666666666,
+                "solved_count": 4,
+                "timeout_seconds": 5,
+                "upper_band_solve_rate": 0.8
+              },
+              "hageo": {
+                "attempt_budget": 4096,
+                "difficulty_weighted_solve_rate": 1.0,
+                "neural_inference_used": 0,
+                "problem_count": 6,
+                "rounds": 1,
+                "solve_rate": 1.0,
+                "solved_count": 6,
+                "timeout_seconds": 5,
+                "upper_band_solve_rate": 1.0
+              },
+              "random_aux_ddar": {
+                "attempt_budget": 64,
+                "difficulty_weighted_solve_rate": 0.8235294117647058,
+                "neural_inference_used": 0,
+                "problem_count": 6,
+                "rounds": 2,
+                "solve_rate": 0.8333333333333334,
+                "solved_count": 5,
+                "timeout_seconds": 5,
+                "upper_band_solve_rate": 0.8
+              }
+            }
+          }
+        },
+        "slice": "test"
+      },
+      "status": {
+        "hidden_command": "bash scripts/evaluate_test.sh",
+        "method_uses_only_visible_assets": true,
+        "name": "brute_force",
+        "seed": 0,
+        "stages": {
+          "method": {
+            "returncode": 0,
+            "seconds": 422.97831053400296
+          },
+          "test": {
+            "returncode": 0,
+            "seconds": 0.1802132650045678
+          },
+          "train": {
+            "returncode": 0,
+            "seconds": 0.3303103939979337
+          }
+        }
+      }
+    },
+    "reference_cached": {
+      "scores": {
+        "experiments": {
+          "hageo409_low_difficulty": {
+            "results": {
+              "ddar": {
+                "attempt_budget": 0,
+                "difficulty_weighted_solve_rate": 0.6823529411764706,
+                "neural_inference_used": 0,
+                "problem_count": 6,
+                "rounds": 0,
+                "solve_rate": 0.6666666666666666,
+                "solved_count": 4,
+                "timeout_seconds": 5,
+                "upper_band_solve_rate": 0.8
+              },
+              "hageo": {
+                "attempt_budget": 64,
+                "difficulty_weighted_solve_rate": 0.6823529411764706,
+                "neural_inference_used": 0,
+                "problem_count": 6,
+                "rounds": 2,
+                "solve_rate": 0.6666666666666666,
+                "solved_count": 4,
+                "timeout_seconds": 5,
+                "upper_band_solve_rate": 0.8
+              },
+              "random_aux_ddar": {
+                "attempt_budget": 64,
+                "difficulty_weighted_solve_rate": 0.8235294117647058,
+                "neural_inference_used": 0,
+                "problem_count": 6,
+                "rounds": 2,
+                "solve_rate": 0.8333333333333334,
+                "solved_count": 5,
+                "timeout_seconds": 5,
+                "upper_band_solve_rate": 0.8
+              }
+            }
+          }
+        },
+        "slice": "test"
+      },
+      "status": {
+        "hidden_command": "bash scripts/evaluate_test.sh",
+        "method_uses_only_visible_assets": true,
+        "name": "reference_cached",
+        "seed": 0,
+        "stages": {
+          "test": {
+            "returncode": 0,
+            "seconds": 0.1653206129994942
+          },
+          "train": {
+            "returncode": 0,
+            "seconds": 0.2657943800004432
+          }
+        }
+      }
+    },
+    "reference_seed0": {
+      "scores": {
+        "experiments": {
+          "hageo409_low_difficulty": {
+            "results": {
+              "ddar": {
+                "attempt_budget": 0,
+                "difficulty_weighted_solve_rate": 0.6823529411764706,
+                "neural_inference_used": 0,
+                "problem_count": 6,
+                "rounds": 0,
+                "solve_rate": 0.6666666666666666,
+                "solved_count": 4,
+                "timeout_seconds": 5,
+                "upper_band_solve_rate": 0.8
+              },
+              "hageo": {
+                "attempt_budget": 64,
+                "difficulty_weighted_solve_rate": 0.6823529411764706,
+                "neural_inference_used": 0,
+                "problem_count": 6,
+                "rounds": 2,
+                "solve_rate": 0.6666666666666666,
+                "solved_count": 4,
+                "timeout_seconds": 5,
+                "upper_band_solve_rate": 0.8
+              },
+              "random_aux_ddar": {
+                "attempt_budget": 64,
+                "difficulty_weighted_solve_rate": 0.8235294117647058,
+                "neural_inference_used": 0,
+                "problem_count": 6,
+                "rounds": 2,
+                "solve_rate": 0.8333333333333334,
+                "solved_count": 5,
+                "timeout_seconds": 5,
+                "upper_band_solve_rate": 0.8
+              }
+            }
+          }
+        },
+        "slice": "test"
+      },
+      "status": {
+        "hidden_command": "bash scripts/evaluate_test.sh",
+        "method_uses_only_visible_assets": true,
+        "name": "reference_seed0",
+        "seed": 0,
+        "stages": {
+          "method": {
+            "returncode": 0,
+            "seconds": 893.5135440070007
+          },
+          "test": {
+            "returncode": 0,
+            "seconds": 0.16470074099197518
+          },
+          "train": {
+            "returncode": 0,
+            "seconds": 0.1653197829873534
+          }
+        }
+      }
+    },
+    "reference_seed1": {
+      "scores": {
+        "experiments": {
+          "hageo409_low_difficulty": {
+            "results": {
+              "ddar": {
+                "attempt_budget": 0,
+                "difficulty_weighted_solve_rate": 0.6823529411764706,
+                "neural_inference_used": 0,
+                "problem_count": 6,
+                "rounds": 0,
+                "solve_rate": 0.6666666666666666,
+                "solved_count": 4,
+                "timeout_seconds": 5,
+                "upper_band_solve_rate": 0.8
+              },
+              "hageo": {
+                "attempt_budget": 64,
+                "difficulty_weighted_solve_rate": 0.6823529411764706,
+                "neural_inference_used": 0,
+                "problem_count": 6,
+                "rounds": 2,
+                "solve_rate": 0.6666666666666666,
+                "solved_count": 4,
+                "timeout_seconds": 5,
+                "upper_band_solve_rate": 0.8
+              },
+              "random_aux_ddar": {
+                "attempt_budget": 64,
+                "difficulty_weighted_solve_rate": 0.8235294117647058,
+                "neural_inference_used": 0,
+                "problem_count": 6,
+                "rounds": 2,
+                "solve_rate": 0.8333333333333334,
+                "solved_count": 5,
+                "timeout_seconds": 5,
+                "upper_band_solve_rate": 0.8
+              }
+            }
+          }
+        },
+        "slice": "test"
+      },
+      "status": {
+        "hidden_command": "bash scripts/evaluate_test.sh",
+        "method_uses_only_visible_assets": true,
+        "name": "reference_seed1",
+        "seed": 1,
+        "stages": {
+          "method": {
+            "returncode": 0,
+            "seconds": 816.8659725960024
+          },
+          "test": {
+            "returncode": 0,
+            "seconds": 0.1647583699959796
+          },
+          "train": {
+            "returncode": 0,
+            "seconds": 0.16485199000453576
+          }
+        }
+      }
+    },
+    "reference_seed2": {
+      "scores": {
+        "experiments": {
+          "hageo409_low_difficulty": {
+            "results": {
+              "ddar": {
+                "attempt_budget": 0,
+                "difficulty_weighted_solve_rate": 0.6823529411764706,
+                "neural_inference_used": 0,
+                "problem_count": 6,
+                "rounds": 0,
+                "solve_rate": 0.6666666666666666,
+                "solved_count": 4,
+                "timeout_seconds": 5,
+                "upper_band_solve_rate": 0.8
+              },
+              "hageo": {
+                "attempt_budget": 64,
+                "difficulty_weighted_solve_rate": 0.6823529411764706,
+                "neural_inference_used": 0,
+                "problem_count": 6,
+                "rounds": 2,
+                "solve_rate": 0.6666666666666666,
+                "solved_count": 4,
+                "timeout_seconds": 5,
+                "upper_band_solve_rate": 0.8
+              },
+              "random_aux_ddar": {
+                "attempt_budget": 64,
+                "difficulty_weighted_solve_rate": 0.8235294117647058,
+                "neural_inference_used": 0,
+                "problem_count": 6,
+                "rounds": 2,
+                "solve_rate": 0.8333333333333334,
+                "solved_count": 5,
+                "timeout_seconds": 5,
+                "upper_band_solve_rate": 0.8
+              }
+            }
+          }
+        },
+        "slice": "test"
+      },
+      "status": {
+        "hidden_command": "bash scripts/evaluate_test.sh",
+        "method_uses_only_visible_assets": true,
+        "name": "reference_seed2",
+        "seed": 2,
+        "stages": {
+          "method": {
+            "returncode": 0,
+            "seconds": 842.370092644007
+          },
+          "test": {
+            "returncode": 0,
+            "seconds": 0.1756419890007237
+          },
+          "train": {
+            "returncode": 0,
+            "seconds": 0.3179953010112513
+          }
+        }
+      }
+    },
+    "shortcut_constant_flags": {
+      "scores": {
+        "experiments": {
+          "hageo409_low_difficulty": {
+            "results": {
+              "ddar": {
+                "attempt_budget": 0,
+                "difficulty_weighted_solve_rate": 0.6823529411764706,
+                "neural_inference_used": 0,
+                "problem_count": 6,
+                "rounds": 0,
+                "solve_rate": 0.6666666666666666,
+                "solved_count": 4,
+                "timeout_seconds": 5,
+                "upper_band_solve_rate": 0.8
+              },
+              "hageo": {
+                "attempt_budget": 0,
+                "difficulty_weighted_solve_rate": 1.0,
+                "neural_inference_used": 0,
+                "problem_count": 6,
+                "rounds": 0,
+                "solve_rate": 1.0,
+                "solved_count": 6,
+                "timeout_seconds": 0,
+                "upper_band_solve_rate": 1.0
+              },
+              "random_aux_ddar": {
+                "attempt_budget": 64,
+                "difficulty_weighted_solve_rate": 0.8235294117647058,
+                "neural_inference_used": 0,
+                "problem_count": 6,
+                "rounds": 2,
+                "solve_rate": 0.8333333333333334,
+                "solved_count": 5,
+                "timeout_seconds": 5,
+                "upper_band_solve_rate": 0.8
+              }
+            }
+          }
+        },
+        "slice": "test"
+      },
+      "status": {
+        "hidden_command": "bash scripts/evaluate_test.sh",
+        "method_uses_only_visible_assets": true,
+        "name": "shortcut_constant_flags",
+        "seed": 0,
+        "stages": {
+          "method": {
+            "returncode": 0,
+            "seconds": 0.2160079780005617
+          },
+          "test": {
+            "returncode": 0,
+            "seconds": 0.21501553599955514
+          },
+          "train": {
+            "returncode": 0,
+            "seconds": 0.21605280799849425
+          }
+        }
+      }
+    },
+    "shortcut_direct_scores": {
+      "scores": {
+        "experiments": {
+          "hageo409_low_difficulty": {
+            "results": {
+              "ddar": {
+                "attempt_budget": 0,
+                "difficulty_weighted_solve_rate": 0.6823529411764706,
+                "neural_inference_used": 0,
+                "problem_count": 6,
+                "rounds": 0,
+                "solve_rate": 0.6666666666666666,
+                "solved_count": 4,
+                "timeout_seconds": 5,
+                "upper_band_solve_rate": 0.8
+              },
+              "hageo": {
+                "attempt_budget": 64,
+                "difficulty_weighted_solve_rate": 0.0,
+                "neural_inference_used": 0,
+                "problem_count": 6,
+                "rounds": 2,
+                "solve_rate": 0.0,
+                "solved_count": 0,
+                "timeout_seconds": 5,
+                "upper_band_solve_rate": 0.0
+              },
+              "random_aux_ddar": {
+                "attempt_budget": 64,
+                "difficulty_weighted_solve_rate": 0.8235294117647058,
+                "neural_inference_used": 0,
+                "problem_count": 6,
+                "rounds": 2,
+                "solve_rate": 0.8333333333333334,
+                "solved_count": 5,
+                "timeout_seconds": 5,
+                "upper_band_solve_rate": 0.8
+              }
+            }
+          }
+        },
+        "slice": "test"
+      },
+      "status": {
+        "hidden_command": "bash scripts/evaluate_test.sh",
+        "method_uses_only_visible_assets": true,
+        "name": "shortcut_direct_scores",
+        "seed": 0,
+        "stages": {
+          "method": {
+            "returncode": 0,
+            "seconds": 0.16509086299629416
+          },
+          "test": {
+            "returncode": 0,
+            "seconds": 0.2153769559954526
+          },
+          "train": {
+            "returncode": 0,
+            "seconds": 0.16498302300169598
+          }
+        }
+      }
+    },
+    "shortcut_drop_dataset": {
+      "scores": {
+        "experiments": {},
+        "slice": "test"
+      },
+      "status": {
+        "hidden_command": "bash scripts/evaluate_test.sh",
+        "method_uses_only_visible_assets": true,
+        "name": "shortcut_drop_dataset",
+        "seed": 0,
+        "stages": {
+          "test": {
+            "returncode": 0,
+            "seconds": 0.16927284200210124
+          },
+          "train": {
+            "returncode": 0,
+            "seconds": 0.21483536600135267
+          }
+        }
+      }
+    },
+    "shortcut_empty_output": {
+      "scores": {
+        "experiments": {
+          "hageo409_low_difficulty": {
+            "results": {
+              "ddar": {
+                "attempt_budget": 0,
+                "difficulty_weighted_solve_rate": 0.6823529411764706,
+                "neural_inference_used": 0,
+                "problem_count": 6,
+                "rounds": 0,
+                "solve_rate": 0.6666666666666666,
+                "solved_count": 4,
+                "timeout_seconds": 5,
+                "upper_band_solve_rate": 0.8
+              },
+              "random_aux_ddar": {
+                "attempt_budget": 64,
+                "difficulty_weighted_solve_rate": 0.8235294117647058,
+                "neural_inference_used": 0,
+                "problem_count": 6,
+                "rounds": 2,
+                "solve_rate": 0.8333333333333334,
+                "solved_count": 5,
+                "timeout_seconds": 5,
+                "upper_band_solve_rate": 0.8
+              }
+            }
+          }
+        },
+        "slice": "test"
+      },
+      "status": {
+        "hidden_command": "bash scripts/evaluate_test.sh",
+        "method_uses_only_visible_assets": true,
+        "name": "shortcut_empty_output",
+        "seed": 0,
+        "stages": {
+          "test": {
+            "returncode": 0,
+            "seconds": 0.16546626400668174
+          },
+          "train": {
+            "returncode": 0,
+            "seconds": 0.21535711699107196
+          }
+        }
+      }
+    },
+    "shortcut_impossible_metadata": {
+      "scores": {
+        "experiments": {
+          "hageo409_low_difficulty": {
+            "results": {
+              "ddar": {
+                "attempt_budget": 0,
+                "difficulty_weighted_solve_rate": 0.6823529411764706,
+                "neural_inference_used": 0,
+                "problem_count": 6,
+                "rounds": 0,
+                "solve_rate": 0.6666666666666666,
+                "solved_count": 4,
+                "timeout_seconds": 5,
+                "upper_band_solve_rate": 0.8
+              },
+              "hageo": {
+                "attempt_budget": -1000000000,
+                "difficulty_weighted_solve_rate": 1200000.0000454292,
+                "neural_inference_used": -1000000000,
+                "problem_count": 6,
+                "rounds": -1000000000,
+                "solve_rate": 0.6666666666666666,
+                "solved_count": 4,
+                "timeout_seconds": -1000000000,
+                "upper_band_solve_rate": 1.0
+              },
+              "random_aux_ddar": {
+                "attempt_budget": 64,
+                "difficulty_weighted_solve_rate": 0.8235294117647058,
+                "neural_inference_used": 0,
+                "problem_count": 6,
+                "rounds": 2,
+                "solve_rate": 0.8333333333333334,
+                "solved_count": 5,
+                "timeout_seconds": 5,
+                "upper_band_solve_rate": 0.8
+              }
+            }
+          }
+        },
+        "slice": "test"
+      },
+      "status": {
+        "hidden_command": "bash scripts/evaluate_test.sh",
+        "method_uses_only_visible_assets": true,
+        "name": "shortcut_impossible_metadata",
+        "seed": 0,
+        "stages": {
+          "method": {
+            "returncode": 0,
+            "seconds": 0.21531702599895652
+          },
+          "test": {
+            "returncode": 0,
+            "seconds": 0.21603624799172394
+          },
+          "train": {
+            "returncode": 0,
+            "seconds": 0.21527985599823296
+          }
+        }
+      }
+    },
+    "shortcut_missing_row": {
+      "status": {
+        "hidden_command": "bash scripts/evaluate_test.sh",
+        "method_uses_only_visible_assets": true,
+        "name": "shortcut_missing_row",
+        "removed_visible_complement_id": "2019G1",
+        "seed": 0,
+        "stages": {
+          "test": {
+            "returncode": 1,
+            "seconds": 0.21586265799123794
+          },
+          "train": {
+            "returncode": 0,
+            "seconds": 0.2157213569880696
+          }
+        }
+      }
+    },
+    "shortcut_move_baseline": {
+      "scores": {
+        "experiments": {
+          "hageo409_low_difficulty": {
+            "results": {
+              "ddar": {
+                "attempt_budget": 0,
+                "difficulty_weighted_solve_rate": 0.0,
+                "neural_inference_used": 0,
+                "problem_count": 6,
+                "rounds": 0,
+                "solve_rate": 0.0,
+                "solved_count": 0,
+                "timeout_seconds": 5,
+                "upper_band_solve_rate": 0.0
+              },
+              "hageo": {
+                "attempt_budget": 64,
+                "difficulty_weighted_solve_rate": 0.6823529411764706,
+                "neural_inference_used": 0,
+                "problem_count": 6,
+                "rounds": 2,
+                "solve_rate": 0.6666666666666666,
+                "solved_count": 4,
+                "timeout_seconds": 5,
+                "upper_band_solve_rate": 0.8
+              },
+              "random_aux_ddar": {
+                "attempt_budget": 64,
+                "difficulty_weighted_solve_rate": 0.8235294117647058,
+                "neural_inference_used": 0,
+                "problem_count": 6,
+                "rounds": 2,
+                "solve_rate": 0.8333333333333334,
+                "solved_count": 5,
+                "timeout_seconds": 5,
+                "upper_band_solve_rate": 0.8
+              }
+            }
+          }
+        },
+        "slice": "test"
+      },
+      "status": {
+        "hidden_command": "bash scripts/evaluate_test.sh",
+        "method_uses_only_visible_assets": true,
+        "name": "shortcut_move_baseline",
+        "seed": 0,
+        "stages": {
+          "method": {
+            "returncode": 0,
+            "seconds": 0.215356287008035
+          },
+          "test": {
+            "returncode": 0,
+            "seconds": 0.16513334299088456
+          },
+          "train": {
+            "returncode": 0,
+            "seconds": 0.2187639939947985
+          }
+        }
+      }
+    },
+    "shortcut_null_resources": {
+      "status": {
+        "hidden_command": "bash scripts/evaluate_test.sh",
+        "method_uses_only_visible_assets": true,
+        "name": "shortcut_null_resources",
+        "seed": 0,
+        "stages": {
+          "test": {
+            "returncode": 1,
+            "seconds": 0.21981809700082522
+          },
+          "train": {
+            "returncode": 0,
+            "seconds": 0.21470994499395601
+          }
+        }
+      }
+    },
+    "shortcut_replace_goals": {
+      "scores": {
+        "experiments": {
+          "hageo409_low_difficulty": {
+            "results": {
+              "ddar": {
+                "attempt_budget": 0,
+                "difficulty_weighted_solve_rate": 0.6823529411764706,
+                "neural_inference_used": 0,
+                "problem_count": 6,
+                "rounds": 0,
+                "solve_rate": 0.6666666666666666,
+                "solved_count": 4,
+                "timeout_seconds": 5,
+                "upper_band_solve_rate": 0.8
+              },
+              "hageo": {
+                "attempt_budget": 0,
+                "difficulty_weighted_solve_rate": 1.0,
+                "neural_inference_used": 0,
+                "problem_count": 6,
+                "rounds": 0,
+                "solve_rate": 1.0,
+                "solved_count": 6,
+                "timeout_seconds": 5,
+                "upper_band_solve_rate": 1.0
+              },
+              "random_aux_ddar": {
+                "attempt_budget": 64,
+                "difficulty_weighted_solve_rate": 0.8235294117647058,
+                "neural_inference_used": 0,
+                "problem_count": 6,
+                "rounds": 2,
+                "solve_rate": 0.8333333333333334,
+                "solved_count": 5,
+                "timeout_seconds": 5,
+                "upper_band_solve_rate": 0.8
+              }
+            }
+          }
+        },
+        "slice": "test"
+      },
+      "status": {
+        "hidden_command": "bash scripts/evaluate_test.sh",
+        "method_uses_only_visible_assets": true,
+        "name": "shortcut_replace_goals",
+        "seed": 0,
+        "stages": {
+          "method": {
+            "returncode": 0,
+            "seconds": 9.437645555997733
+          },
+          "test": {
+            "returncode": 0,
+            "seconds": 0.21467192500131205
+          },
+          "train": {
+            "returncode": 0,
+            "seconds": 0.21489703599945642
+          }
+        }
+      }
+    },
+    "shortcut_truthy_false": {
+      "scores": {
+        "experiments": {
+          "hageo409_low_difficulty": {
+            "results": {
+              "ddar": {
+                "attempt_budget": 0,
+                "difficulty_weighted_solve_rate": 0.6823529411764706,
+                "neural_inference_used": 0,
+                "problem_count": 6,
+                "rounds": 0,
+                "solve_rate": 0.6666666666666666,
+                "solved_count": 4,
+                "timeout_seconds": 5,
+                "upper_band_solve_rate": 0.8
+              },
+              "hageo": {
+                "attempt_budget": 0,
+                "difficulty_weighted_solve_rate": 1.0,
+                "neural_inference_used": 0,
+                "problem_count": 6,
+                "rounds": 0,
+                "solve_rate": 1.0,
+                "solved_count": 6,
+                "timeout_seconds": 0,
+                "upper_band_solve_rate": 1.0
+              },
+              "random_aux_ddar": {
+                "attempt_budget": 64,
+                "difficulty_weighted_solve_rate": 0.8235294117647058,
+                "neural_inference_used": 0,
+                "problem_count": 6,
+                "rounds": 2,
+                "solve_rate": 0.8333333333333334,
+                "solved_count": 5,
+                "timeout_seconds": 5,
+                "upper_band_solve_rate": 0.8
+              }
+            }
+          }
+        },
+        "slice": "test"
+      },
+      "status": {
+        "hidden_command": "bash scripts/evaluate_test.sh",
+        "method_uses_only_visible_assets": true,
+        "name": "shortcut_truthy_false",
+        "seed": 0,
+        "stages": {
+          "method": {
+            "returncode": 0,
+            "seconds": 0.21516295699984767
+          },
+          "test": {
+            "returncode": 0,
+            "seconds": 0.16487008301191963
+          },
+          "train": {
+            "returncode": 0,
+            "seconds": 0.16504199300834443
+          }
+        }
+      }
+    },
+    "shortcut_underreport_costs": {
+      "scores": {
+        "experiments": {
+          "hageo409_low_difficulty": {
+            "results": {
+              "ddar": {
+                "attempt_budget": 0,
+                "difficulty_weighted_solve_rate": 0.6823529411764706,
+                "neural_inference_used": 0,
+                "problem_count": 6,
+                "rounds": 0,
+                "solve_rate": 0.6666666666666666,
+                "solved_count": 4,
+                "timeout_seconds": 5,
+                "upper_band_solve_rate": 0.8
+              },
+              "hageo": {
+                "attempt_budget": 0,
+                "difficulty_weighted_solve_rate": 0.6823529411764706,
+                "neural_inference_used": 0,
+                "problem_count": 6,
+                "rounds": 0,
+                "solve_rate": 0.6666666666666666,
+                "solved_count": 4,
+                "timeout_seconds": 0,
+                "upper_band_solve_rate": 0.8
+              },
+              "random_aux_ddar": {
+                "attempt_budget": 64,
+                "difficulty_weighted_solve_rate": 0.8235294117647058,
+                "neural_inference_used": 0,
+                "problem_count": 6,
+                "rounds": 2,
+                "solve_rate": 0.8333333333333334,
+                "solved_count": 5,
+                "timeout_seconds": 5,
+                "upper_band_solve_rate": 0.8
+              }
+            }
+          }
+        },
+        "slice": "test"
+      },
+      "status": {
+        "hidden_command": "bash scripts/evaluate_test.sh",
+        "method_uses_only_visible_assets": true,
+        "name": "shortcut_underreport_costs",
+        "seed": 0,
+        "stages": {
+          "method": {
+            "returncode": 0,
+            "seconds": 0.2168018700031098
+          },
+          "test": {
+            "returncode": 0,
+            "seconds": 0.21514183699036948
+          },
+          "train": {
+            "returncode": 0,
+            "seconds": 0.16676471699611284
+          }
+        }
+      }
+    },
+    "shortcut_unregistered_method": {
+      "scores": {
+        "experiments": {
+          "hageo409_low_difficulty": {
+            "results": {
+              "ddar": {
+                "attempt_budget": 0,
+                "difficulty_weighted_solve_rate": 0.6823529411764706,
+                "neural_inference_used": 0,
+                "problem_count": 6,
+                "rounds": 0,
+                "solve_rate": 0.6666666666666666,
+                "solved_count": 4,
+                "timeout_seconds": 5,
+                "upper_band_solve_rate": 0.8
+              },
+              "hageo": {
+                "attempt_budget": 64,
+                "difficulty_weighted_solve_rate": 0.6823529411764706,
+                "neural_inference_used": 0,
+                "problem_count": 6,
+                "rounds": 2,
+                "solve_rate": 0.6666666666666666,
+                "solved_count": 4,
+                "timeout_seconds": 5,
+                "upper_band_solve_rate": 0.8
+              },
+              "random_aux_ddar": {
+                "attempt_budget": 64,
+                "difficulty_weighted_solve_rate": 0.8235294117647058,
+                "neural_inference_used": 0,
+                "problem_count": 6,
+                "rounds": 2,
+                "solve_rate": 0.8333333333333334,
+                "solved_count": 5,
+                "timeout_seconds": 5,
+                "upper_band_solve_rate": 0.8
+              }
+            }
+          }
+        },
+        "slice": "test"
+      },
+      "status": {
+        "hidden_command": "bash scripts/evaluate_test.sh",
+        "method_uses_only_visible_assets": true,
+        "name": "shortcut_unregistered_method",
+        "seed": 0,
+        "stages": {
+          "test": {
+            "returncode": 0,
+            "seconds": 0.21670203999383375
+          },
+          "train": {
+            "returncode": 0,
+            "seconds": 0.21495134598808363
+          }
+        }
+      }
+    },
+    "shortcut_weak_no_aux": {
+      "scores": {
+        "experiments": {
+          "hageo409_low_difficulty": {
+            "results": {
+              "ddar": {
+                "attempt_budget": 0,
+                "difficulty_weighted_solve_rate": 0.6823529411764706,
+                "neural_inference_used": 0,
+                "problem_count": 6,
+                "rounds": 0,
+                "solve_rate": 0.6666666666666666,
+                "solved_count": 4,
+                "timeout_seconds": 5,
+                "upper_band_solve_rate": 0.8
+              },
+              "hageo": {
+                "attempt_budget": 0,
+                "difficulty_weighted_solve_rate": 0.6823529411764706,
+                "neural_inference_used": 0,
+                "problem_count": 6,
+                "rounds": 0,
+                "solve_rate": 0.6666666666666666,
+                "solved_count": 4,
+                "timeout_seconds": 5,
+                "upper_band_solve_rate": 0.8
+              },
+              "random_aux_ddar": {
+                "attempt_budget": 64,
+                "difficulty_weighted_solve_rate": 0.8235294117647058,
+                "neural_inference_used": 0,
+                "problem_count": 6,
+                "rounds": 2,
+                "solve_rate": 0.8333333333333334,
+                "solved_count": 5,
+                "timeout_seconds": 5,
+                "upper_band_solve_rate": 0.8
+              }
+            }
+          }
+        },
+        "slice": "test"
+      },
+      "status": {
+        "hidden_command": "bash scripts/evaluate_test.sh",
+        "method_uses_only_visible_assets": true,
+        "name": "shortcut_weak_no_aux",
+        "seed": 0,
+        "stages": {
+          "method": {
+            "returncode": 0,
+            "seconds": 29.28081983201264
+          },
+          "test": {
+            "returncode": 0,
+            "seconds": 0.16926387199782766
+          },
+          "train": {
+            "returncode": 0,
+            "seconds": 0.21550182600913104
+          }
+        }
+      }
+    }
+  },
+  "seed_spread": {
+    "hageo409_low_difficulty": {
+      "attempt_budget": {
+        "max": 64,
+        "min": 64,
+        "spread": 0,
+        "values": [
+          64,
+          64,
+          64
+        ]
+      },
+      "difficulty_weighted_solve_rate": {
+        "max": 0.6823529411764706,
+        "min": 0.6823529411764706,
+        "spread": 0.0,
+        "values": [
+          0.6823529411764706,
+          0.6823529411764706,
+          0.6823529411764706
+        ]
+      },
+      "neural_inference_used": {
+        "max": 0,
+        "min": 0,
+        "spread": 0,
+        "values": [
+          0,
+          0,
+          0
+        ]
+      },
+      "problem_count": {
+        "max": 6,
+        "min": 6,
+        "spread": 0,
+        "values": [
+          6,
+          6,
+          6
+        ]
+      },
+      "rounds": {
+        "max": 2,
+        "min": 2,
+        "spread": 0,
+        "values": [
+          2,
+          2,
+          2
+        ]
+      },
+      "solve_rate": {
+        "max": 0.6666666666666666,
+        "min": 0.6666666666666666,
+        "spread": 0.0,
+        "values": [
+          0.6666666666666666,
+          0.6666666666666666,
+          0.6666666666666666
+        ]
+      },
+      "solved_count": {
+        "max": 4,
+        "min": 4,
+        "spread": 0,
+        "values": [
+          4,
+          4,
+          4
+        ]
+      },
+      "timeout_seconds": {
+        "max": 5,
+        "min": 5,
+        "spread": 0,
+        "values": [
+          5,
+          5,
+          5
+        ]
+      },
+      "upper_band_solve_rate": {
+        "max": 0.8,
+        "min": 0.8,
+        "spread": 0.0,
+        "values": [
+          0.8,
+          0.8,
+          0.8
+        ]
+      }
+    }
+  }
+}

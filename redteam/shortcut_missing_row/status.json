@@ -1,0 +1,17 @@
+{
+  "name": "shortcut_missing_row",
+  "seed": 0,
+  "method_uses_only_visible_assets": true,
+  "hidden_command": "bash scripts/evaluate_test.sh",
+  "stages": {
+    "train": {
+      "returncode": 0,
+      "seconds": 0.2157213569880696
+    },
+    "test": {
+      "returncode": 1,
+      "seconds": 0.21586265799123794
+    }
+  },
+  "removed_visible_complement_id": "2019G1"
+}

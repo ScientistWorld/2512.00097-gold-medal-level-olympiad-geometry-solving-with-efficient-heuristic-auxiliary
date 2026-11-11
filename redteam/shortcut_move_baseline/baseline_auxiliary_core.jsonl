@@ -1,0 +1,1 @@
+{"attempt_budget": 0, "auxiliary_clauses": [], "difficulty": 2.0, "neural_inference_used": 0, "problem_id": "orthocenter_auxiliary", "rounds": 0, "seconds": 0.007129669189453125, "solved": false, "source": "alphageometry_examples", "status": "shortcut_baseline_disabled", "timeout_seconds": 15}

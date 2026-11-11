@@ -1,0 +1,16 @@
+{
+  "name": "reference_cached",
+  "seed": 0,
+  "method_uses_only_visible_assets": true,
+  "hidden_command": "bash scripts/evaluate_test.sh",
+  "stages": {
+    "train": {
+      "returncode": 0,
+      "seconds": 0.2657943800004432
+    },
+    "test": {
+      "returncode": 0,
+      "seconds": 0.1653206129994942
+    }
+  }
+}

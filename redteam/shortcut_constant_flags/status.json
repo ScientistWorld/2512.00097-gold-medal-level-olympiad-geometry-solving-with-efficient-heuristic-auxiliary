@@ -1,0 +1,20 @@
+{
+  "name": "shortcut_constant_flags",
+  "seed": 0,
+  "method_uses_only_visible_assets": true,
+  "hidden_command": "bash scripts/evaluate_test.sh",
+  "stages": {
+    "method": {
+      "returncode": 0,
+      "seconds": 0.2160079780005617
+    },
+    "train": {
+      "returncode": 0,
+      "seconds": 0.21605280799849425
+    },
+    "test": {
+      "returncode": 0,
+      "seconds": 0.21501553599955514
+    }
+  }
+}

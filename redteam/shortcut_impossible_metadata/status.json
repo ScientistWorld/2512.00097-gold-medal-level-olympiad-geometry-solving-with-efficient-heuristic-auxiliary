@@ -1,0 +1,20 @@
+{
+  "name": "shortcut_impossible_metadata",
+  "seed": 0,
+  "method_uses_only_visible_assets": true,
+  "hidden_command": "bash scripts/evaluate_test.sh",
+  "stages": {
+    "method": {
+      "returncode": 0,
+      "seconds": 0.21531702599895652
+    },
+    "train": {
+      "returncode": 0,
+      "seconds": 0.21527985599823296
+    },
+    "test": {
+      "returncode": 0,
+      "seconds": 0.21603624799172394
+    }
+  }
+}
