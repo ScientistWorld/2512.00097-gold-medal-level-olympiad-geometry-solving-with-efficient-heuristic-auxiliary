@@ -109,13 +109,21 @@ def propose_problem(row: dict, attempts: int, rounds: int, seed: int, order: str
     return out
 
 
+def propose_hybrid(row: dict, attempts: int, rounds: int, seed: int, prefix: int) -> list[list[str]]:
+    """Variant: the `prefix` best-supported candidates first, then the paper's sampling."""
+    ranked = propose_problem(row, min(prefix, attempts), rounds, seed, "ranked")
+    sampled = propose_problem(row, max(0, attempts - len(ranked)), rounds, seed, "random")
+    return (ranked + sampled)[:attempts]
+
+
 def main() -> None:
     parser = argparse.ArgumentParser()
     parser.add_argument("input", type=Path)
     parser.add_argument("output", type=Path)
     parser.add_argument("--rounds", type=int, default=2)
     parser.add_argument("--seed", type=int, default=0)
-    parser.add_argument("--order", choices=["random", "ranked"], default="random")
+    parser.add_argument("--order", choices=["random", "ranked", "hybrid"], default="random")
+    parser.add_argument("--ranked-prefix", type=int, default=6, help="hybrid order: ranked attempts first")
     parser.add_argument("--unfiltered", action="store_true",
                         help="ablation: ignore the favourable-incidence filter")
     args = parser.parse_args()
@@ -127,7 +135,10 @@ def main() -> None:
             attempts = int(row.get("max_attempts", 16))
             rounds = min(args.rounds, int(row.get("max_aux_per_attempt", args.rounds)))
             try:
-                proposals = propose_problem(row, attempts, rounds, args.seed, args.order, not args.unfiltered)
+                if args.order == "hybrid":
+                    proposals = propose_hybrid(row, attempts, rounds, args.seed, args.ranked_prefix)
+                else:
+                    proposals = propose_problem(row, attempts, rounds, args.seed, args.order, not args.unfiltered)
             except Exception as exc:  # noqa: BLE001 - one bad drawing must not sink the run
                 print(f"[hageo] {row['problem_id']}: {type(exc).__name__}: {exc}", file=sys.stderr)
                 proposals = []

@@ -38,49 +38,23 @@ final_scores() {
 }
 restore_eval
 
-if ! done_ jgex_split; then
-  echo "[job] J: screen + split JGEX-231 $(date)"
-  timeout 2400 python eval/test/build_split.py screen --source jgex --timeout 6 --max-points 13 --budget-seconds 2000
-  python eval/test/build_split.py split --source jgex --sat-max 4.0 --test-fraction 0.6 --test-budget 1e9 --train-budget 1e9 \
-    && mark jgex_split
-fi
-if ! done_ coords; then
-  echo "[job] fix the evaluator drawing in every problem file $(date)"
-  python eval/test/build_split.py coords && mark coords
-fi
-if ! done_ baselines_v2; then
-  echo "[job] fixed baselines (CPU-time limits) $(date)"
-  python eval/test/evaluate.py --recompute-baselines --no-proposers --cache $CT \
-    --out $R/baselines_test_scores.json --details $R/baselines_test_details.json && \
-  python eval/train/evaluate.py --recompute-baselines --no-proposers --cache $CR \
-    --out $R/baselines_train_scores.json --details $R/baselines_train_details.json && mark baselines_v2
-fi
-
-if ! done_ reference; then
-  echo "[job] 2: reference through the real scripts $(date)"
-  EVAL_CACHE=$CT bash scripts/evaluate_test.sh && cp scoring/scores_test.json $R/reference_scores_test.json \
-    && cp outputs/eval_test_details.json $R/reference_details_test.json && \
-  EVAL_CACHE=$CR bash scripts/evaluate_train.sh && cp scoring/scores_train.json $R/reference_scores_train.json \
-    && cp outputs/eval_train_details.json $R/reference_details_train.json && mark reference
-fi
-
-if ! done_ audit; then
-  echo "[job] 3: audit via no-arg hidden test $(date)"
+if ! done_ audit2; then
+  echo "[job] 5: hybrid variant + variants/shortcuts via no-arg hidden test $(date)"
   backup_eval
-  cp redteam/hardening/registry/*.sh proposers/
+  for f in redteam/hardening/registry/*.sh; do
+    case "$f" in *sc_goal_lookup.sh) ;; *) cp "$f" proposers/ ;; esac
+  done
   EVAL_CACHE=$CT bash scripts/evaluate_test.sh; rc=$?
   echo "[job] hidden test exit $rc"
-  cp scoring/scores_test.json $R/audit_scores_test.json; cp outputs/eval_test_details.json $R/audit_details_test.json
+  cp scoring/scores_test.json $R/audit2_scores_test.json; cp outputs/eval_test_details.json $R/audit2_details_test.json
   restore_eval
-  [ $rc -eq 0 ] && mark audit
-  final_scores
+  [ $rc -eq 0 ] && mark audit2
 fi
-
-if ! done_ train_audit; then
-  echo "[job] 4: train side for the main variants $(date)"
-  for f in hageo_seed1 hageo_ranked systematic hageo_unfiltered; do cp redteam/hardening/registry/$f.sh proposers/; done
-  EVAL_CACHE=$CR bash scripts/evaluate_train.sh && cp scoring/scores_train.json $R/audit_scores_train.json \
-    && cp outputs/eval_train_details.json $R/audit_details_train.json && mark train_audit
+if ! done_ train_audit2; then
+  echo "[job] 5: train side for the hybrid variant $(date)"
+  for f in hageo_hybrid hageo_ranked hageo_seed1 systematic hageo_unfiltered; do cp redteam/hardening/registry/$f.sh proposers/; done
+  EVAL_CACHE=$CR bash scripts/evaluate_train.sh && cp scoring/scores_train.json $R/audit2_scores_train.json \
+    && cp outputs/eval_train_details.json $R/audit2_details_train.json && mark train_audit2
   restore_eval
 fi
 
