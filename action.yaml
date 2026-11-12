@@ -1,6 +1,4 @@
 # Once you set action to 'submit' or 'done', STOP immediately.
-action: submit
-gpus: 0
-test: false
+action: done
 milestone: core_claim
-notes: "Hardening job 5: hybrid HAGeo variant plus variants/shortcuts through the no-arg hidden test (cached), train side, reference-only score files"
+notes: "Hardened gym: evaluator-side DDAR verification of goal-free auxiliary-construction proposals with a validity gate and fixed 16x3 budget; HAGeo-409 + JGEX-231 hidden tests; faithful HAGeo beats random on both; all major shortcuts closed except goal lookup (documented in HARDENING.md)"
