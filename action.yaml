@@ -3,4 +3,4 @@ action: submit
 gpus: 0
 test: false
 milestone: core_claim
-notes: "Hardening job 3: screen/split JGEX-231 aux-needed problems as a second experiment, reference + baselines, variants and shortcuts through the no-arg hidden test (cached, preemption-robust)"
+notes: "Hardening job 4: store evaluator drawings, CPU-time DDAR limits, recompute fixed baselines, reference + variants/shortcuts through the no-arg hidden test (cached, preemption-robust)"
