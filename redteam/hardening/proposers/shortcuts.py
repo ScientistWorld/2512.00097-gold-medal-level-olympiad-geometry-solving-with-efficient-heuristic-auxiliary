@@ -79,7 +79,8 @@ elif mode == "goal_lookup":
     import random
     sys.path.insert(0, str(ROOT / "redteam/hardening/proposers"))
     hidden = {}
-    for split_file in (ROOT / "eval/test/problems.jsonl", ROOT / "data/benchmarks/hageo409_train.jsonl"):
+    for split_file in (ROOT / "eval/test/problems.jsonl", ROOT / "eval/test/problems_jgex.jsonl",
+                       ROOT / "data/benchmarks/hageo409_train.jsonl", ROOT / "data/benchmarks/jgex231_train.jsonl"):
         if split_file.exists():
             for l in split_file.read_text().splitlines():
                 if l.strip():

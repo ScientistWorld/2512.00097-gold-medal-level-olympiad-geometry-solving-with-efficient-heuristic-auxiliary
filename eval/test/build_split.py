@@ -28,9 +28,14 @@ from pathlib import Path
 HERE = Path(__file__).resolve().parent
 ROOT = HERE.parents[1]
 PARQUET = ROOT / "data" / "downloads" / "HAGeo-409" / "HAGeo-409.parquet"
-SCREENING = HERE / "screening.jsonl"
-TEST_OUT = HERE / "problems.jsonl"
-TRAIN_OUT = ROOT / "data" / "benchmarks" / "hageo409_train.jsonl"
+JGEX = ROOT / "data" / "downloads" / "jgex_ag_231.txt"
+SOURCES = {
+    # source: (screening log, hidden test file, visible train file, id prefixes)
+    "hageo409": (HERE / "screening.jsonl", HERE / "problems.jsonl",
+                 ROOT / "data" / "benchmarks" / "hageo409_train.jsonl", ("test", "train")),
+    "jgex": (HERE / "screening_jgex.jsonl", HERE / "problems_jgex.jsonl",
+             ROOT / "data" / "benchmarks" / "jgex231_train.jsonl", ("jtest", "jtrain")),
+}
 SALT = "hageo-gym-v2"
 
 NAME_POOL = [chr(c) for c in range(ord("a"), ord("z") + 1)] + [
@@ -96,9 +101,21 @@ def load_hageo409() -> list[dict]:
     return rows
 
 
+def load_jgex() -> list[dict]:
+    lines = [l.strip() for l in JGEX.read_text(encoding="utf-8").splitlines() if l.strip()]
+    rows = []
+    for url, statement in zip(lines[0::2], lines[1::2]):
+        if " ? " not in statement:
+            continue
+        rows.append({"source_id": url, "difficulty": None, "statement": statement, "natural_language": ""})
+    return rows
+
+
 def cmd_screen(args) -> None:
     sys.path.insert(0, str(HERE))
     import engine
+
+    SCREENING = SOURCES[args.source][0]
 
     done = {}
     if SCREENING.exists():
@@ -106,7 +123,7 @@ def cmd_screen(args) -> None:
             if line.strip():
                 row = json.loads(line)
                 done[row["source_id"]] = row
-    rows = load_hageo409()
+    rows = load_hageo409() if args.source == "hageo409" else load_jgex()
     prepared = []
     for row in rows:
         try:
@@ -116,7 +133,7 @@ def cmd_screen(args) -> None:
             continue
         prepared.append((len(engine_names(setup)), row, setup, goal, None))
     # Smallest configurations first: they are the ones DDAR can saturate.
-    prepared.sort(key=lambda t: (t[0], t[1]["difficulty"], t[1]["source_id"]))
+    prepared.sort(key=lambda t: (t[0], t[1]["difficulty"] or 0.0, t[1]["source_id"]))
     started = time.time()
     with SCREENING.open("a", encoding="utf-8") as f:
         for n_points, row, setup, goal, error in prepared:
@@ -155,9 +172,10 @@ def attempt_timeout(t_sat: float, args) -> int:
 
 
 def cmd_split(args) -> None:
+    SCREENING, TEST_OUT, TRAIN_OUT, (test_prefix, train_prefix) = SOURCES[args.source]
     rows = [json.loads(l) for l in SCREENING.read_text(encoding="utf-8").splitlines() if l.strip()]
     pool = [r for r in rows if r.get("status") == "saturated" and r["seconds"] <= args.sat_max]
-    pool.sort(key=lambda r: (r["difficulty"], r["source_id"]))
+    pool.sort(key=lambda r: (r["difficulty"] or 0.0, r["source_id"]))
     rng = random.Random(stable_int(SALT, "split"))
     test, train = [], []
     # Stratify by difficulty: within each consecutive block, send a fixed
@@ -171,7 +189,7 @@ def cmd_split(args) -> None:
         train += chunk[n_test:]
 
     def finalize(items, prefix, budget):
-        items = sorted(items, key=lambda r: (r["difficulty"], r["source_id"]))
+        items = sorted(items, key=lambda r: (r["difficulty"] or 0.0, r["source_id"]))
         rng2 = random.Random(stable_int(SALT, prefix))
         rng2.shuffle(items)
         out, cost = [], 0.0
@@ -182,7 +200,7 @@ def cmd_split(args) -> None:
                 continue
             cost += expected
             out.append((r, t))
-        out.sort(key=lambda rt: (rt[0]["difficulty"], rt[0]["source_id"]))
+        out.sort(key=lambda rt: (rt[0]["difficulty"] or 0.0, rt[0]["source_id"]))
         rows_out = []
         for idx, (r, t) in enumerate(out, start=1):
             rows_out.append({
@@ -198,8 +216,8 @@ def cmd_split(args) -> None:
             })
         return rows_out, cost
 
-    test_rows, test_cost = finalize(test, "test", args.test_budget)
-    train_rows, train_cost = finalize(train, "train", args.train_budget)
+    test_rows, test_cost = finalize(test, test_prefix, args.test_budget)
+    train_rows, train_cost = finalize(train, train_prefix, args.train_budget)
     for path, rows_out in ((TEST_OUT, test_rows), (TRAIN_OUT, train_rows)):
         path.parent.mkdir(parents=True, exist_ok=True)
         with path.open("w", encoding="utf-8") as f:
@@ -214,8 +232,8 @@ def cmd_split(args) -> None:
         "pool": len(pool),
         "test": len(test_rows), "test_cost_upper": round(test_cost),
         "train": len(train_rows), "train_cost_upper": round(train_cost),
-        "test_median_difficulty": median([r["difficulty"] for r in test_rows]),
-        "train_median_difficulty": median([r["difficulty"] for r in train_rows]),
+        "test_median_difficulty": median([r["difficulty"] or 0.0 for r in test_rows]),
+        "train_median_difficulty": median([r["difficulty"] or 0.0 for r in train_rows]),
     }, indent=1))
 
 
@@ -223,11 +241,13 @@ def main() -> None:
     parser = argparse.ArgumentParser()
     sub = parser.add_subparsers(dest="cmd", required=True)
     s = sub.add_parser("screen")
+    s.add_argument("--source", choices=sorted(SOURCES), default="hageo409")
     s.add_argument("--timeout", type=float, default=6.0)
     s.add_argument("--max-points", type=int, default=13)
     s.add_argument("--budget-seconds", type=float, default=2700)
     s.set_defaults(func=cmd_screen)
     p = sub.add_parser("split")
+    p.add_argument("--source", choices=sorted(SOURCES), default="hageo409")
     p.add_argument("--sat-max", type=float, default=4.0)
     p.add_argument("--block", type=int, default=5)
     p.add_argument("--test-fraction", type=float, default=0.6)

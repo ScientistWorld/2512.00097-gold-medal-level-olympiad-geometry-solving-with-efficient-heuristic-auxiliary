@@ -2,9 +2,9 @@
 """Visible train evaluation: run every proposer on train problems, verify with DDAR.
 
 The train problems (premises, goals, seeds, per-problem timeouts) are the
-visible file ``data/benchmarks/hageo409_train.jsonl``; the protocol is the same
-as the held-out test evaluation.  For every executable ``proposers/<name>.sh`` on disk the
-evaluator
+visible files under ``data/benchmarks/``; the protocol is identical to the
+held-out test evaluation.  For every executable ``proposers/<name>.sh`` on disk and every
+experiment in ``config.json`` the evaluator
 
 1. writes the goal-free problem setups plus a numerical drawing to a private
    temporary file and runs the proposer on it under a time limit,
@@ -15,9 +15,9 @@ evaluator
 4. computes every scored number from those verification results.
 
 A proposer that crashes, times out, writes malformed output or breaks a gate
-rule is scored as a failed run: the worst value in every metric.  The fixed
-baselines (DDAR alone, random auxiliary constructions) are evaluator-owned
-results stored in ``baselines.json``.
+rule is scored as a failed run: the worst value in every metric of every
+experiment.  The fixed baselines (DDAR alone, random auxiliary constructions)
+are evaluator-owned results stored next to each problem file.
 """
 
 from __future__ import annotations
@@ -42,9 +42,7 @@ sys.path.insert(0, str(HERE))
 import gate  # noqa: E402
 
 SLICE = "train"
-PROBLEMS = ROOT / "data" / "benchmarks" / "hageo409_train.jsonl"
 CONFIG = HERE / "config.json"
-BASELINES = HERE / "baselines.json"
 PROPOSER_DIR = ROOT / "proposers"
 DEFAULT_OUT = ROOT / "scoring" / "scores_train.json"
 DETAILS_OUT = ROOT / "outputs" / "eval_train_details.json"
@@ -60,24 +58,28 @@ def load_config() -> dict:
     return json.loads(CONFIG.read_text(encoding="utf-8"))
 
 
-def worst_metrics(config: dict) -> dict:
-    return {m: float(v) for m, v in config["worst"].items()}
+def resolve(rel: str) -> Path:
+    path = Path(rel)
+    return path if path.is_absolute() else ROOT / path
 
 
-def compute_metrics(first_success: dict, problems: list[dict], config: dict) -> dict:
-    k_max = int(config["max_attempts"])
-    thr = float(config["hard_difficulty_threshold"])
+def worst_metrics(exp: dict) -> dict:
+    return {m: 0.0 for m in exp["metrics"]}
+
+
+def compute_metrics(first_success: dict, problems: list[dict], exp: dict) -> dict:
+    k_max = int(exp["max_attempts"])
     n = len(problems)
     solved = [p for p in problems if first_success.get(p["problem_id"]) is not None]
-    hard = [p for p in problems if float(p["difficulty"]) >= thr]
-    auc = sum((k_max - int(first_success[p["problem_id"]]) + 1) / k_max for p in solved)
-    return {
+    out = {
         "solve_rate": len(solved) / n,
-        "hard_solve_rate": (
-            sum(1 for p in hard if first_success.get(p["problem_id"]) is not None) / len(hard)
-        ),
-        "pass_auc": auc / n,
+        "pass_auc": sum((k_max - int(first_success[p["problem_id"]]) + 1) / k_max for p in solved) / n,
     }
+    if "hard_solve_rate" in exp["metrics"]:
+        thr = float(exp["hard_difficulty_threshold"])
+        hard = [p for p in problems if float(p["difficulty"]) >= thr]
+        out["hard_solve_rate"] = sum(1 for p in hard if first_success.get(p["problem_id"]) is not None) / len(hard)
+    return {m: out[m] for m in exp["metrics"]}
 
 
 def _busy(n: int) -> float:
@@ -129,13 +131,18 @@ def effective_cpus() -> int:
 
 
 class Cache:
+    """Audit-only memo of verification results and proposer outputs."""
+
     def __init__(self, path: Path | None):
         self.path = path
         self.data: dict[str, list] = {}
         if path is not None and path.exists():
             for line in path.read_text(encoding="utf-8").splitlines():
                 if line.strip():
-                    key, value = json.loads(line)
+                    try:
+                        key, value = json.loads(line)
+                    except (json.JSONDecodeError, ValueError):
+                        continue
                     self.data[key] = value
 
     @staticmethod
@@ -151,8 +158,22 @@ class Cache:
             with self.path.open("a", encoding="utf-8") as f:
                 f.write(json.dumps([key, value]) + "\n")
 
+    def proposal_dir(self) -> Path | None:
+        if self.path is None:
+            return None
+        d = self.path.parent / (self.path.stem + "_proposals")
+        d.mkdir(parents=True, exist_ok=True)
+        return d
+
 
 _CACHE: Cache | None = None
+
+
+def in_time(status: str, seconds: float, timeout: float) -> str:
+    """A proof only counts if DDAR finished inside the attempt's time limit."""
+    if status == "solved" and seconds > timeout + 1.0:
+        return "timeout"
+    return status
 
 
 def _verify_problem(task):
@@ -164,14 +185,15 @@ def _verify_problem(task):
     for index, aux in enumerate(attempts, start=1):
         key = Cache.key(problem, aux)
         if key in memo:
-            status, seconds = memo[key], 0.0
+            status = memo[key]
         elif _CACHE is not None and key in _CACHE.data:
-            status, seconds = _CACHE.data[key]
+            status = in_time(*_CACHE.data[key][:2], float(problem["timeout"]))
         else:
             status, seconds = engine.verify(
                 problem["setup"], problem["goal"], aux, int(problem["seed"]), float(problem["timeout"])
             )
             log.append((key, [status, seconds]))
+            status = in_time(status, seconds, float(problem["timeout"]))
         memo[key] = status
         if status == "solved":
             return problem["problem_id"], index, index, log
@@ -206,7 +228,7 @@ def verify_all(problems: list[dict], attempts_by_id: dict, workers: int) -> tupl
 # proposers
 
 
-def proposer_input(problems: list[dict], coords: dict, config: dict) -> list[dict]:
+def proposer_input(problems: list[dict], coords: dict, exp: dict) -> list[dict]:
     rows = []
     for p in problems:
         rows.append(
@@ -215,12 +237,22 @@ def proposer_input(problems: list[dict], coords: dict, config: dict) -> list[dic
                 "setup": p["setup"],
                 "points": gate.setup_point_names(p["setup"]),
                 "coords": coords.get(p["problem_id"]),
-                "difficulty": p["difficulty"],
-                "max_attempts": int(config["max_attempts"]),
-                "max_aux_per_attempt": int(config["max_aux_per_attempt"]),
+                "difficulty": p.get("difficulty"),
+                "max_attempts": int(exp["max_attempts"]),
+                "max_aux_per_attempt": int(exp["max_aux_per_attempt"]),
             }
         )
     return rows
+
+
+def _audit_fingerprint(script: Path, in_path: Path) -> str:
+    h = hashlib.sha256(script.read_bytes() + in_path.read_bytes())
+    for sub in ("method", "baseline", "redteam/hardening/proposers"):
+        base = ROOT / sub
+        if base.is_dir():
+            for f in sorted(base.rglob("*.py")):
+                h.update(str(f.relative_to(ROOT)).encode() + f.read_bytes())
+    return h.hexdigest()
 
 
 def run_proposer(script: Path, rows: list[dict], config: dict, workdir: Path) -> tuple[list | None, str]:
@@ -230,8 +262,12 @@ def run_proposer(script: Path, rows: list[dict], config: dict, workdir: Path) ->
     with in_path.open("w", encoding="utf-8") as f:
         for row in rows:
             f.write(json.dumps(row) + "\n")
-    if out_path.exists():
-        out_path.unlink()
+    memo_path = None
+    if _CACHE is not None:  # audit runs only: reuse a deterministic proposer's earlier output
+        memo_path = _CACHE.proposal_dir() / f"{_audit_fingerprint(script, in_path)}.jsonl"
+        if memo_path.exists():
+            shutil.copy(memo_path, out_path)
+            return _parse_output(out_path, "ok (memo)")
     limit = max(float(config["proposer_min_seconds"]), float(config["proposer_seconds_per_problem"]) * len(rows))
     started = time.time()
     with log_path.open("w", encoding="utf-8") as log:
@@ -253,6 +289,12 @@ def run_proposer(script: Path, rows: list[dict], config: dict, workdir: Path) ->
         return None, f"proposer exited with status {code}"
     if not out_path.exists():
         return None, "proposer wrote no output file"
+    if memo_path is not None:
+        shutil.copy(out_path, memo_path)
+    return _parse_output(out_path, f"ok ({elapsed:.0f}s)")
+
+
+def _parse_output(out_path: Path, message: str):
     rows_out = []
     try:
         for line in out_path.read_text(encoding="utf-8").splitlines():
@@ -260,7 +302,7 @@ def run_proposer(script: Path, rows: list[dict], config: dict, workdir: Path) ->
                 rows_out.append(json.loads(line))
     except (json.JSONDecodeError, UnicodeDecodeError) as exc:
         return None, f"malformed output: {exc}"
-    return rows_out, f"ok ({elapsed:.0f}s)"
+    return rows_out, message
 
 
 def discover_proposers(only: list[str] | None) -> dict[str, Path]:
@@ -276,31 +318,27 @@ def discover_proposers(only: list[str] | None) -> dict[str, Path]:
     return found
 
 
-def evaluate_proposer(name, script, problems, coords, config, workers, details):
-    rows = proposer_input(problems, coords, config)
+def evaluate_proposer(name, script, problems, coords, exp, config, workers):
+    """Returns (metrics or None if the run failed, details)."""
+    rows = proposer_input(problems, coords, exp)
     workdir = Path(tempfile.mkdtemp(prefix=f"hageo_eval_{SLICE}_"))
+    log_tail = ""
     try:
         output, message = run_proposer(script, rows, config, workdir)
-        log_tail = ""
         log_file = workdir / "proposer.log"
         if log_file.exists():
             log_tail = log_file.read_text(encoding="utf-8", errors="replace")[-2000:]
     finally:
         shutil.rmtree(workdir, ignore_errors=True)
     if output is None:
-        details[name] = {"status": f"failed: {message}", "log_tail": log_tail}
-        return worst_metrics(config)
+        return None, {"status": f"failed: {message}", "log_tail": log_tail}
     try:
-        attempts = gate.validate_rows(
-            output, problems, int(config["max_attempts"]), int(config["max_aux_per_attempt"])
-        )
+        attempts = gate.validate_rows(output, problems, int(exp["max_attempts"]), int(exp["max_aux_per_attempt"]))
     except gate.GateError as exc:
-        details[name] = {"status": f"failed: gate violation: {exc}"}
-        return worst_metrics(config)
+        return None, {"status": f"failed: gate violation: {exc}"}
     started = time.time()
     first, used = verify_all(problems, attempts, workers)
-    metrics = compute_metrics(first, problems, config)
-    details[name] = {
+    return compute_metrics(first, problems, exp), {
         "status": "ok",
         "proposer": message,
         "verify_seconds": round(time.time() - started, 1),
@@ -308,20 +346,18 @@ def evaluate_proposer(name, script, problems, coords, config, workers, details):
         "attempts_verified": used,
         "attempts_submitted": {pid: len(a) for pid, a in attempts.items()},
     }
-    return metrics
 
 
-def recompute_baselines(problems, coords, config, workers) -> dict:
-    out = {"_config": {k: config[k] for k in ("max_attempts", "max_aux_per_attempt")}}
+def recompute_baselines(problems, coords, exp, config, workers) -> dict:
+    out = {"_config": {k: exp[k] for k in ("max_attempts", "max_aux_per_attempt")}}
     # DDAR alone: verify each problem with no auxiliary construction.
     first, _ = verify_all(problems, {p["problem_id"]: [[]] for p in problems}, workers)
     out["ddar"] = {pid: (None if v is None else 1) for pid, v in first.items()}
     for name, rel in config["baseline_proposers"].items():
-        details: dict = {}
-        evaluate_proposer(name, ROOT / rel, problems, coords, config, workers, details)
-        if details[name]["status"] != "ok":
-            raise RuntimeError(f"baseline {name} failed: {details[name]}")
-        out[name] = details[name]["first_success"]
+        metrics, det = evaluate_proposer(name, ROOT / rel, problems, coords, exp, config, workers)
+        if metrics is None:
+            raise RuntimeError(f"baseline {name} failed: {det}")
+        out[name] = det["first_success"]
     return out
 
 
@@ -331,64 +367,79 @@ def main() -> None:
     parser.add_argument("--out", type=Path, default=DEFAULT_OUT)
     parser.add_argument("--details", type=Path, default=DETAILS_OUT)
     parser.add_argument("--only", nargs="*", default=None, help="audit use: score only these proposers")
-    parser.add_argument("--cache", type=Path, default=None, help="audit use: verification cache file")
+    parser.add_argument("--experiments", nargs="*", default=None, help="audit use: only these experiments")
+    parser.add_argument("--cache", type=Path, default=None, help="audit use: verification/proposal cache")
     parser.add_argument("--workers", type=int, default=0)
     parser.add_argument("--recompute-baselines", action="store_true")
     parser.add_argument("--no-proposers", action="store_true", help="audit use: only fixed baselines")
-    parser.add_argument("--problems", type=Path, default=PROBLEMS, help="audit use: alternative problem file")
-    parser.add_argument("--baselines", type=Path, default=BASELINES, help="audit use: alternative baseline file")
     args = parser.parse_args()
 
     config = load_config()
-    problems = read_jsonl(args.problems)
-    baselines_path = args.baselines
+    experiments = config["experiments"]
+    if args.experiments:
+        experiments = {k: v for k, v in experiments.items() if k in args.experiments}
     workers = args.workers or effective_cpus()
-    print(f"[eval:{SLICE}] {len(problems)} problems, {workers} verification workers", file=sys.stderr, flush=True)
     if args.cache is not None:
         args.cache.parent.mkdir(parents=True, exist_ok=True)
         _CACHE = Cache(args.cache)
 
     import engine  # noqa: E402
 
+    problems = {}
     coords = {}
-    for p in problems:
-        coords[p["problem_id"]] = engine.draw_coordinates(p["setup"], p["goal"], int(p["seed"]))
+    for exp_name, exp in experiments.items():
+        problems[exp_name] = read_jsonl(resolve(exp["problems"]))
+        coords[exp_name] = {
+            p["problem_id"]: engine.draw_coordinates(p["setup"], p["goal"], int(p["seed"])) for p in problems[exp_name]
+        }
+        print(f"[eval:{SLICE}] {exp_name}: {len(problems[exp_name])} problems, {workers} workers",
+              file=sys.stderr, flush=True)
 
-    if args.recompute_baselines:
-        baselines_path.write_text(
-            json.dumps(recompute_baselines(problems, coords, config, workers), indent=1, sort_keys=True)
-            + "\n",
-            encoding="utf-8",
-        )
-
-    results: dict = {}
-    details: dict = {}
-    baselines = json.loads(baselines_path.read_text(encoding="utf-8")) if baselines_path.exists() else {}
-    for name in FIXED_BASELINES:
-        if name in baselines:
-            results[name] = compute_metrics(baselines[name], problems, config)
-            details[name] = {"status": "ok (fixed evaluator baseline)"}
+    results = {e: {} for e in experiments}
+    details = {e: {} for e in experiments}
+    for exp_name, exp in experiments.items():
+        bpath = resolve(exp["baselines"])
+        if args.recompute_baselines:
+            bpath.write_text(json.dumps(recompute_baselines(problems[exp_name], coords[exp_name], exp, config,
+                                                            workers), indent=1, sort_keys=True) + "\n",
+                             encoding="utf-8")
+        baselines = json.loads(bpath.read_text(encoding="utf-8")) if bpath.exists() else {}
+        for name in FIXED_BASELINES:
+            if name in baselines:
+                results[exp_name][name] = compute_metrics(baselines[name], problems[exp_name], exp)
+                details[exp_name][name] = {"status": "ok (fixed evaluator baseline)"}
 
     proposers = {} if args.no_proposers else discover_proposers(args.only)
     for name, script in proposers.items():
-        print(f"[eval:{SLICE}] proposer {name}", file=sys.stderr, flush=True)
-        try:
-            results[name] = evaluate_proposer(name, script, problems, coords, config, workers, details)
-        except Exception as exc:  # noqa: BLE001 - any failure scores as a failed run
-            details[name] = {"status": f"failed: evaluator error {type(exc).__name__}: {exc}"}
-            results[name] = worst_metrics(config)
-        print(f"[eval:{SLICE}] {name}: {details[name]['status']} {results[name]}", file=sys.stderr, flush=True)
+        failed = None
+        per_exp = {}
+        for exp_name, exp in experiments.items():
+            print(f"[eval:{SLICE}] proposer {name} on {exp_name}", file=sys.stderr, flush=True)
+            try:
+                metrics, det = evaluate_proposer(name, script, problems[exp_name], coords[exp_name], exp, config,
+                                                 workers)
+            except Exception as exc:  # noqa: BLE001 - any failure scores as a failed run
+                metrics, det = None, {"status": f"failed: evaluator error {type(exc).__name__}: {exc}"}
+            per_exp[exp_name] = (metrics, det)
+            if metrics is None:
+                failed = f"{exp_name}: {det['status']}"
+                break
+        for exp_name, exp in experiments.items():
+            metrics, det = per_exp.get(exp_name, (None, {"status": "not run"}))
+            if failed is not None:
+                # A failed run scores the worst value in every metric of every experiment.
+                metrics = worst_metrics(exp)
+                det = dict(det, status=f"failed: {failed}")
+            results[exp_name][name] = metrics
+            details[exp_name][name] = det
+            print(f"[eval:{SLICE}] {name} {exp_name}: {det['status']} {metrics}", file=sys.stderr, flush=True)
 
-    exp = config["experiment"]
-    scores = {
-        "slice": SLICE,
-        "experiments": {
-            exp: {
-                "results": results,
-                "_status": {name: details[name]["status"] for name in results},
-            }
-        },
-    }
+    scores = {"slice": SLICE, "experiments": {}}
+    for exp_name in experiments:
+        scores["experiments"][exp_name] = {
+            "results": results[exp_name],
+            "_status": {name: details[exp_name][name]["status"] for name in results[exp_name]},
+        }
     args.out.parent.mkdir(parents=True, exist_ok=True)
     args.out.write_text(json.dumps(scores, indent=2, sort_keys=True) + "\n", encoding="utf-8")
     args.details.parent.mkdir(parents=True, exist_ok=True)
