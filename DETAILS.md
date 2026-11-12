@@ -19,19 +19,23 @@ This paper studies automated theorem proving for Euclidean geometry, especially 
 
 # Problem Definition
 
-This benchmark is about automated Euclidean geometry theorem proving. A system receives a geometry problem expressed in a formal construction language and must determine whether the target conclusion follows from the premises by producing or internally certifying a valid proof.
+This benchmark is about automated Euclidean geometry theorem proving with auxiliary constructions. Each problem is stated in AlphaGeometry's point-construction language: a list of premises that construct points, and a goal (collinearity, concyclicity, equal angles, equal lengths, ...). A fixed symbolic prover (deductive database + algebraic reasoning, "DDAR") closes the premises under its rules. For every problem in the scored sets, that closure does **not** contain the goal: the prover saturates without proving it. Adding well-chosen new points (auxiliary constructions) to the premises can make the goal derivable.
+
+## Task
+
+A submission is a *proposer*: given a problem's premises (without the goal) and a numerical drawing of the configuration, it returns up to 16 attempts, each a short list (at most 3) of auxiliary point constructions. The evaluator adds each attempt to the premises and runs its own prover. A problem counts as solved when some attempt within the budget lets the prover derive the goal.
 
 ## Research Question
 
-Can an automated theorem prover solve challenging Olympiad-level Euclidean geometry problems reliably and efficiently under a fixed formal problem representation and bounded computational budget? The central gap is that existing benchmarks are small or comparatively easy, and prior high-performing systems often require expensive neural inference or very large search budgets.
+Which auxiliary constructions should be tried, and in what order, so that a fixed CPU-only prover proves as many problems as possible within a small attempt budget, without neural inference and without seeing the goal?
 
 ## Why It Matters
 
-Geometry theorem proving is a long-standing test of mathematical reasoning because successful solutions often require exact deduction over formal geometric configurations and the ability to reason about intermediate geometric objects. A strong benchmark environment should distinguish genuinely better reasoning systems from methods that only win by using more compute, richer external knowledge, or an easier problem set.
+Auxiliary constructions are the creative step in olympiad geometry: symbolic provers are complete over a fixed configuration but cannot invent new points. A proposer that finds useful constructions with few attempts makes symbolic proving both stronger and cheaper. The scored problems come from public olympiad collections with human difficulty ratings and from a classic textbook-theorem benchmark.
 
 ## Success Criteria
 
-A successful system should solve a large fraction of held-out Olympiad-level geometry problems, maintain proof validity, perform well across difficulty bands rather than only on easy instances, and respect the declared resource and evaluation constraints. Efficiency matters because the paper's claim is not only about solving more problems, but doing so without neural inference and within practical CPU budgets.
+Prove more held-out problems within the attempt budget, prove them with fewer attempts, and do so on the harder problems too, while every construction is a legitimate definition of a new point (no extra assumptions) and the proposer stays within its compute limit.
 
 ---
 
@@ -57,42 +61,52 @@ The paper also modifies DDAR implementation details to improve speed while prese
 - **Efficiency claim:** The optimized DDAR engine is roughly 20x faster than AlphaGeometry's DDAR implementation in the paper's comparison.
 - **Benchmark claim:** HAGeo-409 is a more informative evaluation set than IMO-30 because it is larger and includes human-assessed difficulty annotations.
 
+## Reference Implementation in This Gym
+
+`proposers/hageo.sh` → `method/hageo/propose.py` implements the paper's auxiliary-construction procedure (Section 4.5) on top of AlphaGeometry's public DD+AR prover (the paper's optimized engine is not released):
+
+- From the evaluator's numerical drawing it computes lines through pairs of points and circles through triples of points or centred at a point, and builds the paper's candidate categories: intersections of two lines through which a further line or circle passes, line/circle and circle/circle second intersections lying on a further object, midpoints and point reflections lying on a further line or circle, and feet of perpendiculars lying on a further line, plus a share of random constructions. The favourable incidence is only the reason to pick a point; each emitted clause states just the defining construction.
+- Each of the K = 16 attempts has N = 2 rounds; in every round the candidate set of the current (augmented) diagram is recomputed and one point is chosen at random (the first round walks a random permutation so attempts start from different points). The evaluator runs DDAR once per attempt.
+- Scaled settings: K = 16 (paper 2048/8192), N = 2 (paper 6), per-attempt CPU limits of 6-20 s (paper 60 s). The identical-point heuristic is omitted because the public prover rejects coincident points.
+- `baseline/random_aux.py` is the paper's random baseline at the same budget.
+
 ---
 
 # Evaluation
 
-Evaluation measures whether a submitted geometry prover can solve the benchmark problems under fixed inputs, resource limits, and proof-validity checks. This document intentionally describes only the task-level evaluation, not any particular solution method.
+Scoring runs every proposer registered as `proposers/<name>.sh` (see `proposers/README.md` for the input/output contract) and verifies every attempt with the evaluator's own copy of the AlphaGeometry DD+AR prover. Nothing a proposer reports about its own success is used.
 
-## Metrics
+## Protocol
 
-- **Solved count:** number of benchmark problems for which the system proves the requested conclusion within the allotted budget. Higher is better.
-- **Solve rate:** solved count divided by the number of evaluated problems. Higher is better.
-- **Pass@K:** number or rate of problems solved when the system is allowed up to K independent proof attempts or search trials under the benchmark's definition of an attempt. Higher is better.
-- **Difficulty-band solve rate:** solve rate reported separately for the HAGeo-409 difficulty bands [1,3), [3,4), [4,5), [5,6), and [6,7]. Higher is better, and this guards against only improving easy instances.
-- **Proof validity:** fraction of claimed solves whose proof or certificate passes the evaluator's validity checks. Higher is better; invalid proofs must not count as solved.
-- **Resource compliance:** configured search budget, configured per-problem timeout, hardware class, and neural-inference usage are tracked as constraint metrics. These are declared budget caps rather than measured speed scores; any violation of the fixed resource policy invalidates comparison.
+For each experiment and each problem:
 
-## Baselines and Targets
+1. The proposer receives the premises (no goal), the point names, a fixed numerical drawing of the configuration, the problem's human difficulty (HAGeo-409 only), and the budget: at most **16 attempts**, each of **1 to 3 auxiliary clauses**.
+2. Every clause must define one fresh point from already defined points, either by one point construction (midpoint, mirror, foot, circumcenter, incenter, excenter, orthocenter, reflect, eq_triangle, psquare, nsquare, shift, intersection_*) or by exactly two loci (on_line, on_circle, on_tline, on_pline, on_bline, on_dia, on_circum, angle_bisector, angle_mirror, eqdistance, lc_tangent, on_aline). Over-determined clauses, explicit coordinates and redefined points are rejected.
+3. The evaluator draws premises + attempt with a fixed seed and runs DDAR under a fixed per-problem CPU-time limit (6-20 s, set from how long DDAR needs on the premises alone). Attempts are tried in the submitted order; the first proof counts.
+4. A run fails, and receives the worst value (0) in every metric of every experiment, if the proposer exits non-zero, exceeds 30 s per problem in total, writes malformed or incomplete output, exceeds the budget, or breaks a clause rule.
 
-Reference levels from the paper:
+## Experiments and metrics
 
-- **Base symbolic prover on IMO-30:** 15/30 solved.
-- **Prior neural-symbolic system on IMO-30:** 24/30 solved using the paper's corrected count.
-- **Stochastic non-neural baseline on IMO-30:** 25/30 solved.
-- **Paper's compliant CPU-only system on IMO-30:** 28/30 solved.
-- **Prior neural-symbolic system on HAGeo-409:** 177/409 solved.
-- **Stochastic non-neural baseline on HAGeo-409:** 204/409 solved at 2,048 attempts and 218/409 at 8,192 attempts.
-- **Paper's compliant CPU-only system on HAGeo-409:** 263/409 solved at 2,048 attempts and 287/409 at 8,192 attempts.
+- **hageo409_aux** — 38 held-out HAGeo-409 olympiad problems (25 visible train problems in `data/benchmarks/hageo409_train.jsonl`).
+  - `solve_rate`: fraction proved within 16 attempts (pass@16). Higher is better.
+  - `hard_solve_rate`: pass@16 on problems with human difficulty ≥ 3. Higher is better.
+  - `pass_auc`: mean of pass@k over k = 1..16; rewards proving problems with fewer attempts. Higher is better.
+- **jgex231_aux** — 18 held-out JGEX-231 problems (12 visible train problems in `data/benchmarks/jgex231_train.jsonl`); `solve_rate` and `pass_auc` as above.
 
-The primary reproduction target is to match the paper's solve-rate pattern on HAGeo-409 and IMO-30 while preserving valid proofs and the CPU-only, non-neural inference setting. IMO-30 alone is not sufficient because the paper argues that it is small and difficulty-skewed.
+Fixed reference points computed by the evaluator: DDAR alone (0 on every problem by construction) and random auxiliary constructions at the same budget.
 
-## Evaluation Protocol
+## Running
 
-Evaluate on the fixed formal benchmark files for IMO-30 and HAGeo-409. The test problems and conclusions must not be edited, filtered, or retranslated during evaluation. Report aggregate solve count and solve rate, and for HAGeo-409 also report each difficulty band.
+```bash
+bash scripts/evaluate_train.sh   # visible problems -> scoring/scores_train.json
+bash scripts/evaluate.sh         # same, writes scoring/scores.json
+```
 
-Use the same attempt budgets when comparing systems: the paper reports HAGeo-409 at K=2,048 and K=8,192, and IMO-30 under the paper's stated time budget. If stochastic search is used, fix and report seeds or run enough repeated evaluations to make the reported pass@K reproducible. A problem counts as solved only if the final conclusion is established by the accepted proof checker or evaluator.
+The held-out problems are scored the same way by a separate hidden evaluation. Verification is CPU-only and deterministic up to the CPU-time limits; a full run of one proposer takes roughly 30-60 CPU-minutes.
 
-All methods should be evaluated under the declared hardware and time constraints. Methods that use neural inference, external problem data, or additional unlabeled/labeled geometry corpora must be reported separately and should not be compared as compliant improvements to the paper's central claim.
+## Rules
+
+Proposers must not use neural or LLM inference, network access, external proof or problem databases (including the public benchmark files' goals), or any file under `eval/`. The goal of each problem is deliberately withheld.
 
 ---
 
@@ -985,6 +999,122 @@ All methods should be evaluated under the declared hardware and time constraints
 - Tightened method-agnostic evaluation documentation and experiment descriptions.
 - Verified `python validate.py --compare`, import separation, artifact-based evaluation, and download URL availability.
 - Retained `core_claim`: the controlled core experiment is valid, while the HAGeo-409 extension remains a negative result for higher milestones.
+
+</details>
+
+### Iteration 11: claude-opus-5-5 (hardener)
+- **Milestone**: `core_claim` | **Status**: done
+- **Working time**: 52m | **GPU**: 0.0h
+- **Jobs**: 25 total (18 completed, 2 failed)
+
+<details>
+<summary>Progress Log</summary>
+
+### [2026-06-02 20:55] - none
+- Re-audited the existing implementation after subagent review.
+- Previous `core_claim` claim was withdrawn at that time because the prior runner used syntactic auxiliary enumeration rather than HAGeo's numerically driven heuristic.
+
+### [2026-06-02 21:40] - core_claim
+- Continuing-agent audit found the same main gaps: scoring covered only a smoke target, the random auxiliary baseline was missing, and output validation was too permissive.
+- Added the paper's random auxiliary-construction baseline for scaled HAGeo-409 evaluation.
+- Added HAGeo's random-construction category after the numerically favorable heuristic categories.
+- Hardened `eval/` to validate problem coverage and score both `auxiliary_core` and `hageo409_scaled`.
+- Submitting a CPU test job to verify the patched method and determine whether `core_claim_plus` is supported.
+
+### [2026-06-02 22:10] - core_claim
+- CPU job `ba58a10a-3a5` failed during the first intermediate evaluation because stale 12-problem HAGeo-409 outputs did not match the freshly prepared 4-problem benchmark.
+- Fixed the runner scripts so coordinated reproduction disables intermediate evaluation, removes stale artifacts, regenerates all outputs, and then runs one final strict evaluation.
+
+### [2026-06-02 22:35] - core_claim
+- CPU job `e113a384-f00` completed end-to-end and wrote `scoring/scores.json`.
+- `auxiliary_core` remains reproduced: DDAR solved 0/1 while the HAGeo-style auxiliary search solved 1/1 without neural inference.
+- The first-four HAGeo-409 scaled slice did not support `core_claim_plus` because both random auxiliary search and HAGeo solved 0/4.
+- Updated benchmark preparation to use a reproducible low-difficulty HAGeo-409 slice and increased the CPU-scaled budget for the next run.
+
+### [2026-06-02 22:50] - core_claim
+- CPU job `09e02880-313` failed during random auxiliary candidate generation on a HAGeo-409 problem with a `cyclic` goal.
+- Fixed candidate fallback generation to ignore theorem goals and build only the construction graph with a dummy goal.
+- Retained `core_claim`; the difficulty-sorted HAGeo-409 retry still needs a clean run before any higher milestone can be claimed.
+
+### [2026-06-02 23:15] - core_claim
+- CPU job `675c93ff-642` completed successfully on the six easiest HAGeo-409 problems.
+- HAGeo and random auxiliary search both solved 3/6 at K=48, so no higher milestone is claimed.
+- Updated HAGeo's attempt schedule to interleave ranked heuristic candidates with shuffled exploration and expanded the next fixed HAGeo-409 slice to 12 problems.
+
+### [2026-06-02 23:45] - core_claim
+- CPU job `4cb60e78-0c8` completed successfully on the 12 easiest HAGeo-409 problems.
+- HAGeo and random auxiliary search both solved 8/12 at K=48, so no higher milestone is claimed.
+- Increased the scaled protocol to N=2 construction rounds for the next run, closer to the paper's N=6 multi-round search while keeping random and HAGeo matched.
+
+### [2026-06-02 23:55] - core_claim
+- CPU job `4db0ca3b-381` completed successfully with N=2, but random solved 9/12 while HAGeo solved 6/12.
+- Found and fixed a multi-round implementation issue: DDAR was checked only after all auxiliaries in an attempt, rather than after each added auxiliary.
+- Retained `core_claim`; the corrected iterative N=2 protocol needs a clean run before any higher milestone can be claimed.
+
+### [2026-06-02 22:28] - core_claim
+- CPU job `036b6af6-cfc` completed successfully after iterative N=2 checking was fixed.
+- The corrected run solved `auxiliary_core`, and HAGeo tied the random auxiliary baseline at 8/12 on the scaled HAGeo-409 slice.
+- Added the paper's identical-point auxiliary category and fixed HAGeo's N=2 attempt indexing so the first round covers the full declared K=48 candidate budget.
+
+### [2026-06-02 23:10] - core_claim
+- CPU job `49edf3e0-664` was cancelled during the HAGeo phase after no progress beyond problem 2 for roughly twenty minutes.
+- Diagnosed the stall as unbounded identical-point candidate enumeration during HAGeo's second-round candidate regeneration.
+- Bounded identical-point enumeration and added hard timeouts around HAGeo candidate generation before retrying the same scaled benchmark.
+
+### [2026-06-03 00:07] - core_claim
+- CPU job `299ca567-06f` completed successfully with bounded identical-point generation and candidate-generation timeouts.
+- `auxiliary_core` still supports the core claim, but scaled HAGeo-409 did not support `core_claim_plus`: random auxiliary search solved 10/12 while HAGeo solved 8/12.
+- Fixed two-round auxiliary insertion so generated point names are fresh for both HAGeo and random, and so HAGeo falls back to its initial heuristic pool when second-round candidate regeneration is unavailable.
+
+### [2026-06-03 00:35] - core_claim
+- CPU job `1568a310-592` completed successfully with fresh auxiliary names, second-round fallback, and matched K=64 budgets.
+- The final core claim remains reproduced: DDAR solved 0/1 on `auxiliary_core`, while the HAGeo-style auxiliary search solved 1/1 with `neural_inference_used=0`.
+- The attempted HAGeo-409 extension still did not support `core_claim_plus`: random auxiliary search solved 10/12 and HAGeo solved 8/12 on the low-difficulty 12-problem slice.
+- Final scoring was narrowed to `auxiliary_core` because the difficulty-sorted HAGeo-409 slice is not statistically comparable to the paper's full 409-problem Table 1 reference and caused an invalid paper-consistency comparison.
+
+### [2026-06-04 11:59] - core_claim
+- Continuing-agent audit confirmed the implementation is a real scaled HAGeo-style DDAR plus CPU heuristic auxiliary-construction search, not a neural surrogate, but it still uses AlphaGeometry's public DDAR because the official HAGeo solver code remains unreleased.
+- Fixed evaluation so required `auxiliary_core` artifacts cannot be silently skipped.
+- Added a properly named scored HAGeo-409 low-difficulty extension using the paper's [1,3) difficulty-band reference numbers, and updated the runner to retry that extension at K=256.
+- Retained `core_claim` until the new CPU job shows whether the extension supports `core_claim_plus`.
+
+### [2026-06-04 12:44] - core_claim
+- CPU job `196e03fd-d4f` was cancelled because the K=256 low-difficulty extension was too slow for the CPU test queue.
+- Removed partial optional extension outputs and revalidated the current core-only artifact set: DDAR solves 0/1 and HAGeo solves 1/1 on `auxiliary_core`.
+- Fixed HAGeo's first-round candidate traversal so a K=64 retry covers a stable heuristic candidate order under the same CPU-only constraints.
+- Retained `core_claim`; the next job will regenerate the low-difficulty extension before any higher milestone is claimed.
+
+### [2026-06-04 13:11] - core_claim
+- CPU job `05b0ca7b-d9e` completed end-to-end and regenerated all scored artifacts.
+- `auxiliary_core` remains reproduced: DDAR solves 0/1 while HAGeo solves 1/1, with `neural_inference_used=0`.
+- The low-difficulty HAGeo-409 extension is valid but does not support `core_claim_plus`: random auxiliary search solves 10/12 and HAGeo solves 8/12 under the matched K=64, N=2, timeout=5 budget.
+- Final milestone remains `core_claim`.
+
+### [2026-06-04 13:37] - core_claim
+- Patched the main evaluator so `hageo409_low_difficulty` writes the declared difficulty-aware metrics into `scoring/scores.json`.
+- Re-ran `bash scripts/evaluate.sh` and `python validate.py --compare`; all checks passed.
+- Retained `core_claim`: the extension remains valid but negative for a higher milestone.
+
+### [2026-06-04 13:39] - core_claim
+- Final verification found and removed a solution-revealing note from the method-agnostic benchmark data.
+- Rephrased strict method-agnostic documentation to avoid unnecessary solution-method leakage.
+- Verified download URLs and reran `evaluate.sh`, `evaluate_train.sh`, `evaluate_test.sh`, and `validate.py --compare`; all checks passed.
+
+### [2026-06-04 13:44] - core_claim
+- Continued beyond the previous wrap-up after auditing the workspace and subagent findings.
+- Fixed `scripts/run.sh` so compute jobs regenerate solver artifacts and refresh canonical `scoring/scores.json` before train/test scoring.
+- Proposed a small-K HAGeo scheduling change, but it was not verified by a completed job before final verification.
+
+### [2026-06-04 13:46] - core_claim
+- Final verification reverted the unverified scheduling change so `scoring/scores.json` remains consistent with the method code and completed job artifacts.
+- Tightened method-agnostic evaluation documentation and experiment descriptions.
+- Verified `python validate.py --compare`, import separation, artifact-based evaluation, and download URL availability.
+- Retained `core_claim`: the controlled core experiment is valid, while the HAGeo-409 extension remains a negative result for higher milestones.
+
+### [2026-11-12] - core_claim (hardening iteration)
+- Rebuilt the measurement: methods are proposers of auxiliary constructions; the evaluator withholds goals, verifies every attempt with its own DD+AR prover under CPU-time limits, enforces a validity gate (exactly-determined fresh points, no coordinates, 16x3 budget) and scores failures as worst values.
+- Restored the paper's HAGeo procedure (single defining constructions chosen for favourable incidences, N rounds per attempt, one DDAR run per attempt); the old clauses were over-determined and mostly undrawable.
+- Hidden test (problems DDAR alone cannot prove): HAGeo 3/38 vs random 2/38 vs DDAR 0 on HAGeo-409; HAGeo 12/18 vs random 7/18 vs DDAR 0 on JGEX-231. Details in HARDENING.md.
 
 </details>
 
