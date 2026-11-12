@@ -1,0 +1,237 @@
+{
+  "experiments": {
+    "hageo409_aux": {
+      "_status": {
+        "ddar": "ok (fixed evaluator baseline)",
+        "hageo": "ok",
+        "hageo_n1": "ok",
+        "hageo_n3": "ok",
+        "hageo_ranked": "ok",
+        "hageo_seed1": "ok",
+        "hageo_seed2": "ok",
+        "hageo_unfiltered": "ok",
+        "random_aux": "ok (fixed evaluator baseline)",
+        "sc_constant_flags": "ok",
+        "sc_crash": "failed: hageo409_aux: failed: proposer exited with status 1",
+        "sc_direct_scores": "ok",
+        "sc_empty_output": "failed: hageo409_aux: failed: gate violation: missing rows for 38 problems, e.g. ['test_001', 'test_002', 'test_003']",
+        "sc_goal_lookup": "ok",
+        "sc_no_aux": "ok",
+        "sc_overdetermined": "failed: hageo409_aux: failed: gate violation: clause must determine the point exactly (one point construction or two loci): 'aux1 = on_line aux1 c i, on_line aux1 i q, on_line aux1 c q'",
+        "sc_stale_coords": "failed: hageo409_aux: failed: gate violation: forbidden character in clause 'aux1@0.5_0.5 = mirror aux1 n2 c'",
+        "sc_tamper_eval": "failed: hageo409_aux: failed: gate violation: test_001: 100 attempts exceed the budget of 16",
+        "sc_too_many": "failed: hageo409_aux: failed: gate violation: test_001: 64 attempts exceed the budget of 16",
+        "systematic": "ok"
+      },
+      "results": {
+        "ddar": {
+          "hard_solve_rate": 0.0,
+          "pass_auc": 0.0,
+          "solve_rate": 0.0
+        },
+        "hageo": {
+          "hard_solve_rate": 0.0,
+          "pass_auc": 0.05921052631578947,
+          "solve_rate": 0.07894736842105263
+        },
+        "hageo_n1": {
+          "hard_solve_rate": 0.0,
+          "pass_auc": 0.011513157894736841,
+          "solve_rate": 0.02631578947368421
+        },
+        "hageo_n3": {
+          "hard_solve_rate": 0.0,
+          "pass_auc": 0.02631578947368421,
+          "solve_rate": 0.02631578947368421
+        },
+        "hageo_ranked": {
+          "hard_solve_rate": 0.0,
+          "pass_auc": 0.019736842105263157,
+          "solve_rate": 0.02631578947368421
+        },
+        "hageo_seed1": {
+          "hard_solve_rate": 0.0,
+          "pass_auc": 0.029605263157894735,
+          "solve_rate": 0.05263157894736842
+        },
+        "hageo_seed2": {
+          "hard_solve_rate": 0.0,
+          "pass_auc": 0.047697368421052634,
+          "solve_rate": 0.07894736842105263
+        },
+        "hageo_unfiltered": {
+          "hard_solve_rate": 0.0,
+          "pass_auc": 0.024671052631578948,
+          "solve_rate": 0.02631578947368421
+        },
+        "random_aux": {
+          "hard_solve_rate": 0.05,
+          "pass_auc": 0.03618421052631579,
+          "solve_rate": 0.05263157894736842
+        },
+        "sc_constant_flags": {
+          "hard_solve_rate": 0.0,
+          "pass_auc": 0.0,
+          "solve_rate": 0.0
+        },
+        "sc_crash": {
+          "hard_solve_rate": 0.0,
+          "pass_auc": 0.0,
+          "solve_rate": 0.0
+        },
+        "sc_direct_scores": {
+          "hard_solve_rate": 0.0,
+          "pass_auc": 0.0,
+          "solve_rate": 0.0
+        },
+        "sc_empty_output": {
+          "hard_solve_rate": 0.0,
+          "pass_auc": 0.0,
+          "solve_rate": 0.0
+        },
+        "sc_goal_lookup": {
+          "hard_solve_rate": 0.0,
+          "pass_auc": 0.10032894736842106,
+          "solve_rate": 0.10526315789473684
+        },
+        "sc_no_aux": {
+          "hard_solve_rate": 0.0,
+          "pass_auc": 0.0,
+          "solve_rate": 0.0
+        },
+        "sc_overdetermined": {
+          "hard_solve_rate": 0.0,
+          "pass_auc": 0.0,
+          "solve_rate": 0.0
+        },
+        "sc_stale_coords": {
+          "hard_solve_rate": 0.0,
+          "pass_auc": 0.0,
+          "solve_rate": 0.0
+        },
+        "sc_tamper_eval": {
+          "hard_solve_rate": 0.0,
+          "pass_auc": 0.0,
+          "solve_rate": 0.0
+        },
+        "sc_too_many": {
+          "hard_solve_rate": 0.0,
+          "pass_auc": 0.0,
+          "solve_rate": 0.0
+        },
+        "systematic": {
+          "hard_solve_rate": 0.0,
+          "pass_auc": 0.06578947368421052,
+          "solve_rate": 0.07894736842105263
+        }
+      }
+    },
+    "jgex231_aux": {
+      "_status": {
+        "ddar": "ok (fixed evaluator baseline)",
+        "hageo": "ok",
+        "hageo_n1": "ok",
+        "hageo_n3": "ok",
+        "hageo_ranked": "ok",
+        "hageo_seed1": "ok",
+        "hageo_seed2": "ok",
+        "hageo_unfiltered": "ok",
+        "random_aux": "ok (fixed evaluator baseline)",
+        "sc_constant_flags": "ok",
+        "sc_crash": "failed: hageo409_aux: failed: proposer exited with status 1",
+        "sc_direct_scores": "ok",
+        "sc_empty_output": "failed: hageo409_aux: failed: gate violation: missing rows for 38 problems, e.g. ['test_001', 'test_002', 'test_003']",
+        "sc_goal_lookup": "ok",
+        "sc_no_aux": "ok",
+        "sc_overdetermined": "failed: hageo409_aux: failed: gate violation: clause must determine the point exactly (one point construction or two loci): 'aux1 = on_line aux1 c i, on_line aux1 i q, on_line aux1 c q'",
+        "sc_stale_coords": "failed: hageo409_aux: failed: gate violation: forbidden character in clause 'aux1@0.5_0.5 = mirror aux1 n2 c'",
+        "sc_tamper_eval": "failed: hageo409_aux: failed: gate violation: test_001: 100 attempts exceed the budget of 16",
+        "sc_too_many": "failed: hageo409_aux: failed: gate violation: test_001: 64 attempts exceed the budget of 16",
+        "systematic": "ok"
+      },
+      "results": {
+        "ddar": {
+          "pass_auc": 0.0,
+          "solve_rate": 0.0
+        },
+        "hageo": {
+          "pass_auc": 0.4583333333333333,
+          "solve_rate": 0.6666666666666666
+        },
+        "hageo_n1": {
+          "pass_auc": 0.3680555555555556,
+          "solve_rate": 0.6111111111111112
+        },
+        "hageo_n3": {
+          "pass_auc": 0.4618055555555556,
+          "solve_rate": 0.6666666666666666
+        },
+        "hageo_ranked": {
+          "pass_auc": 0.5243055555555556,
+          "solve_rate": 0.5555555555555556
+        },
+        "hageo_seed1": {
+          "pass_auc": 0.3958333333333333,
+          "solve_rate": 0.6111111111111112
+        },
+        "hageo_seed2": {
+          "pass_auc": 0.4166666666666667,
+          "solve_rate": 0.6111111111111112
+        },
+        "hageo_unfiltered": {
+          "pass_auc": 0.2777777777777778,
+          "solve_rate": 0.3888888888888889
+        },
+        "random_aux": {
+          "pass_auc": 0.2569444444444444,
+          "solve_rate": 0.3888888888888889
+        },
+        "sc_constant_flags": {
+          "pass_auc": 0.0,
+          "solve_rate": 0.0
+        },
+        "sc_crash": {
+          "pass_auc": 0.0,
+          "solve_rate": 0.0
+        },
+        "sc_direct_scores": {
+          "pass_auc": 0.0,
+          "solve_rate": 0.0
+        },
+        "sc_empty_output": {
+          "pass_auc": 0.0,
+          "solve_rate": 0.0
+        },
+        "sc_goal_lookup": {
+          "pass_auc": 0.6979166666666666,
+          "solve_rate": 0.7222222222222222
+        },
+        "sc_no_aux": {
+          "pass_auc": 0.0,
+          "solve_rate": 0.0
+        },
+        "sc_overdetermined": {
+          "pass_auc": 0.0,
+          "solve_rate": 0.0
+        },
+        "sc_stale_coords": {
+          "pass_auc": 0.0,
+          "solve_rate": 0.0
+        },
+        "sc_tamper_eval": {
+          "pass_auc": 0.0,
+          "solve_rate": 0.0
+        },
+        "sc_too_many": {
+          "pass_auc": 0.0,
+          "solve_rate": 0.0
+        },
+        "systematic": {
+          "pass_auc": 0.22569444444444445,
+          "solve_rate": 0.3333333333333333
+        }
+      }
+    }
+  },
+  "slice": "test"
+}

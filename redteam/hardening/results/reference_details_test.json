@@ -58,7 +58,7 @@
     "test_011": 16,
     "test_012": 16,
     "test_013": 16,
-    "test_014": 16,
+    "test_014": 4,
     "test_015": 16,
     "test_016": 1,
     "test_017": 16,
@@ -98,7 +98,7 @@
     "test_011": null,
     "test_012": null,
     "test_013": null,
-    "test_014": null,
+    "test_014": 4,
     "test_015": null,
     "test_016": 1,
     "test_017": null,
@@ -124,9 +124,9 @@
     "test_037": null,
     "test_038": null
    },
-   "proposer": "ok (60s)",
+   "proposer": "ok (memo)",
    "status": "ok",
-   "verify_seconds": 0.0
+   "verify_seconds": 377.1
   },
   "random_aux": {
    "status": "ok (fixed evaluator baseline)"
@@ -197,9 +197,9 @@
     "jtest_017": 8,
     "jtest_018": 14
    },
-   "proposer": "ok (6s)",
+   "proposer": "ok (18s)",
    "status": "ok",
-   "verify_seconds": 165.5
+   "verify_seconds": 35.6
   },
   "random_aux": {
    "status": "ok (fixed evaluator baseline)"

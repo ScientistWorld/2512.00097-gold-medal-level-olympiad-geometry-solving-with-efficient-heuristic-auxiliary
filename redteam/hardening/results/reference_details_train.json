@@ -85,9 +85,9 @@
     "train_024": null,
     "train_025": null
    },
-   "proposer": "ok (30s)",
+   "proposer": "ok (149s)",
    "status": "ok",
-   "verify_seconds": 0.0
+   "verify_seconds": 423.3
   },
   "random_aux": {
    "status": "ok (fixed evaluator baseline)"
@@ -140,9 +140,9 @@
     "jtrain_011": null,
     "jtrain_012": 13
    },
-   "proposer": "ok (8s)",
+   "proposer": "ok (29s)",
    "status": "ok",
-   "verify_seconds": 140.8
+   "verify_seconds": 20.4
   },
   "random_aux": {
    "status": "ok (fixed evaluator baseline)"
