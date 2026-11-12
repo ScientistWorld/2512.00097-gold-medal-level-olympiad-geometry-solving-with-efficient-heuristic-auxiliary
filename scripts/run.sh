@@ -44,12 +44,16 @@ if ! done_ jgex_split; then
   python eval/test/build_split.py split --source jgex --sat-max 4.0 --test-fraction 0.6 --test-budget 1e9 --train-budget 1e9 \
     && mark jgex_split
 fi
-if ! done_ jgex_baselines; then
-  echo "[job] J: JGEX fixed baselines $(date)"
-  python eval/test/evaluate.py --experiments jgex231_aux --recompute-baselines --no-proposers --cache $CT \
-    --out $R/baselines_jgex_test_scores.json --details $R/baselines_jgex_test_details.json && \
-  python eval/train/evaluate.py --experiments jgex231_aux --recompute-baselines --no-proposers --cache $CR \
-    --out $R/baselines_jgex_train_scores.json --details $R/baselines_jgex_train_details.json && mark jgex_baselines
+if ! done_ coords; then
+  echo "[job] fix the evaluator drawing in every problem file $(date)"
+  python eval/test/build_split.py coords && mark coords
+fi
+if ! done_ baselines_v2; then
+  echo "[job] fixed baselines (CPU-time limits) $(date)"
+  python eval/test/evaluate.py --recompute-baselines --no-proposers --cache $CT \
+    --out $R/baselines_test_scores.json --details $R/baselines_test_details.json && \
+  python eval/train/evaluate.py --recompute-baselines --no-proposers --cache $CR \
+    --out $R/baselines_train_scores.json --details $R/baselines_train_details.json && mark baselines_v2
 fi
 
 if ! done_ reference; then

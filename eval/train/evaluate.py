@@ -170,7 +170,7 @@ _CACHE: Cache | None = None
 
 
 def in_time(status: str, seconds: float, timeout: float) -> str:
-    """A proof only counts if DDAR finished inside the attempt's time limit."""
+    """A proof only counts if DDAR finished inside the attempt's CPU-time limit."""
     if status == "solved" and seconds > timeout + 1.0:
         return "timeout"
     return status
@@ -389,8 +389,11 @@ def main() -> None:
     coords = {}
     for exp_name, exp in experiments.items():
         problems[exp_name] = read_jsonl(resolve(exp["problems"]))
+        # The drawing handed to proposers is fixed evaluator data stored with
+        # each problem; it is only recomputed if a file lacks it.
         coords[exp_name] = {
-            p["problem_id"]: engine.draw_coordinates(p["setup"], p["goal"], int(p["seed"])) for p in problems[exp_name]
+            p["problem_id"]: p.get("coords") or engine.draw_coordinates(p["setup"], p["goal"], int(p["seed"]))
+            for p in problems[exp_name]
         }
         print(f"[eval:{SLICE}] {exp_name}: {len(problems[exp_name])} problems, {workers} workers",
               file=sys.stderr, flush=True)

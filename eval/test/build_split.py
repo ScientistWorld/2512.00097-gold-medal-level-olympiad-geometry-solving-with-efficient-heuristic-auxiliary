@@ -237,6 +237,29 @@ def cmd_split(args) -> None:
     }, indent=1))
 
 
+def cmd_coords(args) -> None:
+    """Store the evaluator's seeded drawing with each problem (fixed proposer input)."""
+    sys.path.insert(0, str(HERE))
+    import engine
+
+    for _screen, test_file, train_file, _prefixes in SOURCES.values():
+        for path in (test_file, train_file):
+            if not path.exists():
+                continue
+            rows = [json.loads(l) for l in path.read_text(encoding="utf-8").splitlines() if l.strip()]
+            changed = False
+            for r in rows:
+                if r.get("coords"):
+                    continue
+                r["coords"] = engine.draw_coordinates(r["setup"], r["goal"], int(r["seed"]), timeout=600.0)
+                if r["coords"] is None:
+                    raise RuntimeError(f"could not draw {r['problem_id']}")
+                changed = True
+            if changed:
+                path.write_text("".join(json.dumps(r, sort_keys=True) + "\n" for r in rows), encoding="utf-8")
+            print(f"[coords] {path}: {len(rows)} problems", file=sys.stderr, flush=True)
+
+
 def main() -> None:
     parser = argparse.ArgumentParser()
     sub = parser.add_subparsers(dest="cmd", required=True)
@@ -260,6 +283,8 @@ def main() -> None:
     p.add_argument("--test-budget", type=float, default=3000)
     p.add_argument("--train-budget", type=float, default=2000)
     p.set_defaults(func=cmd_split)
+    c = sub.add_parser("coords")
+    c.set_defaults(func=cmd_coords)
     args = parser.parse_args()
     args.func(args)
 

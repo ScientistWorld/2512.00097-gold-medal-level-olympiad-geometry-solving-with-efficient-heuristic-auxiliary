@@ -1,0 +1,46 @@
+{
+ "_config": {
+  "max_attempts": 16,
+  "max_aux_per_attempt": 3
+ },
+ "ddar": {
+  "jtest_001": null,
+  "jtest_002": null,
+  "jtest_003": null,
+  "jtest_004": null,
+  "jtest_005": null,
+  "jtest_006": null,
+  "jtest_007": null,
+  "jtest_008": null,
+  "jtest_009": null,
+  "jtest_010": null,
+  "jtest_011": null,
+  "jtest_012": null,
+  "jtest_013": null,
+  "jtest_014": null,
+  "jtest_015": null,
+  "jtest_016": null,
+  "jtest_017": null,
+  "jtest_018": null
+ },
+ "random_aux": {
+  "jtest_001": 3,
+  "jtest_002": 14,
+  "jtest_003": 6,
+  "jtest_004": null,
+  "jtest_005": null,
+  "jtest_006": null,
+  "jtest_007": 5,
+  "jtest_008": null,
+  "jtest_009": 2,
+  "jtest_010": null,
+  "jtest_011": null,
+  "jtest_012": 1,
+  "jtest_013": null,
+  "jtest_014": 14,
+  "jtest_015": null,
+  "jtest_016": null,
+  "jtest_017": null,
+  "jtest_018": null
+ }
+}

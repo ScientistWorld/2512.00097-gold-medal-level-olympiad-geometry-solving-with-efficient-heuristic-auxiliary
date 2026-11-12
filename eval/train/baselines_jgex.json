@@ -1,0 +1,34 @@
+{
+ "_config": {
+  "max_attempts": 16,
+  "max_aux_per_attempt": 3
+ },
+ "ddar": {
+  "jtrain_001": null,
+  "jtrain_002": null,
+  "jtrain_003": null,
+  "jtrain_004": null,
+  "jtrain_005": null,
+  "jtrain_006": null,
+  "jtrain_007": null,
+  "jtrain_008": null,
+  "jtrain_009": null,
+  "jtrain_010": null,
+  "jtrain_011": null,
+  "jtrain_012": null
+ },
+ "random_aux": {
+  "jtrain_001": 3,
+  "jtrain_002": null,
+  "jtrain_003": null,
+  "jtrain_004": null,
+  "jtrain_005": null,
+  "jtrain_006": 12,
+  "jtrain_007": 8,
+  "jtrain_008": 4,
+  "jtrain_009": 6,
+  "jtrain_010": null,
+  "jtrain_011": null,
+  "jtrain_012": 6
+ }
+}

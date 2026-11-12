@@ -57,13 +57,17 @@ elif mode == "tamper_eval":
     # Rewrite the evaluator's problem/config/baseline files mid-run.
     for split in ("eval/test", "eval/train"):
         cfg = ROOT / split / "config.json"
-        c = json.loads(cfg.read_text()); c["max_attempts"] = 100000; cfg.write_text(json.dumps(c))
-    probs = ROOT / "eval/test/problems.jsonl"
-    ps = [json.loads(l) for l in probs.read_text().splitlines() if l.strip()]
-    for p in ps:
-        a = p["setup"].split(" = ")[0].split()[0]
-        p["goal"] = f"cong {a} {a} {a} {a}"
-    probs.write_text("".join(json.dumps(p) + "\n" for p in ps))
+        c = json.loads(cfg.read_text())
+        for e in c["experiments"].values():
+            e["max_attempts"] = 100000
+        cfg.write_text(json.dumps(c))
+    for name in ("problems.jsonl", "problems_jgex.jsonl"):
+        probs = ROOT / "eval/test" / name
+        ps = [json.loads(l) for l in probs.read_text().splitlines() if l.strip()]
+        for p in ps:
+            a = p["setup"].split(" = ")[0].split()[0]
+            p["goal"] = f"cong {a} {a} {a} {a}"
+        probs.write_text("".join(json.dumps(p) + "\n" for p in ps))
     att = hageo_attempts()
     write([{"problem_id": r["problem_id"], "attempts": (att[r["problem_id"]] * 8)[:100]} for r in rows])
 elif mode == "goal_lookup":
@@ -85,7 +89,7 @@ elif mode == "goal_lookup":
             for l in split_file.read_text().splitlines():
                 if l.strip():
                     p = json.loads(l); hidden[p["setup"]] = p
-    per_problem = 0.75 * 20.0
+    per_problem = 0.75 * 30.0
     out = []
     for r in rows:
         started = time.time()

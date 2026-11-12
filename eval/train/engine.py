@@ -52,16 +52,26 @@ class _Timeout(BaseException):
 
 @contextlib.contextmanager
 def hard_timeout(seconds: float):
+    """Limit on the process's CPU time, with a generous wall-clock backstop.
+
+    CPU time (not wall-clock time) decides, so the verdict does not depend on
+    how loaded the machine is or how many verifications run in parallel.
+    """
+
     def _raise(_signum, _frame):
         raise _Timeout()
 
-    previous = signal.signal(signal.SIGALRM, _raise)
-    signal.setitimer(signal.ITIMER_REAL, max(0.01, float(seconds)))
+    prev_prof = signal.signal(signal.SIGPROF, _raise)
+    prev_alrm = signal.signal(signal.SIGALRM, _raise)
+    signal.setitimer(signal.ITIMER_PROF, max(0.01, float(seconds)))
+    signal.setitimer(signal.ITIMER_REAL, max(0.01, 4.0 * float(seconds) + 60.0))
     try:
         yield
     finally:
+        signal.setitimer(signal.ITIMER_PROF, 0)
         signal.setitimer(signal.ITIMER_REAL, 0)
-        signal.signal(signal.SIGALRM, previous)
+        signal.signal(signal.SIGPROF, prev_prof)
+        signal.signal(signal.SIGALRM, prev_alrm)
 
 
 def _seed_all(seed: int) -> None:
@@ -118,7 +128,7 @@ def statement_with_aux(setup: str, goal: str, aux: list[str]) -> str:
     return f"{clauses} ? {goal}"
 
 
-def draw_coordinates(setup: str, goal: str, seed: int, timeout: float = 30.0) -> dict | None:
+def draw_coordinates(setup: str, goal: str, seed: int, timeout: float = 120.0) -> dict | None:
     """Coordinates of the evaluator's drawing of the problem (given to proposers)."""
     try:
         with hard_timeout(timeout):
@@ -133,26 +143,26 @@ def draw_coordinates(setup: str, goal: str, seed: int, timeout: float = 30.0) ->
 
 
 def verify(setup: str, goal: str, aux: list[str], seed: int, timeout: float) -> tuple[str, float]:
-    """Run DDAR on premises + auxiliaries.  Returns (status, seconds).
+    """Run DDAR on premises + auxiliaries.  Returns (status, cpu_seconds).
 
     status is one of ``solved``, ``saturated``, ``timeout``, ``unbuildable``,
-    ``error``.  Only ``solved`` counts.
+    ``error``.  Only ``solved`` counts.  ``timeout`` is a CPU-time limit.
     """
     A = ag()
-    started = time.time()
+    started = time.process_time()
     try:
         with hard_timeout(timeout):
             g, p = bounded_build(statement_with_aux(setup, goal, aux), seed)
             if g is None:
-                return "unbuildable", time.time() - started
+                return "unbuildable", time.process_time() - started
             # The engine's own per-level timer is set far above the hard limit so
             # that only the evaluator's wall-clock limit ends a run (a level cut
             # short internally could otherwise be misread as saturation).
             A["ddar"].solve(g, A["rules"], p, max_level=1000, timeout=int(10 * timeout + 10))
             goal_args = g.names2nodes(p.goal.args)
             solved = bool(g.check(p.goal.name, goal_args))
-        return ("solved" if solved else "saturated"), time.time() - started
+        return ("solved" if solved else "saturated"), time.process_time() - started
     except _Timeout:
-        return "timeout", time.time() - started
+        return "timeout", time.process_time() - started
     except Exception as exc:  # noqa: BLE001
-        return f"error:{type(exc).__name__}", time.time() - started
+        return f"error:{type(exc).__name__}", time.process_time() - started

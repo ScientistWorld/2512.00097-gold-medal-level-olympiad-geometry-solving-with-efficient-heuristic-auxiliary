@@ -23,7 +23,7 @@
       ]
     }
   },
-  "proposer_seconds_per_problem": 20,
+  "proposer_seconds_per_problem": 30,
   "proposer_min_seconds": 300,
   "baseline_proposers": {
     "random_aux": "baseline/random_aux.sh"
