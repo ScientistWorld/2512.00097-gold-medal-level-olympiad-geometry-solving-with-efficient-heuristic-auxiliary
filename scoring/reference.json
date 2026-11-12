@@ -1,159 +1,302 @@
 {
+  "_note": "Scored experiments of the hardened gym. 'results' hold this gym's reference values on the hidden test (reference method = proposers/hageo.sh). The paper's reported numbers are kept unchanged under experiments.hageo409_aux._paper_reported.",
   "experiments": {
-    "auxiliary_core": {
-      "description": "Scaled sanity case for auxiliary construction: DDAR alone fails, while a CPU-only auxiliary construction enables proof.",
-      "weight": 0.3,
+    "hageo409_aux": {
+      "description": "Held-out HAGeo-409 problems whose premises DDAR alone saturates without proving the goal: fraction proved by DDAR after adding the submitted auxiliary constructions, within 16 attempts of at most 3 auxiliary points each, every attempt verified by the evaluator.",
+      "weight": 0.5,
       "primary_metric": "solve_rate",
       "metrics": {
         "solve_rate": {
           "higher_is_better": true,
           "coefficient": 1.0,
-          "description": "Fraction of benchmark problems solved by the submitted method."
+          "description": "Fraction of held-out problems proved within the attempt budget (pass@16), as verified by the evaluator's DDAR."
         },
-        "solved_count": {
+        "hard_solve_rate": {
           "higher_is_better": true,
-          "coefficient": 0.2,
-          "description": "Number of benchmark problems solved; included to make tiny-slice changes visible."
+          "coefficient": 0.3,
+          "description": "pass@16 on the problems with human difficulty >= 3 (the paper's bands [3,4) and above)."
         },
-        "problem_count": {
+        "pass_auc": {
           "higher_is_better": true,
-          "coefficient": 0.0,
-          "description": "Number of scored problems, reported for denominator auditing rather than optimization."
-        },
-        "mean_attempt_index": {
-          "higher_is_better": false,
-          "coefficient": -0.05,
-          "description": "Average successful or terminal attempt index; lower values indicate less search needed."
-        },
-        "mean_auxiliary_count": {
-          "higher_is_better": false,
-          "coefficient": -0.1,
-          "description": "Average number of auxiliary clauses emitted per problem, penalizing bloated constructions."
-        },
-        "attempt_budget": {
-          "higher_is_better": false,
-          "coefficient": -0.05,
-          "description": "Declared maximum auxiliary-attempt budget, a machine-independent search cost constraint."
-        },
-        "rounds": {
-          "higher_is_better": false,
-          "coefficient": -0.05,
-          "description": "Declared maximum auxiliary-construction rounds, penalizing larger search procedures."
-        },
-        "timeout_seconds": {
-          "higher_is_better": false,
-          "coefficient": -0.05,
-          "description": "Declared per-problem timeout budget, used as a resource cap rather than a wall-clock speed score."
-        },
-        "neural_inference_used": {
-          "higher_is_better": false,
-          "coefficient": -0.5,
-          "description": "Whether neural proposal inference was used; the paper's core constraint is CPU-only non-neural search."
+          "coefficient": 0.25,
+          "description": "Mean over k=1..16 of pass@k: rewards proving problems with fewer attempts (the paper's Pass@K curves)."
         }
       },
       "results": {
-        "ddar": {
-          "type": "baseline",
-          "solve_rate": 0.0,
-          "solved_count": 0,
-          "problem_count": 1,
-          "mean_attempt_index": 0.0,
-          "mean_auxiliary_count": 0.0,
-          "attempt_budget": 0,
-          "rounds": 0,
-          "timeout_seconds": 60,
-          "neural_inference_used": 0
-        },
         "hageo": {
           "type": "proposed",
-          "solve_rate": 1.0,
-          "solved_count": 1,
-          "problem_count": 1,
-          "mean_attempt_index": 1.0,
-          "mean_auxiliary_count": 1.0,
-          "attempt_budget": 2048,
-          "rounds": 6,
-          "timeout_seconds": 60,
-          "neural_inference_used": 0
+          "hard_solve_rate": 0.0,
+          "pass_auc": 0.059211,
+          "solve_rate": 0.078947
+        },
+        "random_aux": {
+          "type": "baseline",
+          "hard_solve_rate": 0.05,
+          "pass_auc": 0.036184,
+          "solve_rate": 0.052632
+        },
+        "ddar": {
+          "type": "baseline",
+          "hard_solve_rate": 0.0,
+          "pass_auc": 0.0,
+          "solve_rate": 0.0
+        }
+      },
+      "_paper_reported": {
+        "note": "Numbers reported in the paper (unchanged). The gym is scaled: AlphaGeometry's public DDAR instead of the paper's optimized engine, attempt budget K=16 with at most 3 auxiliary points per attempt instead of K=2048/8192 with N=6, per-attempt CPU limits of 6-20 s instead of 60 s, and only problems whose premises DDAR alone saturates without reaching the goal. These numbers are therefore not on the gym's scale and are not targets.",
+        "table1_hageo409_solved": {
+          "count_per_band": {
+            "[1,3)": 161,
+            "[3,4)": 112,
+            "[4,5)": 71,
+            "[5,6)": 43,
+            "[6,7]": 22,
+            "total": 409
+          },
+          "alphageometry_16_64_8": {
+            "[1,3)": 118,
+            "[3,4)": 44,
+            "[4,5)": 13,
+            "[5,6)": 2,
+            "[6,7]": 0,
+            "total": 177
+          },
+          "random_aux_K2048": {
+            "[1,3)": 127,
+            "[3,4)": 62,
+            "[4,5)": 13,
+            "[5,6)": 2,
+            "[6,7]": 0,
+            "total": 204
+          },
+          "hageo_K2048": {
+            "[1,3)": 141,
+            "[3,4)": 87,
+            "[4,5)": 29,
+            "[5,6)": 5,
+            "[6,7]": 1,
+            "total": 263
+          },
+          "random_aux_K8192": {
+            "[1,3)": 128,
+            "[3,4)": 69,
+            "[4,5)": 18,
+            "[5,6)": 3,
+            "[6,7]": 0,
+            "total": 218
+          },
+          "hageo_K8192": {
+            "[1,3)": 149,
+            "[3,4)": 93,
+            "[4,5)": 36,
+            "[5,6)": 7,
+            "[6,7]": 2,
+            "total": 287
+          }
+        },
+        "table2_imo30_solved": {
+          "ddar": 15,
+          "alphageometry": 24,
+          "random_aux_ddar": 25,
+          "hageo_K4096": 28
+        },
+        "ddar_speed": {
+          "alphageometry_ddar_mean_seconds_imo30": 42.77,
+          "hageo_ddar_mean_seconds_imo30": 1.75
+        },
+        "previous_gym_reference_values": {
+          "auxiliary_core": {
+            "description": "Scaled sanity case for auxiliary construction: DDAR alone fails, while a CPU-only auxiliary construction enables proof.",
+            "weight": 0.3,
+            "primary_metric": "solve_rate",
+            "metrics": {
+              "solve_rate": {
+                "higher_is_better": true,
+                "coefficient": 1.0,
+                "description": "Fraction of benchmark problems solved by the submitted method."
+              },
+              "solved_count": {
+                "higher_is_better": true,
+                "coefficient": 0.2,
+                "description": "Number of benchmark problems solved; included to make tiny-slice changes visible."
+              },
+              "problem_count": {
+                "higher_is_better": true,
+                "coefficient": 0.0,
+                "description": "Number of scored problems, reported for denominator auditing rather than optimization."
+              },
+              "mean_attempt_index": {
+                "higher_is_better": false,
+                "coefficient": -0.05,
+                "description": "Average successful or terminal attempt index; lower values indicate less search needed."
+              },
+              "mean_auxiliary_count": {
+                "higher_is_better": false,
+                "coefficient": -0.1,
+                "description": "Average number of auxiliary clauses emitted per problem, penalizing bloated constructions."
+              },
+              "attempt_budget": {
+                "higher_is_better": false,
+                "coefficient": -0.05,
+                "description": "Declared maximum auxiliary-attempt budget, a machine-independent search cost constraint."
+              },
+              "rounds": {
+                "higher_is_better": false,
+                "coefficient": -0.05,
+                "description": "Declared maximum auxiliary-construction rounds, penalizing larger search procedures."
+              },
+              "timeout_seconds": {
+                "higher_is_better": false,
+                "coefficient": -0.05,
+                "description": "Declared per-problem timeout budget, used as a resource cap rather than a wall-clock speed score."
+              },
+              "neural_inference_used": {
+                "higher_is_better": false,
+                "coefficient": -0.5,
+                "description": "Whether neural proposal inference was used; the paper's core constraint is CPU-only non-neural search."
+              }
+            },
+            "results": {
+              "ddar": {
+                "type": "baseline",
+                "solve_rate": 0.0,
+                "solved_count": 0,
+                "problem_count": 1,
+                "mean_attempt_index": 0.0,
+                "mean_auxiliary_count": 0.0,
+                "attempt_budget": 0,
+                "rounds": 0,
+                "timeout_seconds": 60,
+                "neural_inference_used": 0
+              },
+              "hageo": {
+                "type": "proposed",
+                "solve_rate": 1.0,
+                "solved_count": 1,
+                "problem_count": 1,
+                "mean_attempt_index": 1.0,
+                "mean_auxiliary_count": 1.0,
+                "attempt_budget": 2048,
+                "rounds": 6,
+                "timeout_seconds": 60,
+                "neural_inference_used": 0
+              }
+            }
+          },
+          "hageo409_low_difficulty": {
+            "description": "HAGeo-409 low-difficulty-band comparison against the paper's [1,3) Random@2048 baseline and HAGeo@2048 rates (Table 1); reproduced runs use a fixed smaller slice from the same band and a documented smaller budget.",
+            "weight": 0.7,
+            "primary_metric": "solve_rate",
+            "metrics": {
+              "solve_rate": {
+                "higher_is_better": true,
+                "coefficient": 1.0,
+                "description": "Fraction of low-difficulty HAGeo-409 problems solved by the submitted method."
+              },
+              "solved_count": {
+                "higher_is_better": true,
+                "coefficient": 0.1,
+                "description": "Number of low-difficulty HAGeo-409 problems solved, preserving count-level visibility on small slices."
+              },
+              "problem_count": {
+                "higher_is_better": true,
+                "coefficient": 0.0,
+                "description": "Number of scored problems, reported for denominator auditing rather than optimization."
+              },
+              "upper_band_solve_rate": {
+                "higher_is_better": true,
+                "coefficient": 0.35,
+                "description": "Solve rate on rows with difficulty at least 1.4, catching methods that only target the easiest visible cases."
+              },
+              "difficulty_weighted_solve_rate": {
+                "higher_is_better": true,
+                "coefficient": 0.25,
+                "description": "Difficulty-weighted solved fraction, rewarding gains that transfer across the harder part of the slice."
+              },
+              "attempt_budget": {
+                "higher_is_better": false,
+                "coefficient": -0.1,
+                "description": "Declared maximum auxiliary-attempt budget, a machine-independent search cost constraint."
+              },
+              "rounds": {
+                "higher_is_better": false,
+                "coefficient": -0.05,
+                "description": "Declared maximum auxiliary-construction rounds, penalizing larger search procedures."
+              },
+              "timeout_seconds": {
+                "higher_is_better": false,
+                "coefficient": -0.05,
+                "description": "Declared per-problem timeout budget, used as a resource cap rather than a wall-clock speed score."
+              },
+              "neural_inference_used": {
+                "higher_is_better": false,
+                "coefficient": -0.5,
+                "description": "Whether neural proposal inference was used; lower preserves the paper's non-neural search constraint."
+              }
+            },
+            "results": {
+              "ddar": {
+                "type": "baseline"
+              },
+              "random_aux_ddar": {
+                "type": "baseline",
+                "solve_rate": 0.789,
+                "solved_count": 127,
+                "problem_count": 161,
+                "attempt_budget": 2048,
+                "rounds": 6,
+                "timeout_seconds": 60,
+                "neural_inference_used": 0
+              },
+              "hageo": {
+                "type": "proposed",
+                "solve_rate": 0.876,
+                "solved_count": 141,
+                "problem_count": 161,
+                "attempt_budget": 2048,
+                "rounds": 6,
+                "timeout_seconds": 60,
+                "neural_inference_used": 0
+              }
+            }
+          }
         }
       }
     },
-    "hageo409_low_difficulty": {
-      "description": "HAGeo-409 low-difficulty-band comparison against the paper's [1,3) Random@2048 baseline and HAGeo@2048 rates (Table 1); reproduced runs use a fixed smaller slice from the same band and a documented smaller budget.",
-      "weight": 0.7,
+    "jgex231_aux": {
+      "description": "Held-out JGEX-231 problems (AlphaGeometry's public benchmark) whose premises DDAR alone saturates without proving the goal; same protocol and budget as hageo409_aux. Smaller configurations make this the more discriminative scale-up of the same auxiliary-construction question.",
+      "weight": 0.5,
       "primary_metric": "solve_rate",
       "metrics": {
         "solve_rate": {
           "higher_is_better": true,
           "coefficient": 1.0,
-          "description": "Fraction of low-difficulty HAGeo-409 problems solved by the submitted method."
+          "description": "Fraction of held-out problems proved within the attempt budget (pass@16), as verified by the evaluator's DDAR."
         },
-        "solved_count": {
+        "pass_auc": {
           "higher_is_better": true,
-          "coefficient": 0.1,
-          "description": "Number of low-difficulty HAGeo-409 problems solved, preserving count-level visibility on small slices."
-        },
-        "problem_count": {
-          "higher_is_better": true,
-          "coefficient": 0.0,
-          "description": "Number of scored problems, reported for denominator auditing rather than optimization."
-        },
-        "upper_band_solve_rate": {
-          "higher_is_better": true,
-          "coefficient": 0.35,
-          "description": "Solve rate on rows with difficulty at least 1.4, catching methods that only target the easiest visible cases."
-        },
-        "difficulty_weighted_solve_rate": {
-          "higher_is_better": true,
-          "coefficient": 0.25,
-          "description": "Difficulty-weighted solved fraction, rewarding gains that transfer across the harder part of the slice."
-        },
-        "attempt_budget": {
-          "higher_is_better": false,
-          "coefficient": -0.1,
-          "description": "Declared maximum auxiliary-attempt budget, a machine-independent search cost constraint."
-        },
-        "rounds": {
-          "higher_is_better": false,
-          "coefficient": -0.05,
-          "description": "Declared maximum auxiliary-construction rounds, penalizing larger search procedures."
-        },
-        "timeout_seconds": {
-          "higher_is_better": false,
-          "coefficient": -0.05,
-          "description": "Declared per-problem timeout budget, used as a resource cap rather than a wall-clock speed score."
-        },
-        "neural_inference_used": {
-          "higher_is_better": false,
-          "coefficient": -0.5,
-          "description": "Whether neural proposal inference was used; lower preserves the paper's non-neural search constraint."
+          "coefficient": 0.5,
+          "description": "Mean over k=1..16 of pass@k: rewards proving problems with fewer attempts."
         }
       },
       "results": {
-        "ddar": {
-          "type": "baseline"
-        },
-        "random_aux_ddar": {
-          "type": "baseline",
-          "solve_rate": 0.789,
-          "solved_count": 127,
-          "problem_count": 161,
-          "attempt_budget": 2048,
-          "rounds": 6,
-          "timeout_seconds": 60,
-          "neural_inference_used": 0
-        },
         "hageo": {
           "type": "proposed",
-          "solve_rate": 0.876,
-          "solved_count": 141,
-          "problem_count": 161,
-          "attempt_budget": 2048,
-          "rounds": 6,
-          "timeout_seconds": 60,
-          "neural_inference_used": 0
+          "pass_auc": 0.458333,
+          "solve_rate": 0.666667
+        },
+        "random_aux": {
+          "type": "baseline",
+          "pass_auc": 0.256944,
+          "solve_rate": 0.388889
+        },
+        "ddar": {
+          "type": "baseline",
+          "pass_auc": 0.0,
+          "solve_rate": 0.0
         }
       }
     }
-  }
+  },
+  "_weights_note": "Equal experiment weights and a 0.25 coefficient on hageo409_aux.pass_auc: at the gym's scale every method proves only 1-3 of the 38 held-out HAGeo-409 problems, so that experiment resolves differences of about one problem (the reference's own seed spread) and its pass_auc is dominated by where a single solve falls; JGEX-231 shows the paper's effect well above seed noise."
 }

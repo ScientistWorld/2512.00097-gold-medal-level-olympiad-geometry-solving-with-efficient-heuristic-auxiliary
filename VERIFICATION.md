@@ -1,3 +1,5 @@
+> Superseded by HARDENING.md (hardening iteration).
+
 # Verification Report
 
 ## Initial Assessment

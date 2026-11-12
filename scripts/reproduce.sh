@@ -1,8 +1,10 @@
 #!/bin/bash
-# Reproduce the gym's reference numbers end to end (CPU only, no internet).
-# 1. (optional, slow) rebuild the problem sets:  python eval/test/build_split.py screen && python eval/test/build_split.py split
-# 2. (optional, slow) recompute fixed baselines:  bash scripts/baseline.sh
-# 3. score every registered proposer (the reference is proposers/hageo.sh):
+# Score every registered proposer (the reference is proposers/hageo.sh) on the
+# visible and held-out problems. Rebuilding the problem sets from the public
+# benchmarks is optional and slow:
+#   python eval/test/build_split.py screen --source hageo409 && python eval/test/build_split.py split --source hageo409
+#   python eval/test/build_split.py screen --source jgex && python eval/test/build_split.py split --source jgex
+#   python eval/test/build_split.py coords
 set -e
 cd "$(dirname "$0")/.."
 bash scripts/evaluate_train.sh

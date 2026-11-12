@@ -1,23 +1,19 @@
 # Scientist Constraints
 
-Future agents should improve valid solve behavior without changing the task definition or winning by adding resources outside the paper's approach family.
+Improve how many held-out problems the fixed prover proves with your auxiliary constructions; do not change what is being measured.
 
-## Fixed Scored Dataset
+## Fixed by the evaluator (do not edit, do not read at run time)
 
-Use `data/benchmarks/auxiliary_core.jsonl` exactly as provided for the final scored experiment. Do not edit the construction statement, theorem goal, problem ID, or metadata.
+- `eval/` — problem sets, goals, drawings, seeds, per-problem CPU limits, fixed baselines, the validity gate and the prover copy. The held-out problems exist only there. A proposer must not open any file under `eval/`.
+- The visible train problems in `data/benchmarks/*.jsonl` may be read for development but must not be edited.
+- Budget: 16 attempts per problem, at most 3 auxiliary clauses per attempt, 30 s of proposer time per problem in total.
 
-## Fixed Baseline and Output Contract
+## Submission contract
 
-Keep the DDAR-only baseline result in `outputs/baseline_auxiliary_core.jsonl` comparable to the proposed solver output in `outputs/hageo_auxiliary_core.jsonl`. Solver outputs must be JSONL rows containing at least `problem_id`, `solved`, `status`, `seconds`, `auxiliary_clauses`, `attempt_budget`, `rounds`, `timeout_seconds`, and `neural_inference_used`.
+A method is an executable `proposers/<name>.sh INPUT OUTPUT` (see `proposers/README.md`). It may use any CPU code (including its own copy of a prover) inside its time limit. Clauses must define exactly one fresh point each, by one point construction or two loci from the allowlist, with no explicit coordinates.
 
-## Fixed Evaluation
+## Out of bounds
 
-`scripts/evaluate.sh` must remain method-agnostic and must read output artifacts from `outputs/*.jsonl`. Evaluation code must not import from `method/`, and it must reject missing, duplicate, or extra problem IDs.
-
-## Resource and Method Constraints
-
-The scored run is CPU-only and non-neural. Do not use GPU inference, LLM calls, online services, pretrained neural proposal models, or external proof databases during evaluation. Report the configured attempt count, auxiliary rounds, and timeout; solves found outside the declared budget should not be counted.
-
-## Scored Extension Data
-
-The workspace also contains a difficulty-sorted 12-problem HAGeo-409 slice in `data/benchmarks/hageo409_small.jsonl`. This slice is scored as `hageo409_low_difficulty` and is compared with the paper's Table 1 [1,3) difficulty band rather than the full 409-problem total. Keep the slice generation deterministic and report the smaller reproduced attempt budget separately from the paper's K=2048/K=8192 settings.
+- Recovering the withheld goals from anywhere: the evaluator's files, or the public HAGeo-409 / JGEX-231 files (matching a problem to its public statement and goal), or any stored table of known solutions for these benchmarks.
+- Neural or LLM inference, network access, external theorem or proof databases.
+- Editing `eval/`, `scripts/evaluate*.sh`, the scoring files, or the visible benchmark files.

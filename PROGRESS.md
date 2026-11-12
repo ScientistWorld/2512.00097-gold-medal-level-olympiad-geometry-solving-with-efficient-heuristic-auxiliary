@@ -78,3 +78,7 @@
 - Full paper settings: HAGeo-409 uses K=2048/8192 and N=6; IMO-30 uses K=4096. CPU-scaled extension runs use a low-difficulty 12-problem HAGeo-409 slice with smaller K and N=2, and are compared only with the paper's low-difficulty [1,3) band.
 - Full paper method: optimized DDAR, matrix-level AR improvements, and HAGeo's optimized identical-point DD support are not yet implemented. The auxiliary generator now proposes identical-point constructions, but the upstream AlphaGeometry DDAR engine may reject or fail to exploit some of them.
 - The final paper-claim-facing score is the controlled `auxiliary_core` ablation: DDAR alone fails and HAGeo-style auxiliary construction succeeds within a declared CPU-only budget.
+
+## Hardening iteration (2026-11-12)
+
+See `HARDENING.md`. The scored experiments are now `hageo409_aux` and `jgex231_aux` (evaluator-verified pass@16 on problems DDAR alone cannot prove); the old `auxiliary_core` and `hageo409_low_difficulty` experiments, the trusted-flag evaluator and the old `run_hageo.py` solver were removed.

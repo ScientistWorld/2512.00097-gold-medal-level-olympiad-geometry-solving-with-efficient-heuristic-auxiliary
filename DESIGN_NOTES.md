@@ -1,3 +1,5 @@
+> Superseded by HARDENING.md (hardening iteration): the evaluator, data and experiments described below were replaced.
+
 # Train/Test Evaluation Design Notes
 
 Checked the existing split for copy-paste errors, hardcoded method defaults, paper-agreement metrics, train/test leakage, method detachment, and missing score stubs.

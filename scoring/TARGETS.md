@@ -1,45 +1,41 @@
 # Evaluation Targets
 
-The final scored targets are `auxiliary_core`, the minimum experiment that supports the paper's central claim, and `hageo409_low_difficulty`, a scaled extension on a fixed low-difficulty slice of HAGeo-409.
-
-Run evaluation with:
+Two scored experiments, `hageo409_aux` (weight 0.5) and `jgex231_aux` (weight 0.5), both produced by the same evaluator from its own DDAR proof runs. Run with:
 
 ```bash
-bash scripts/evaluate.sh
+bash scripts/evaluate_train.sh     # visible problems -> scoring/scores_train.json
+bash scripts/evaluate_test.sh      # held-out problems -> scoring/scores_test.json (hidden evaluation)
 python validate.py
 ```
 
-## PRIMARY: auxiliary_core
+## PRIMARY: hageo409_aux
 
-What it tests: solve the controlled auxiliary-construction theorem in `data/benchmarks/auxiliary_core.jsonl`.
+What it tests: on held-out HAGeo-409 problems that DDAR alone cannot prove (it saturates without the goal), the fraction proved after adding the submitted auxiliary constructions, within 16 attempts of at most 3 points each.
 
-- **Primary metric:** `solve_rate` (higher is better)
-- **Reported benefit metrics:** `solved_count`, `problem_count`, `mean_attempt_index`, and `mean_auxiliary_count`
-- **Success condition for this reproduction:** `hageo.solve_rate` is 1.0 on the benchmark.
+- **Primary metric:** `solve_rate` (pass@16), higher is better. Reference (HAGeo heuristic) 0.079 = 3/38 on the hidden test, 0.12 on train.
+- **Other scored metrics:** `hard_solve_rate` (difficulty ≥ 3; reference 0.0 test / 0.077 train), `pass_auc` (mean pass@k, k = 1..16; reference 0.059 test / 0.102 train).
 
-## CONSTRAINT: auxiliary_core
+## PRIMARY: jgex231_aux
 
-What must be maintained: the solve must remain CPU-only and within the declared search budget.
+What it tests: the same question on held-out JGEX-231 problems that DDAR alone cannot prove.
 
-- **Constraint metrics:** `neural_inference_used`, `attempt_budget`, `rounds`, and `timeout_seconds`
-- **Direction:** lower is better for `neural_inference_used`, `attempt_budget`, `rounds`, and `timeout_seconds`; `neural_inference_used` must remain 0.
-- **Reason:** the paper's claim is not just that an auxiliary can solve the problem, but that the method avoids neural language-model proposals during proof search.
+- **Primary metric:** `solve_rate`, higher is better. Reference 0.667 = 12/18 on the hidden test, 0.417 on train.
+- **Other scored metric:** `pass_auc` (reference 0.458 test / 0.208 train).
 
-## ABLATION: auxiliary_core
+## CONSTRAINT (both experiments)
 
-What breaks when the key idea is removed: DDAR alone should fail on the same theorem.
+What must be maintained: the paper's claim is a gain *without neural inference and within a fixed search budget, with valid proofs*. These are enforced as gates; violating any of them scores the run as failed (0 in every metric of every experiment):
 
-- **Ablation method:** `ddar`
-- **Primary metric:** `solve_rate` (higher is better)
-- **Expected reproduced behavior:** `ddar.solve_rate` is 0.0 while `hageo.solve_rate` is 1.0.
-- **Reason:** this verifies that the scored solve is due to auxiliary construction rather than the base prover already solving the problem.
+- at most 16 attempts per problem and at most 3 auxiliary clauses per attempt;
+- every clause is a legitimate definition of one fresh point (one point construction or exactly two loci from the allowlist; no over-determined clauses, no explicit coordinates, no redefinition), so no unproved incidence enters the premises;
+- the proof is DDAR's, run by the evaluator under a fixed per-problem CPU-time limit on the evaluator's own premises and goal;
+- the proposer finishes within 30 s per problem in total and is not given the goal.
 
-## EXTENSION: hageo409_low_difficulty
+## ABLATION / BASELINES (both experiments)
 
-What it tests: solve the fixed low-difficulty HAGeo-409 slice in `data/benchmarks/hageo409_small.jsonl`.
+- `ddar`: no auxiliary construction. 0 on every scored problem by construction of the problem sets.
+- `random_aux`: the paper's random auxiliary-construction baseline at the same budget. Hidden test: 0.053 (2/38) on HAGeo-409 and 0.389 (7/18) on JGEX-231, below the reference on both. On the small train sets it is 0.04 vs 0.12 (HAGeo-409) and 0.5 vs 0.417 (JGEX-231).
 
-- **Primary metric:** `solve_rate` (higher is better)
-- **Compared methods:** `random_aux_ddar` and `hageo`
-- **Constraint metrics:** `neural_inference_used`, `attempt_budget`, `rounds`, and `timeout_seconds`
-- **Success condition for a higher milestone:** `hageo.solve_rate` should exceed the matched random auxiliary baseline on this slice while keeping `neural_inference_used` at 0.
-- **Paper reference:** Table 1 difficulty band [1,3), where HAGeo@2048 solves 141/161 and Random@2048 solves 127/161.
+## Paper numbers (not on this scale)
+
+HAGeo-409 Table 1 (HAGeo 263/409 vs random 204/409 at K = 2048, N = 6) and IMO-30 Table 2 (HAGeo 28, random 25, AlphaGeometry 24, DDAR 15) are kept under `scoring/reference.json → experiments.hageo409_aux._paper_reported`. They use a different prover, a 128× larger budget and include problems DDAR solves alone, so they are context, not targets.

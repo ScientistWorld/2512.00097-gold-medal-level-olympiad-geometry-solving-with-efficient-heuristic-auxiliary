@@ -19,3 +19,12 @@ The paper also modifies DDAR implementation details to improve speed while prese
 - **Constraint claim:** The system's strong solve rate is obtained using CPU-only inference rather than GPU-backed neural proposal models.
 - **Efficiency claim:** The optimized DDAR engine is roughly 20x faster than AlphaGeometry's DDAR implementation in the paper's comparison.
 - **Benchmark claim:** HAGeo-409 is a more informative evaluation set than IMO-30 because it is larger and includes human-assessed difficulty annotations.
+
+## Reference Implementation in This Gym
+
+`proposers/hageo.sh` → `method/hageo/propose.py` implements the paper's auxiliary-construction procedure (Section 4.5) on top of AlphaGeometry's public DD+AR prover (the paper's optimized engine is not released):
+
+- From the evaluator's numerical drawing it computes lines through pairs of points and circles through triples of points or centred at a point, and builds the paper's candidate categories: intersections of two lines through which a further line or circle passes, line/circle and circle/circle second intersections lying on a further object, midpoints and point reflections lying on a further line or circle, and feet of perpendiculars lying on a further line, plus a share of random constructions. The favourable incidence is only the reason to pick a point; each emitted clause states just the defining construction.
+- Each of the K = 16 attempts has N = 2 rounds; in every round the candidate set of the current (augmented) diagram is recomputed and one point is chosen at random (the first round walks a random permutation so attempts start from different points). The evaluator runs DDAR once per attempt.
+- Scaled settings: K = 16 (paper 2048/8192), N = 2 (paper 6), per-attempt CPU limits of 6-20 s (paper 60 s). The identical-point heuristic is omitted because the public prover rejects coincident points.
+- `baseline/random_aux.py` is the paper's random baseline at the same budget.

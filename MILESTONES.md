@@ -105,5 +105,10 @@
 - Verified `python validate.py --compare`, import separation, artifact-based evaluation, and download URL availability.
 - Retained `core_claim`: the controlled core experiment is valid, while the HAGeo-409 extension remains a negative result for higher milestones.
 
+### [2026-11-12] - core_claim (hardening iteration)
+- Rebuilt the measurement: methods are proposers of auxiliary constructions; the evaluator withholds goals, verifies every attempt with its own DD+AR prover under CPU-time limits, enforces a validity gate (exactly-determined fresh points, no coordinates, 16x3 budget) and scores failures as worst values.
+- Restored the paper's HAGeo procedure (single defining constructions chosen for favourable incidences, N rounds per attempt, one DDAR run per attempt); the old clauses were over-determined and mostly undrawable.
+- Hidden test (problems DDAR alone cannot prove): HAGeo 3/38 vs random 2/38 vs DDAR 0 on HAGeo-409; HAGeo 12/18 vs random 7/18 vs DDAR 0 on JGEX-231. Details in HARDENING.md.
+
 ## Stop Justification
 - Completed at milestone `core_claim`.

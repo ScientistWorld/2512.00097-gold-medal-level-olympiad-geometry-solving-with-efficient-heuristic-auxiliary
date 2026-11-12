@@ -1,7 +1,7 @@
 # Research Direction
 
-This benchmark studies CPU-only automated Euclidean geometry theorem proving from formal construction-language inputs.
+The benchmark studies CPU-only auxiliary-construction proposal for a fixed symbolic geometry prover (DD+AR) under a small attempt budget.
 
-In-scope improvements include symbolic deduction, algebraic reasoning, auxiliary construction proposal, construction ordering, pruning, caching, and proof-state scoring. The approach should remain a non-neural geometry prover that operates on the fixed formal problem files and emits the same JSONL output format.
+In scope: which candidate points to generate (intersections, midpoints, reflections, feet, circle constructions, multi-point compositions), how to filter and rank them from the numerical drawing, how to spend the 16 attempts (ordering, diversity, how many points per attempt), and any goal-agnostic analysis of the configuration, including running your own copy of the prover on the premises within the proposer's time limit.
 
-Out of scope are natural-language retranslation, benchmark editing, external theorem or proof databases, neural or LLM proposal models during evaluation, online services, and switching to a fundamentally different paradigm that bypasses auxiliary-construction search.
+Out of scope: recovering the goals, neural or LLM proposal models, external problem/proof databases, changing the prover, the problem sets or the budget.
