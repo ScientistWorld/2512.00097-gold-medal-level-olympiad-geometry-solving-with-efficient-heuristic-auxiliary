@@ -64,7 +64,7 @@ def hard_timeout(seconds: float):
     prev_prof = signal.signal(signal.SIGPROF, _raise)
     prev_alrm = signal.signal(signal.SIGALRM, _raise)
     signal.setitimer(signal.ITIMER_PROF, max(0.01, float(seconds)))
-    signal.setitimer(signal.ITIMER_REAL, max(0.01, 4.0 * float(seconds) + 60.0))
+    signal.setitimer(signal.ITIMER_REAL, max(0.01, 10.0 * float(seconds) + 120.0))
     try:
         yield
     finally:
@@ -156,7 +156,7 @@ def verify(setup: str, goal: str, aux: list[str], seed: int, timeout: float) -> 
             if g is None:
                 return "unbuildable", time.process_time() - started
             # The engine's own per-level timer is set far above the hard limit so
-            # that only the evaluator's wall-clock limit ends a run (a level cut
+            # that only the evaluator's CPU-time limit ends a run (a level cut
             # short internally could otherwise be misread as saturation).
             A["ddar"].solve(g, A["rules"], p, max_level=1000, timeout=int(10 * timeout + 10))
             goal_args = g.names2nodes(p.goal.args)

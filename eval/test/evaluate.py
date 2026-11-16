@@ -6,7 +6,9 @@ this directory.  For every executable ``proposers/<name>.sh`` on disk and every
 experiment in ``config.json`` the evaluator
 
 1. writes the goal-free problem setups plus a numerical drawing to a private
-   temporary file and runs the proposer on it under a time limit,
+   temporary file and runs the proposer on it under a CPU-time limit (summed
+   over the proposer's whole process tree), with ``eval/test`` made
+   unreadable for the duration of the run,
 2. checks the returned auxiliary constructions against the validity gate
    (``gate.py``) and the evaluator's attempt budget,
 3. runs its own DDAR engine on premises + each attempt, in order, until the
@@ -22,10 +24,12 @@ are evaluator-owned results stored next to each problem file.
 from __future__ import annotations
 
 import argparse
+import contextlib
 import hashlib
 import json
 import multiprocessing as mp
 import os
+import resource
 import shutil
 import signal
 import subprocess
@@ -227,7 +231,7 @@ def verify_all(problems: list[dict], attempts_by_id: dict, workers: int) -> tupl
 # proposers
 
 
-def proposer_input(problems: list[dict], coords: dict, exp: dict) -> list[dict]:
+def proposer_input(problems: list[dict], coords: dict, exp: dict, config: dict) -> list[dict]:
     rows = []
     for p in problems:
         rows.append(
@@ -239,14 +243,45 @@ def proposer_input(problems: list[dict], coords: dict, exp: dict) -> list[dict]:
                 "difficulty": p.get("difficulty"),
                 "max_attempts": int(exp["max_attempts"]),
                 "max_aux_per_attempt": int(exp["max_aux_per_attempt"]),
+                "cpu_seconds_per_problem": float(config["proposer_cpu_seconds_per_problem"]),
             }
         )
     return rows
 
 
+@contextlib.contextmanager
+def answers_unreadable():
+    """Keep the held-out files (goals, generators, seeds) unreadable while a proposer runs.
+
+    The evaluator has already loaded everything it needs into memory; the
+    directory is restored as soon as the proposer returns.  A read-only
+    mount (where the mode cannot change) is left as it is.
+    """
+    try:
+        mode = HERE.stat().st_mode & 0o7777
+        os.chmod(HERE, 0)
+    except OSError as exc:
+        print(f"[eval:{SLICE}] warning: could not lock {HERE}: {exc}", file=sys.stderr, flush=True)
+        yield
+        return
+    try:
+        yield
+    finally:
+        os.chmod(HERE, mode or 0o755)
+
+
+def _children_cpu() -> float:
+    ru = resource.getrusage(resource.RUSAGE_CHILDREN)
+    return ru.ru_utime + ru.ru_stime
+
+
+def proposer_cpu_limit(config: dict, n_rows: int) -> float:
+    return max(float(config["proposer_cpu_min_seconds"]), float(config["proposer_cpu_seconds_per_problem"]) * n_rows)
+
+
 def _audit_fingerprint(script: Path, in_path: Path) -> str:
     h = hashlib.sha256(script.read_bytes() + in_path.read_bytes())
-    for sub in ("method", "baseline", "redteam/hardening/proposers"):
+    for sub in ("method", "baseline", "redteam/hardening/proposers", "redteam/hardening2/proposers"):
         base = ROOT / sub
         if base.is_dir():
             for f in sorted(base.rglob("*.py")):
@@ -267,30 +302,48 @@ def run_proposer(script: Path, rows: list[dict], config: dict, workdir: Path) ->
         if memo_path.exists():
             shutil.copy(memo_path, out_path)
             return _parse_output(out_path, "ok (memo)")
-    limit = max(float(config["proposer_min_seconds"]), float(config["proposer_seconds_per_problem"]) * len(rows))
+    # The decisive limit is CPU time summed over the proposer's process tree, so
+    # the verdict does not depend on machine load.  The wall-clock backstop only
+    # stops a proposer that hangs; it sits far above any CPU-bound run.
+    cpu_limit = proposer_cpu_limit(config, len(rows))
+    wall_backstop = float(config.get("proposer_wall_factor", 10)) * cpu_limit + 300.0
+
+    def _rlimit():
+        hard = int(cpu_limit) + 30
+        resource.setrlimit(resource.RLIMIT_CPU, (int(cpu_limit) + 5, hard))
+
     started = time.time()
-    with log_path.open("w", encoding="utf-8") as log:
+    cpu_before = _children_cpu()
+    with log_path.open("w", encoding="utf-8") as log, answers_unreadable():
         proc = subprocess.Popen(
             ["bash", str(script), str(in_path), str(out_path)],
             cwd=str(ROOT),
             stdout=log,
             stderr=subprocess.STDOUT,
             start_new_session=True,
+            preexec_fn=_rlimit,
         )
         try:
-            code = proc.wait(timeout=limit)
+            code = proc.wait(timeout=wall_backstop)
         except subprocess.TimeoutExpired:
+            code = None
+        with contextlib.suppress(ProcessLookupError, PermissionError):
             os.killpg(proc.pid, signal.SIGKILL)
+        if code is None:
             proc.wait()
-            return None, f"proposer exceeded its time limit of {limit:.0f}s"
+    cpu_used = _children_cpu() - cpu_before
     elapsed = time.time() - started
+    if code is None:
+        return None, f"proposer did not finish within the {wall_backstop:.0f}s wall-clock backstop"
+    if cpu_used > cpu_limit:
+        return None, f"proposer used {cpu_used:.0f}s of CPU time, above its limit of {cpu_limit:.0f}s"
     if code != 0:
         return None, f"proposer exited with status {code}"
     if not out_path.exists():
         return None, "proposer wrote no output file"
     if memo_path is not None:
         shutil.copy(out_path, memo_path)
-    return _parse_output(out_path, f"ok ({elapsed:.0f}s)")
+    return _parse_output(out_path, f"ok (cpu {cpu_used:.1f}s of {cpu_limit:.0f}s, wall {elapsed:.0f}s)")
 
 
 def _parse_output(out_path: Path, message: str):
@@ -319,7 +372,7 @@ def discover_proposers(only: list[str] | None) -> dict[str, Path]:
 
 def evaluate_proposer(name, script, problems, coords, exp, config, workers):
     """Returns (metrics or None if the run failed, details)."""
-    rows = proposer_input(problems, coords, exp)
+    rows = proposer_input(problems, coords, exp, config)
     workdir = Path(tempfile.mkdtemp(prefix=f"hageo_eval_{SLICE}_"))
     log_tail = ""
     try:

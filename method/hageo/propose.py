@@ -57,7 +57,7 @@ def pick_rep(entry: dict, rng: random.Random) -> str:
 
 
 def propose_problem(row: dict, attempts: int, rounds: int, seed: int, order: str = "random",
-                    require_favorable: bool = True) -> list[list[str]]:
+                    require_favorable: bool = True, extended: bool = False) -> list[list[str]]:
     coords = row.get("coords")
     if not coords:
         return []
@@ -66,7 +66,7 @@ def propose_problem(row: dict, attempts: int, rounds: int, seed: int, order: str
     rng = random.Random(stable_seed(seed, row["problem_id"]))
     aux_names = fresh_names(names, rounds)
 
-    pool1 = full_pool(geo, rng, require_favorable)
+    pool1 = full_pool(geo, rng, require_favorable, extended=extended)
     if not pool1:
         return []
     if order == "ranked":
@@ -86,7 +86,7 @@ def propose_problem(row: dict, attempts: int, rounds: int, seed: int, order: str
         path = (first,)
         for r in range(1, rounds):
             if path not in later_cache:
-                later_cache[path] = full_pool(g, rng, require_favorable)
+                later_cache[path] = full_pool(g, rng, require_favorable, extended=extended)
             pool_r = [e for e in later_cache[path]
                       if all(np.linalg.norm(np.asarray(e["xy"]) - c) > 1e-6 * g.scale for c in chosen)]
             if not pool_r:
@@ -109,10 +109,11 @@ def propose_problem(row: dict, attempts: int, rounds: int, seed: int, order: str
     return out
 
 
-def propose_hybrid(row: dict, attempts: int, rounds: int, seed: int, prefix: int) -> list[list[str]]:
+def propose_hybrid(row: dict, attempts: int, rounds: int, seed: int, prefix: int,
+                   extended: bool = False) -> list[list[str]]:
     """Variant: the `prefix` best-supported candidates first, then the paper's sampling."""
-    ranked = propose_problem(row, min(prefix, attempts), rounds, seed, "ranked")
-    sampled = propose_problem(row, max(0, attempts - len(ranked)), rounds, seed, "random")
+    ranked = propose_problem(row, min(prefix, attempts), rounds, seed, "ranked", extended=extended)
+    sampled = propose_problem(row, max(0, attempts - len(ranked)), rounds, seed, "random", extended=extended)
     return (ranked + sampled)[:attempts]
 
 
@@ -126,6 +127,9 @@ def main() -> None:
     parser.add_argument("--ranked-prefix", type=int, default=6, help="hybrid order: ranked attempts first")
     parser.add_argument("--unfiltered", action="store_true",
                         help="ablation: ignore the favourable-incidence filter")
+    parser.add_argument("--extended", action="store_true",
+                        help="variant: also triangle centres, reflections in lines and perpendicular/parallel "
+                             "lines cut by a line, under the same favourable-incidence filter")
     args = parser.parse_args()
 
     rows = [json.loads(line) for line in args.input.read_text(encoding="utf-8").splitlines() if line.strip()]
@@ -136,9 +140,11 @@ def main() -> None:
             rounds = min(args.rounds, int(row.get("max_aux_per_attempt", args.rounds)))
             try:
                 if args.order == "hybrid":
-                    proposals = propose_hybrid(row, attempts, rounds, args.seed, args.ranked_prefix)
+                    proposals = propose_hybrid(row, attempts, rounds, args.seed, args.ranked_prefix,
+                                               extended=args.extended)
                 else:
-                    proposals = propose_problem(row, attempts, rounds, args.seed, args.order, not args.unfiltered)
+                    proposals = propose_problem(row, attempts, rounds, args.seed, args.order, not args.unfiltered,
+                                                extended=args.extended)
             except Exception as exc:  # noqa: BLE001 - one bad drawing must not sink the run
                 print(f"[hageo] {row['problem_id']}: {type(exc).__name__}: {exc}", file=sys.stderr)
                 proposals = []
