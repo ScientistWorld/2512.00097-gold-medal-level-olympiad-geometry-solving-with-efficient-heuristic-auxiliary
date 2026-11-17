@@ -112,8 +112,3 @@
 
 ## Stop Justification
 - Completed at milestone `core_claim`.
-
-### [2026-11-17] - core_claim (second hardening)
-- Addressed REVIEW.md (test too small, better proposer within seed noise): JGEX-231 held-out problems are scored as 8 independent instances each (144 hidden, 96 train), weights 0.3 (HAGeo-409) / 0.7 (JGEX-231).
-- Hidden test: reference HAGeo .618 vs random .479 vs DDAR 0 on JGEX instances; HAGeo-409 unchanged (3/38 vs 2/38 vs 0). An improved proposer (best-supported candidates first) ranks +0.88 against a reference seed range of [-0.32, 0].
-- Proposer limits are CPU time over the process tree (single-threaded numerics); held-out files are unreadable while a proposer runs; the hidden-goal lookup shortcut now fails. Details in HARDENING.md.
