@@ -3,4 +3,4 @@ action: submit
 gpus: 0
 test: false
 milestone: core_claim
-notes: "Hardening 2 (resume): single-threaded BLAS for CPU accounting; recompute JGEX baselines (cached), reference-only scores, then audit variants/rules/shortcuts through the held-out evaluator (redteam/hardening2/audit.py, resumable)."
+notes: "Hardening 2: re-measure the private DDAR lookahead probe on JGEX under the final 2 s/problem CPU allowance (budget-control fix); all other audit steps are done and skipped (redteam/hardening2/audit.py)."
