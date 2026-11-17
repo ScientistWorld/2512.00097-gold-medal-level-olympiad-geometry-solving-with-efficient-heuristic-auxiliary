@@ -18,6 +18,7 @@ from __future__ import annotations
 import itertools
 import json
 import multiprocessing as mp
+import os
 import sys
 import time
 from pathlib import Path
@@ -73,6 +74,9 @@ def main() -> None:
     if mode == "read_hidden":
         status = "read"
         try:
+            # direct probes first (glob silently returns nothing on an unreadable directory)
+            (ROOT / "eval" / "test" / "problems_jgex.jsonl").read_text()
+            os.listdir(ROOT / "eval" / "test")
             for f in sorted((ROOT / "eval" / "test").glob("*.jsonl")):
                 for line in f.read_text().splitlines():
                     if line.strip():

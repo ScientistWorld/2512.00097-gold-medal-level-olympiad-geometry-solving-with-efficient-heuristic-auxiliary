@@ -11,7 +11,7 @@
         "hard_solve_rate",
         "pass_auc"
       ],
-      "proposer_cpu_seconds_per_problem": 15
+      "proposer_cpu_seconds_per_problem": 6
     },
     "jgex231_aux": {
       "problems": "eval/test/problems_jgex.jsonl",
@@ -22,7 +22,7 @@
         "solve_rate",
         "pass_auc"
       ],
-      "proposer_cpu_seconds_per_problem": 5
+      "proposer_cpu_seconds_per_problem": 2
     }
   },
   "baseline_proposers": {

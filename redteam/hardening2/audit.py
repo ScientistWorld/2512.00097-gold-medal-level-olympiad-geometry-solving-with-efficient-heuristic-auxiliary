@@ -214,8 +214,20 @@ def main() -> None:
     step(f"train_all_{better}", lambda: run_variant(f"train_{better}", [better], "train", ALL))
     step("test_hageo_sc_lookahead", lambda: run_variant("hageo409_sc_lookahead", ["sc_lookahead"], "test",
                                                         ["hageo409_aux"]))
-    for n in ("rule_mixed3", "rule_circumcenters"):
-        step(f"test_hageo_{n}", lambda n=n: run_variant(f"hageo409_{n}", [n], "test", ["hageo409_aux"]))
+    # 9. direct-open probe of the held-out files during a proposer run (attempts = reference's, cached)
+    step("probe_read_hidden", lambda: run_variant("probe_read_hidden", ["sc_read_hidden"], "test",
+                                                  ["jgex231_aux"]))
+    # 10. private lookahead re-measured on JGEX under the tightened CPU allowance (2 s per problem)
+    step("test_jgex_sc_lookahead_v2", lambda: run_variant("jgex_sc_lookahead_v2", ["sc_lookahead"], "test",
+                                                          ["jgex231_aux"]))
+    # 11. final configuration: fixed baselines (all experiments) and the reference, through the
+    #     unchanged scripts; attempts are identical, so verification comes from the cache.
+    for s in ("test", "train"):
+        step(f"baselines_final_{s}", lambda s=s: evaluate(s, "baselines_final", None, ALL,
+                                                           ["--recompute-baselines", "--no-proposers"]))
+    for s in ("test", "train"):
+        step(f"reference_final_{s}", lambda s=s: ref(s))
+    sh([PY, "redteam/hardening2/summarize.py"])
     uninstall_all()
     log("all steps done")
 

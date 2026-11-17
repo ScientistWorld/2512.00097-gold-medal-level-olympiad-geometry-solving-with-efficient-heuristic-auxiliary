@@ -1,9 +1,9 @@
 {
-  "_note": "Scored experiments of the hardened gym. 'results' hold this gym's reference values on the hidden test (reference method = proposers/hageo.sh). The paper's reported numbers are kept unchanged under experiments.hageo409_aux._paper_reported.",
+  "_note": "Scored experiments of the hardened gym. 'results' hold this gym's reference values on the hidden test (reference method = proposers/hageo.sh; jgex231_aux is scored over 8 independent instances of each held-out problem). The paper's reported numbers are kept unchanged under experiments.hageo409_aux._paper_reported; they are not on this gym's scale.",
   "experiments": {
     "hageo409_aux": {
       "description": "Held-out HAGeo-409 problems whose premises DDAR alone saturates without proving the goal: fraction proved by DDAR after adding the submitted auxiliary constructions, within 16 attempts of at most 3 auxiliary points each, every attempt verified by the evaluator.",
-      "weight": 0.5,
+      "weight": 0.3,
       "primary_metric": "solve_rate",
       "metrics": {
         "solve_rate": {
@@ -264,31 +264,31 @@
       }
     },
     "jgex231_aux": {
-      "description": "Held-out JGEX-231 problems (AlphaGeometry's public benchmark) whose premises DDAR alone saturates without proving the goal; same protocol and budget as hageo409_aux. Smaller configurations make this the more discriminative scale-up of the same auxiliary-construction question.",
-      "weight": 0.5,
+      "description": "Held-out JGEX-231 problems (AlphaGeometry's public benchmark) whose premises DDAR alone saturates without proving the goal, each presented as 8 independent instances (fresh point names and drawing; DDAR alone still saturates on every instance): 18 problems, 144 scored instances. Same protocol and budget as hageo409_aux. The instances average out the proposer's own randomness; the number of distinct problems is unchanged.",
+      "weight": 0.7,
       "primary_metric": "solve_rate",
       "metrics": {
         "solve_rate": {
           "higher_is_better": true,
           "coefficient": 1.0,
-          "description": "Fraction of held-out problems proved within the attempt budget (pass@16), as verified by the evaluator's DDAR."
+          "description": "Fraction of held-out instances proved within the attempt budget (pass@16), as verified by the evaluator's DDAR."
         },
         "pass_auc": {
           "higher_is_better": true,
           "coefficient": 0.5,
-          "description": "Mean over k=1..16 of pass@k: rewards proving problems with fewer attempts."
+          "description": "Mean over k=1..16 of pass@k over the held-out instances: rewards proving problems with fewer attempts."
         }
       },
       "results": {
         "hageo": {
           "type": "proposed",
-          "pass_auc": 0.458333,
-          "solve_rate": 0.666667
+          "pass_auc": 0.453125,
+          "solve_rate": 0.618056
         },
         "random_aux": {
           "type": "baseline",
-          "pass_auc": 0.256944,
-          "solve_rate": 0.388889
+          "pass_auc": 0.33724,
+          "solve_rate": 0.479167
         },
         "ddar": {
           "type": "baseline",
@@ -298,5 +298,5 @@
       }
     }
   },
-  "_weights_note": "Equal experiment weights and a 0.25 coefficient on hageo409_aux.pass_auc: at the gym's scale every method proves only 1-3 of the 38 held-out HAGeo-409 problems, so that experiment resolves differences of about one problem (the reference's own seed spread) and its pass_auc is dominated by where a single solve falls; JGEX-231 shows the paper's effect well above seed noise."
+  "_weights_note": "Experiment weights 0.3 (hageo409_aux) / 0.7 (jgex231_aux), changed from 0.5 / 0.5 in the second hardening. HAGeo-409 is the paper's benchmark, but at the gym's scale (public AlphaGeometry DDAR, 16 attempts) every method proves only 1-3 of its 38 held-out problems, so it resolves about one problem and carried most of the reference's seed-to-seed rank spread. JGEX-231, now 144 held-out instances, measures the same question with a resolution well above seed noise. hageo409_aux keeps a 0.25 coefficient on pass_auc for the same reason."
 }
