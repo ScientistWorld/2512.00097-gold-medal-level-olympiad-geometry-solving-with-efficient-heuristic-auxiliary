@@ -1,0 +1,50 @@
+{
+  "experiments": {
+    "hageo409_aux": {
+      "_status": {
+        "ddar": "ok (fixed evaluator baseline)",
+        "hageo": "ok",
+        "random_aux": "ok (fixed evaluator baseline)"
+      },
+      "results": {
+        "ddar": {
+          "hard_solve_rate": 0.0,
+          "pass_auc": 0.0,
+          "solve_rate": 0.0
+        },
+        "hageo": {
+          "hard_solve_rate": 0.07692307692307693,
+          "pass_auc": 0.1025,
+          "solve_rate": 0.12
+        },
+        "random_aux": {
+          "hard_solve_rate": 0.0,
+          "pass_auc": 0.0375,
+          "solve_rate": 0.04
+        }
+      }
+    },
+    "jgex231_aux": {
+      "_status": {
+        "ddar": "ok (fixed evaluator baseline)",
+        "hageo": "ok",
+        "random_aux": "ok (fixed evaluator baseline)"
+      },
+      "results": {
+        "ddar": {
+          "pass_auc": 0.0,
+          "solve_rate": 0.0
+        },
+        "hageo": {
+          "pass_auc": 0.3209635416666667,
+          "solve_rate": 0.46875
+        },
+        "random_aux": {
+          "pass_auc": 0.24674479166666666,
+          "solve_rate": 0.3854166666666667
+        }
+      }
+    }
+  },
+  "slice": "train"
+}

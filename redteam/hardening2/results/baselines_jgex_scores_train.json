@@ -1,0 +1,21 @@
+{
+  "experiments": {
+    "jgex231_aux": {
+      "_status": {
+        "ddar": "ok (fixed evaluator baseline)",
+        "random_aux": "ok (fixed evaluator baseline)"
+      },
+      "results": {
+        "ddar": {
+          "pass_auc": 0.0,
+          "solve_rate": 0.0
+        },
+        "random_aux": {
+          "pass_auc": 0.24674479166666666,
+          "solve_rate": 0.3854166666666667
+        }
+      }
+    }
+  },
+  "slice": "train"
+}
