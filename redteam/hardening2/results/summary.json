@@ -130,6 +130,10 @@
      "pass_auc": 0.0,
      "solve_rate": 0.0
     },
+    "sc_lookahead": {
+     "pass_auc": 0.5108506944444444,
+     "solve_rate": 0.6388888888888888
+    },
     "sc_lookahead_old_5s_per_problem": {
      "pass_auc": 0.5598958333333334,
      "solve_rate": 0.6666666666666666
@@ -336,14 +340,17 @@
     },
     "sc_lookahead": {
      "experiments_present": [
-      "hageo409_aux"
+      "hageo409_aux",
+      "jgex231_aux"
      ],
      "parts": {
       "hageo409_aux.hard_solve_rate": 0.0,
       "hageo409_aux.pass_auc": 0.0,
-      "hageo409_aux.solve_rate": 0.0
+      "hageo409_aux.solve_rate": 0.0,
+      "jgex231_aux.pass_auc": 0.1149,
+      "jgex231_aux.solve_rate": 0.0721
      },
-     "rank": 0.0
+     "rank": 0.1869
     },
     "sc_lookahead_old_5s_per_problem": {
      "experiments_present": [
@@ -581,14 +588,17 @@
     },
     "sc_lookahead": {
      "experiments_present": [
-      "hageo409_aux"
+      "hageo409_aux",
+      "jgex231_aux"
      ],
      "parts": {
       "hageo409_aux.hard_solve_rate": 0.0,
       "hageo409_aux.pass_auc": 0.0,
-      "hageo409_aux.solve_rate": 0.0
+      "hageo409_aux.solve_rate": 0.0,
+      "jgex231_aux.pass_auc": 0.082,
+      "jgex231_aux.solve_rate": 0.0515
      },
-     "rank": 0.0
+     "rank": 0.1335
     },
     "sc_lookahead_old_5s_per_problem": {
      "experiments_present": [
