@@ -1,111 +1,132 @@
-# Hardening report
+# Hardening report (second hardening)
 
-The old gym trusted every number a method wrote. A method's output rows carried `solved` flags, difficulties and declared budgets, and the evaluator summed them. The reproduced HAGeo heuristic was also mostly broken. Its candidate clauses were over-determined: each added the observed coincidence as an extra premise, and AlphaGeometry cannot even draw such clauses. Some also carried coordinates from another drawing. So the heuristic lost to its own random baseline.
+This gym was hardened once before. That pass made methods into goal-free *proposers*. The evaluator proves every attempt itself with its own DD+AR prover, and a validity gate rejects illegal constructions; see "First hardening" at the end. `REVIEW.md` then found one remaining weakness. The test was tiny (38 HAGeo-409 + 18 JGEX-231 problems), and the better (hybrid) proposer gained less than the reference's seed noise: rank +0.17 against a seed range of −0.92 to −0.28. The review asked to enlarge the test until a better proposer separates from the reference beyond noise.
 
-This iteration replaces the measurement:
+All numbers below come from the held-out evaluator (`eval/test/evaluate.py`, the code behind the no-argument `scripts/evaluate_test.sh`), run with every variant installed under `proposers/`. The audit driver is `redteam/hardening2/audit.py` and the variants are in `redteam/hardening2/registry/`. Raw scores and per-problem details are in `redteam/hardening2/results/*_{scores,details}_{test,train}.json`, merged in `results/summary.json` by `summarize.py`.
 
-- **Methods are proposers.** A method is a `proposers/<name>.sh` script. It receives a problem's premises without the goal, plus a fixed drawing, and returns at most 16 attempts of at most 3 auxiliary clauses each.
-- **The evaluator proves everything itself.** It holds the goals and runs its own copy of the AlphaGeometry DD+AR prover on premises plus each attempt, under a fixed CPU-time limit. Every scored number comes from those runs.
-- **A validity gate replaces trust.** Each clause must define one fresh point by an allowlisted construction, with no over-determination and no explicit coordinates. Any violation, crash, timeout or malformed output scores 0 on every metric of every experiment.
-- **Problems need an auxiliary construction.** The problems are public olympiad problems on which DDAR alone saturates without the goal. The test half lives only in `eval/test/`.
-- **The reproduction is restored to the paper's procedure (§4.5).** Candidates are single defining constructions, chosen because of a favourable incidence. Each attempt has N rounds over the candidate set of the augmented diagram, and DDAR runs once per attempt.
+**Rank** is the red team's diagnostic, Σ weight · |coef| · Δ/σ, with Δ taken against the reference. σ is the population standard deviation of each metric over this audit's honest cohort of 13 methods: the reference's three seeds, the HAGeo variants, the two rules, capped enumeration, `random_aux` and `ddar`. A future cohort will have a different σ.
 
-All numbers below come from the unchanged, no-argument `bash scripts/evaluate_test.sh`, with every variant and shortcut installed in `proposers/`. For the full table see `redteam/hardening/results/audit2_scores_test.json`. The goal-lookup row is in `audit_scores_test.json`. Per-problem details are in `*_details_test.json`, and `summary.json` has the summary. The audit code is in `redteam/hardening/`.
+## What changed
 
-Rank is the diagnostic used by the red team: Σ weight · |coef| · Δ / σ. Δ is measured against the reference, and σ is the population standard deviation over the honest cohort of the 11 rows in the variants table (the 8 HAGeo-style variants, systematic, `random_aux` and `ddar`). It uses the final weights (0.5 / 0.5) and coefficients. A future cohort will have a different σ.
+1. **JGEX-231 is scored on 8 independent instances per problem.**
+   - **What:** `eval/test/build_split.py instances`. Instance 1 is the problem as before. Instances 2–8 use a fresh point renaming and a fresh drawing seed, and each is re-checked: DDAR alone still saturates without the goal under the problem's CPU limit.
+   - **Size:** 144 hidden test instances (18 problems) and 96 train instances (12 problems).
+   - **Why:** a seeded proposer makes independent draws on each instance, so its own randomness averages out. All methods are compared paired, on the same instances.
+   - **Limit:** the number of *distinct* problems does not change.
+2. **Weights changed from 0.5/0.5 to 0.3 (`hageo409_aux`) / 0.7 (`jgex231_aux`).**
+   - **Why:** at the gym's scale every method proves 1–3 of the 38 HAGeo-409 problems. The reference's seed spread in rank came almost entirely from one HAGeo-409 problem: seed 1 proves 2/38, seeds 0 and 2 prove 3/38.
+   - **Paper's benchmark:** HAGeo-409 is the paper's benchmark and stays scored, but it cannot resolve more than about one problem here.
+3. **Proposer limit is CPU time, not wall-clock.**
+   - **What:** it is measured over the proposer's whole process tree (`RUSAGE_CHILDREN`, plus `RLIMIT_CPU` as an early stop). The allowance is 6 s per problem for `hageo409_aux` and 2 s for `jgex231_aux`, at least 120 s per experiment.
+   - **Backstop:** only a far wall-clock backstop remains, 10× the CPU allowance plus 300 s, against hangs. The verification wall backstop was raised from 4×+60 s to 10×+120 s.
+   - **Threads:** numerical libraries are forced single-threaded (`OMP_NUM_THREADS=1` etc.) in the evaluator and every proposer. Before this, idle BLAS threads inflated measured CPU time: the reference was charged 255 s of CPU for 42 s of wall time.
+   - **Reference use:** single-threaded, the reference needs 31.9 / 228 s (HAGeo-409 test), 30.7 / 288 s (JGEX test), 18.8 / 150 s and 39.2 / 192 s (train), i.e. at most about a fifth of the allowance.
+4. **Held-out files are unreadable while a proposer runs.** `eval/test` is chmod 000 for the duration of each proposer run and restored afterwards; the evaluator has already loaded everything into memory. `scripts/evaluate_test.sh` restores the permission first in case an earlier run was killed.
+5. **Docs updated:** `briefing/evaluation.md`, `briefing/method.md`, `proposers/README.md`, `scoring/{TARGETS,EXPERIMENTS,CONSTRAINTS,DIRECTION}.md` and `scoring/reference.json`.
+   - `reference.json` has new weights and new JGEX reference values. The paper's numbers are unchanged under `hageo409_aux._paper_reported`.
 
-## Reference before and after
+### Tried and dropped: a generator of new aux-requiring problems
 
-| | Before (old hidden test, 6 problems, trusted flags) | After: `hageo409_aux` (38 hidden) | After: `jgex231_aux` (18 hidden) |
+Two generators were built, run and rejected. The code and numbers are in `redteam/hardening2/synthetic_attempt/`.
+
+- **Hidden extra point on a real configuration.** Real HAGeo-409/JGEX-231 configurations plus a secret random point, keeping facts about the original points that DDAR derives only with that point. It produced almost nothing: 5 of 920 samples, because olympiad configurations are closed under DDAR apart from their own goal.
+- **AlphaGeometry-style "dependency difference" on secret random configurations.** These were triangles plus 4–7 constructions weighted like the benchmarks' statements. It produced 188 test and 101 train problems, every one re-verified (DDAR alone saturates, the known construction proves it).
+  - **Too easy:** the random baseline proved 169/188 test problems, 76 of them on its first attempt.
+  - **No hard subset:** 125/141 one-point and 44/47 two-point problems were solved.
+  - **Why:** on these small configurations (5.7 points on average) most such "theorems" are gaps in DDAR's deduction that almost any extra point fills, not genuine construction problems. The experiment would have been saturated by its own simple baseline, so it was not added.
+
+## Do better results score higher? (hidden test)
+
+| Method | JGEX solve / pass_auc (144 instances) | HAGeo-409 solve / hard / auc | Rank (0.3/0.7) | Rank at old weights 0.5/0.5 | Before (previous gym) |
+|---|---|---|---|---|---|
+| **reference** HAGeo, seed 0 | .618 / .453 | .079 / 0 / .059 | 0 | 0 | 0 |
+| reference, seed 1 | .632 / .473 | .053 / 0 / .030 | −0.315 | −0.609 | −0.92 |
+| reference, seed 2 | .611 / .455 | .079 / 0 / .048 | −0.065 | −0.089 | −0.28 |
+| **hybrid**: 6 best-supported candidates first, then the paper's sampling | **.764 / .694** | .079 / 0 / .033 | **+0.881** | +0.532 | +0.17 |
+| **extended hybrid**: hybrid + triangle centres, reflections in lines, perpendicular/parallel lines cut by a line, all under the incidence filter, and the trivial-circle fix for point reflections. Selected on train (train rank +2.21: JGEX .750/.661, HAGeo-409 7/25) | **.736 / .660** | .079 / 0 / .044 | **+0.762** | +0.490 | — |
+| extended candidates, paper's random order | .646 / .459 | — | +0.108 | +0.077 | — |
+| weaker: one auxiliary point per attempt (N = 1) | .500 / .354 | .026 / 0 / .012 | −1.366 | | −1.57 |
+| weaker: no incidence filter (ablation) | .313 / .222 | .026 / 0 / .025 | −2.226 | | −2.18 |
+| capped enumeration (midpoints, feet, line pairs, mirrors) | .333 / .226 | .079 / 0 / .066 | −1.411 | | −1.15 |
+| random aux (fixed baseline) | .479 / .337 | .053 / .05 / .036 | −0.788 | −0.636 | −1.13 |
+| DDAR alone | 0 / 0 | 0 / 0 / 0 | −4.132 | | −4.24 |
+
+**Better methods now score higher, beyond the reference's seed noise.**
+- **Seed range:** the reference's three seeds span rank [−0.315, 0], width 0.315. The hybrid (+0.881) and the train-selected extended hybrid (+0.762) both clear it by more than twice its width.
+- **Paired evidence:** on the same 144 JGEX instances the hybrid proves 22 instances the reference misses and misses 1 the reference proves. The extended hybrid's count is 21 vs 4. The reference's seeds are 13 vs 11 and 13 vs 14.
+- **Weaker methods** (one round, no incidence filter, enumeration, random, DDAR alone) all score below the reference.
+- **The weight change matters.** At the old 0.5/0.5 weights the JGEX instances alone narrow the seed range to [−0.61, 0], and the hybrid's +0.53 still sits inside it. The residual noise there is the single HAGeo-409 problem.
+
+## Major shortcuts: fix and score before → after (hidden test)
+
+| Shortcut | Before | Fix | After |
 |---|---|---|---|
-| reference HAGeo | solve 4/6 = .667, upper-band .8, weighted .682 | solve .079 (3/38), hard 0, pass_auc .059 | solve .667 (12/18), pass_auc .458 |
-| random aux baseline | 5/6 = .833, above the reference | .053 (2/38), hard .05, pass_auc .036 | .389 (7/18), pass_auc .257 |
-| DDAR alone | 4/6 | 0 | 0 |
+| **Read the hidden goals while the proposer runs** (`sc_goal_lookup`: imports the evaluator's engine and reads `eval/test/problems*.jsonl`, then runs private DDAR to put a verified construction first) | rank +1.28 (previous audit), the only cheat clearly above the reference | `eval/test` is unreadable during every proposer run | proposer crashes on import, failed run, rank −4.13. A direct-open probe (`sc_read_hidden`) gets `PermissionError` and falls back to the reference's attempts: ties at 0, nothing read (`tmp/hardening2/read_hidden_status.txt`: `status=denied (PermissionError)`) |
+| **Wall-clock proposer limit** (scores depend on machine load; a multi-process proposer can use many CPUs inside the wall limit) | 30 s per problem of wall time | CPU time over the process tree; numerical libraries single-threaded | `sc_cpu_hog` (4 processes, 1.3× the allowance, finishes far inside the old wall limit): "used 774 s of CPU time, above its limit of 570 s", failed run, rank −4.13 |
+| **Private prover search inside the proposer** (`sc_lookahead`: saturates DDAR on the premises and on premises + each HAGeo candidate, puts candidates that unlock new facts first; never sees the goal) | (not measured) | per-problem CPU allowance tightened from 30 s wall to 6 s / 2 s CPU (the reference needs ~0.9 s / ~0.25 s) | at 5 s per problem on JGEX: .667 / .560, rank +0.381. At the final 2 s and 6 s: JGEX .639 / .511, HAGeo-409 = reference, rank **+0.187**, inside the reference's seed spread (0.315) and far below the honest hybrid. It wins 3 instances and loses 0, so it buys little |
+| **Hand-written rules** (attempt *i* = *i*-th midpoint + *i*-th circumcentre + *i*-th foot; or 3 circumcentres per attempt) | (not measured) | none needed | JGEX .438 / .410 and .340 / .318; ranks −0.711 and −1.230. Not run on HAGeo-409 (3-point attempts there cost hours); a missing value is skipped, so these ranks count JGEX only |
 
-The paper's direction (HAGeo > random > DDAR) now holds on the hidden test in both experiments. On the small train sets it holds for HAGeo-409 (3/25 vs 1/25) and is reversed by one problem for JGEX-231 (5/12 vs 6/12).
-
-## Do better results score higher? (variants, hidden test)
-
-| Variant | Before | `hageo409_aux` solve / hard / auc | `jgex231_aux` solve / auc | Rank |
-|---|---|---|---|---|
-| reference HAGeo (seed 0) | 4/6 | .079 / 0 / .059 | .667 / .458 | 0 |
-| reference, seed 1 | — | .053 / 0 / .030 | .611 / .396 | −0.92 |
-| reference, seed 2 | — | .079 / 0 / .048 | .611 / .417 | −0.28 |
-| **hybrid**: 6 best-supported candidates first, then the paper's sampling (prefix chosen on train) | — | .079 / 0 / .033 | **.722 / .590** | **+0.17** |
-| ranked by incidence count | — | .026 / 0 / .020 | .556 / .524 | −1.41 |
-| N=3 rounds | — | .026 / 0 / .026 | .667 / .462 | −1.19 |
-| N=1 round | — | .026 / 0 / .012 | .611 / .368 | −1.57 |
-| weaker: no incidence filter (ablation) | — | .026 / 0 / .025 | .389 / .278 | −2.18 |
-| capped brute-force enumeration (midpoints, feet, line pairs, mirrors) | old "better systematic" 5/6, rank +1.38 | .079 / 0 / .066 | .333 / .226 | −1.15 |
-| random aux baseline | 5/6 | .053 / .05 / .036 | .389 / .257 | −1.13 |
-| DDAR alone | 4/6 | 0 / 0 / 0 | 0 / 0 | −4.24 |
-
-**Weaker methods now score lower.** Examples are removing the paper's incidence filter, the random baseline and DDAR alone. Before, the random baseline outranked the reference.
-
-The train-selected hybrid outranks the reference. On JGEX it proves 13 vs 12 and has pass_auc .590 vs .458. Its pass_auc gain (+.132) exceeds the reference's seed spread (.0625), measured paired on identical problems and drawings. Its overall rank margin (+0.17) is **not** larger than seed noise, though: the reference's own seeds rank at −0.92 and −0.28.
-
-The only clearly larger gain came from the goal-lookup cheat (+1.28). So the test can show that weaker methods are weaker, but cannot reliably separate a modestly better method from the reference. See "Not fixed".
-
-The old brute force (4096 candidates per problem, rank +3.30) cannot be expressed any more: the evaluator verifies at most 16 attempts, and private search cannot check success because the goal is withheld. The same enumeration capped at 16 attempts ranks below the reference.
-
-## Major shortcuts: fix and score before → after
-
-| Shortcut | Before | Fix | After (hidden test) |
-|---|---|---|---|
-| constant `solved=true` / truthy `"false"` flags | perfect score, rank +1.04 | solves are only the evaluator's DDAR proofs; written flags are ignored | `sc_constant_flags`: 0 everywhere |
-| impossible metadata (negative difficulty, −1e9 costs), under-reported costs | accepted, rank +2.37 | difficulty, budget and limits come from `eval/`; nothing the method declares is read | no such field exists; extra fields are ignored (`sc_constant_flags` writes them): 0 |
-| replace the dataset goals | perfect score | goals live only in `eval/test/` and are loaded before any proposer runs | `sc_tamper_eval` rewrote goals, budgets and configs mid-run. Its own run failed the gate, and proposers scored after it in the same run got unchanged numbers |
-| empty output / dropped dataset / missing row / null budgets | tie (skipped) or crash without scores | any malformed or incomplete output is a failed run: worst value in every metric of every experiment | `sc_empty_output`, `sc_crash`: 0 everywhere, the evaluation completes |
-| unregistered method | not scored | every `proposers/*.sh` on disk is scored | all 18 audit proposers were scored, plus the 2 fixed baselines |
-| baseline moved | false comparison | baselines are evaluator results in `eval/{train,test}/baselines*.json` | not writable by a proposer run |
-| no auxiliary constructions (`weak_no_aux`) | tie benefits, better cost, rank +0.10 | no cost metrics; DDAR alone proves nothing on these problems | `sc_no_aux`: 0 everywhere |
-| over-determined clause asserting a coincidence (unsound premise) | used by the old reference | gate: a clause must define its point exactly | `sc_overdetermined`: failed run, 0 |
-| coordinates pinned from another drawing (`x@..`) | used by the old reference | gate rejects `@` | `sc_stale_coords`: failed run, 0 |
-| more attempts than the budget | budget was declared, not enforced | gate: ≤16 attempts and ≤3 clauses | `sc_too_many`: failed run, 0 |
-| direct write of `scores_test.json` | overwritten | unchanged | `sc_direct_scores`: overwritten, 0 |
-| brute-force enumeration (4096 candidates) | 6/6, rank +3.30 | evaluator verifies at most 16 attempts; goal withheld | capped enumeration: rank −1.15 |
+Still closed from the first hardening and not re-run this time: constant or truthy `solved` flags, impossible metadata, replaced dataset goals, empty or partial output, unregistered methods, moved baselines, no auxiliary constructions, over-determined clauses, stale coordinates and more attempts than the budget. Every scored number is still the evaluator's own DDAR proof on its own premises, goals and budget, and any gate violation, crash, CPU overrun or malformed output scores 0 in every metric of every experiment.
 
 ## Shortcuts left open
 
-**Goal lookup plus private search** (`sc_goal_lookup`, rank +1.28 with the honest-cohort σ, or +0.92 if it joins the cohort; the only row clearly above the reference).
-- **What it does:** it recovers each withheld goal, simulated in the audit by reading `eval/test/problems.jsonl`. Then, inside its 30 s-per-problem limit, it runs its own DDAR copy on heuristic candidates and puts a verified construction first. Result: HAGeo-409 4/38 (pass_auc .100), JGEX 13/18 (pass_auc .698).
-- **Why it stays open:**
-  - *Evaluator files:* the proposer runs in the same filesystem as `eval/`, and the gym has no sandbox. A future agent normally does not see `eval/test/`.
-  - *Public data:* the goals are public. A HAGeo-409 or JGEX-231 statement can be matched to its public record even though points are renamed, since AlphaGeometry's canonical renaming undoes our renaming.
-- **Mitigation:** goals are withheld from proposer input and points are renamed. The proposer's total time is capped, which limits private search. `scoring/CONSTRAINTS.md` forbids reading `eval/` or the public goals. Any such code is plain to the separate shortcut grader.
+- **Recovering goals from the public benchmark files.**
+  - **What:** a proposer could ship HAGeo-409 or JGEX-231 statements, match a held-out problem to its public record (AlphaGeometry's canonical renaming undoes our renaming), and then search privately for a construction that proves the known goal.
+  - **Why it stays open:** the goals are public, so no evaluator change can hide them. Private search is now bounded by the CPU allowance, which limits what such a cheat can do with the goal. It is forbidden in `scoring/CONSTRAINTS.md`, and the code would be plain to the separate shortcut grader.
+- **Tampering with permissions.** A proposer runs as the same user and could `chmod` `eval/test` back. That is deliberate tampering, forbidden in `CONSTRAINTS.md` and obvious to the grader.
+- **Git history.** The workspace's history contains earlier versions of `eval/test`. Hiding it is up to the infrastructure that prepares a scientist's workspace.
+- **Private DDAR lookahead within the allowance.** This is a goal-agnostic method that `DIRECTION.md` allows. At the final allowance it gains +0.187, which is inside seed noise.
 
-**Wall-clock proposer limit.** The proposer's time limit is wall-clock (30 s per problem in total), while DDAR verification limits are CPU time. On a very slow or loaded machine an honest proposer could hit it. The reference uses at most about 2 s per problem.
+## Reference score before and after
+
+| | Before (previous hardened gym) | After |
+|---|---|---|
+| `hageo409_aux` (38 hidden) | solve .079 (3/38), hard 0, pass_auc .059 | unchanged: .079, 0, .059 (same problems and attempts; recomputed under the final configuration) |
+| `jgex231_aux` | 18 problems: solve .667 (12/18), pass_auc .458 | 144 instances: solve .618 (89/144), pass_auc .453. Instance 1 of each problem reproduces the old 12/18 |
+| random aux | .053 / .389 | .053 / .479 (69/144) |
+| DDAR alone | 0 / 0 | 0 / 0 |
+
+Train: HAGeo-409 .12 (3/25) unchanged; JGEX 96 instances .469 / .321 (random .385). The final `scoring/scores_test.json` and `scores_train.json` hold only `hageo`, `random_aux` and `ddar`. They come from the reference runs under the final code and configuration; baselines were recomputed for every experiment.
 
 ## Headroom
 
-- **Bounds:** no scored metric has the reference at its upper bound. HAGeo-409 solve is .079 and its hard_solve_rate is 0 (the lower bound). JGEX solve is .667.
-- **Ceiling not reached:** the goal-lookup cheat shows a ceiling the reference does not reach (+1.28). The train-selected hybrid scores above the reference, but by less than the seed noise.
-- **Brute force:** it no longer solves the test (capped enumeration: 3/38 and 6/18).
-- **Experiment added:** `jgex231_aux`, a second population of DDAR-saturated problems. With HAGeo-409 alone, all methods proved 1–3 of 38 problems and the reference tied random. JGEX shows the paper's effect (12 vs 7 vs 0) well above seed noise (one problem).
-
-**Seed noise.** The paper's effect is larger than seed noise on JGEX-231: HAGeo − random = +5 problems (+.278), against a reference seed spread of 1 problem (.056). On HAGeo-409 it is not: +1 problem (+.026), equal to the seed spread.
-
-**Weights.** Changed from 0.6 / 0.4 (my first choice) to 0.5 / 0.5, and the HAGeo-409 `pass_auc` coefficient from 0.5 to 0.25.
-- Why: every method proves only 1–3 HAGeo-409 problems, so that experiment resolves about one problem, and its pass_auc mostly reflects where a single solve falls. With these weights the reference's own seed spread in rank shrinks from (−1.25, −0.35) to (−0.92, −0.28).
-- The change does not alter which variants rank above the reference. The hybrid moves from −0.14 to +0.17, still within seed noise.
+- **Bounds:** the reference sits at the lower bound of only `hageo409_aux.hard_solve_rate` (0 on the hidden test; 0.077 on train). Every other scored metric is far from its bound: JGEX .618 / .453, HAGeo-409 .079 / .059.
+- **A better method scores higher:** the hybrid (+0.881) and the extended hybrid (+0.762) do. The extended hybrid also proves 7/25 HAGeo-409 train problems against the reference's 3/25, though on the hidden 38 it ties at 3. The JGEX ceiling (1.0) is far above the best variant (.764).
+- **Brute force does not solve the test.** The evaluator verifies at most 16 attempts and the goal is withheld. Capped enumeration ranks −1.41, and private search is bounded by the CPU allowance (above).
+- **No simple rule reaches the reference.** Random, enumeration and both hand-written rules all rank below it.
+- **No new experiment was added:** the synthetic generator's problems were saturated by the random baseline (see "Tried and dropped").
 
 ## Not fixed, stated plainly
 
-1. **HAGeo-409 cannot separate methods.** The verifier is AlphaGeometry's public DD+AR, about 3–10 CPU-seconds per attempt. With that, a 16-attempt budget and 38 problems are what a 1-CPU hidden test can afford: one proposer costs about 30–60 CPU-minutes to verify. At this size, differences of one problem are within noise. Enlarging it further, or reaching the paper's K = 2048 with N = 6, was not feasible in the compute available: jobs ran on 1–3 effective CPUs with repeated Slurm preemptions.
-2. **A better method does not beat the reference by more than noise overall.** It does on JGEX pass_auc, but the test needs to be larger to resolve modest improvements.
-3. **The goal-lookup shortcut stays open** (see above).
-4. **Uncovered claims.** IMO-30 (Table 2) is not scored: DDAR alone needs about 43 s per IMO problem. The paper's optimized DDAR engine (20× speed-up) and the identical-point heuristic are not reproduced, because the public prover rejects coincident points. The paper's own numbers are kept unchanged under `scoring/reference.json → experiments.hageo409_aux._paper_reported`.
-5. **Small train splits.** They are 25 and 12 problems; the JGEX train split ranks random one problem above the reference.
-6. **Partial train coverage of variants.** Seed 2, N=1, N=3 and the goal-lookup cheat were run only on the hidden test. Train results exist for the reference, seed 1, ranked, hybrid, unfiltered and systematic (`audit2_scores_train.json`).
+1. **Few distinct problems.** The hidden test still has only 38 + 18 distinct problems. The JGEX instances remove the proposer's own randomness from paired comparisons, but not problem-sampling noise. A method tuned to these 18 problem *types* could look better than it would on new problems. Larger real sources were not affordable:
+   - the 121 HAGeo-409 problems where DDAR alone needs more than 6 s;
+   - the 107 HAGeo-409 problems with more than 13 points;
+   - the 16 IMO-30 problems needing auxiliary points (about 43 s of DDAR each);
+   - the generator route produced problems that were too easy.
+2. **HAGeo-409 resolves about one problem.** That is why its weight dropped to 0.3. The paper's K = 2048, N = 6 and its optimized prover remain out of reach. The paper's IMO-30 result, the 20× engine speed-up and the identical-point heuristic are still not reproduced.
+3. **Known reference departure left as is.** The reference counts the trivial circle (centred at B through A) as a favourable incidence for point reflections 2B − A, so every point reflection is a candidate. Fixing it would change the reference's attempts and require re-verifying HAGeo-409 for every seed (about an hour of CPU each on this cluster). The extended variant includes the fix. It is documented in `briefing/method.md`.
+4. **One verification timer weakness.** The evaluator's DDAR CPU timer can be swallowed by bare `except:` clauses inside AlphaGeometry (`dd.py`, `ar.py`). The verdict stays correct: a proof found after the limit is not counted. But such an attempt can run until DDAR finishes or the wall backstop fires. It was not changed, because a periodic timer could flip borderline solves and break reproduction of the stored scores.
+5. **Small train splits.** 25 HAGeo-409 problems, and 12 JGEX problems (96 instances). On train JGEX the hybrid gains less than on test (.490 vs .469), while the extended hybrid gains more (.750).
 
-## Evidence and jobs
+## Evidence and jobs (this iteration)
 
 | Job | What it did | Outcome |
 |---|---|---|
-| `fde4d367-305` | smoke test, DDAR-alone screening of all 409 HAGeo-409 problems, calibration | completed |
-| `64785c46-b7b` | first audit under wall-clock limits | cancelled; only its HAGeo-409 verification results were kept, in the cache |
-| `7b992547-dcf` | added the JGEX split | cancelled after a preemption restart showed that drawings computed at test time could fail under load. Drawings are now stored with each problem and DDAR limits are CPU time |
-| `7a7cbf49-01d` | full audit | completed |
-| `6897c2ab-5fa` | hybrid variant, final audit through the hidden test, reference-only score files | completed |
+| `95eb8b21-e21` | hidden extra point on real configurations | cancelled: 5 of 920 samples productive |
+| `943e6683-95a`, `43a53661-fa3` | AlphaGeometry-style synthetic generator, baselines, reference | cancelled. Random proved 169/188 synthetic problems, and the reference exceeded the then 3 s per problem CPU limit (multithreaded BLAS) |
+| `d2303c91-e17` | JGEX instances, baselines, reference | cancelled after the reference was charged 255 s of CPU for 42 s of wall time; led to the single-threaded fix |
+| `395b1f2c-1e9` | full audit: seeds, variants, rules, shortcuts, lookahead, final baselines and reference | completed (through several Slurm preemptions, resumed from markers) |
+| `4f335967-835` | lookahead re-measured at the final allowance (budget-control fix) | completed |
 
-The final score files contain only `hageo`, `random_aux` and `ddar`. `scripts/run.sh` reproduces them: it recomputes the fixed baselines, then scores the registered proposers on the train and held-out sets.
+`scripts/run.sh` again reproduces the reference end to end: `scripts/baseline.sh`, then `scripts/reproduce.sh`.
+
+---
+
+## First hardening (summary, unchanged)
+
+- Methods became `proposers/<name>.sh` scripts that see premises and a drawing but not the goal.
+- The evaluator holds the goals and proves every attempt with its own DD+AR copy under per-problem CPU limits, so written success flags, costs and difficulties are ignored.
+- A gate requires each clause to define one fresh point exactly (no over-determination, no `@` coordinates, at most 16 attempts of at most 3 clauses). Any violation or malformed output is a failed run with the worst value in every metric of every experiment.
+- Every `proposers/*.sh` on disk is scored, and baselines live in `eval/`.
+- The reproduction follows the paper's §4.5: single defining constructions chosen for a favourable incidence, N rounds, and one DDAR call per attempt.
+- The previous audit's code and results remain in `redteam/hardening/`.

@@ -4,13 +4,13 @@ Improve how many held-out problems the fixed prover proves with your auxiliary c
 
 ## Fixed by the evaluator (do not edit, do not read at run time)
 
-- `eval/` — problem sets, goals, drawings, seeds, per-problem CPU limits, fixed baselines, the validity gate and the prover copy. The held-out problems exist only there. A proposer must not open any file under `eval/`.
+- `eval/` — problem sets, goals, drawings, seeds, per-problem CPU limits, fixed baselines, the validity gate and the prover copy. The held-out problems exist only there and the held-out directory is unreadable while a proposer runs. A proposer must not open any file under `eval/`, and must not change file permissions to do so.
 - The visible train problems in `data/benchmarks/*.jsonl` may be read for development but must not be edited.
-- Budget: 16 attempts per problem, at most 3 auxiliary clauses per attempt, 30 s of proposer time per problem in total.
+- Budget: 16 attempts per problem, at most 3 auxiliary clauses per attempt. Proposer compute: CPU time of the whole process tree, at most 6 s per problem for `hageo409_aux` and 2 s per problem for `jgex231_aux` (at least 120 s per experiment), with numerical libraries single-threaded. The reference uses about a fifth of this.
 
 ## Submission contract
 
-A method is an executable `proposers/<name>.sh INPUT OUTPUT` (see `proposers/README.md`). It may use any CPU code (including its own copy of a prover) inside its time limit. Clauses must define exactly one fresh point each, by one point construction or two loci from the allowlist, with no explicit coordinates.
+A method is an executable `proposers/<name>.sh INPUT OUTPUT` (see `proposers/README.md`). It may use any CPU code (including its own copy of a prover on the goal-free premises) inside its CPU allowance. Clauses must define exactly one fresh point each, by one point construction or two loci from the allowlist, with no explicit coordinates.
 
 ## Out of bounds
 

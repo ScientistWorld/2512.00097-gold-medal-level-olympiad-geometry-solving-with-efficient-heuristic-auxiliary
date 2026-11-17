@@ -82,3 +82,7 @@
 ## Hardening iteration (2026-11-12)
 
 See `HARDENING.md`. The scored experiments are now `hageo409_aux` and `jgex231_aux` (evaluator-verified pass@16 on problems DDAR alone cannot prove); the old `auxiliary_core` and `hageo409_low_difficulty` experiments, the trusted-flag evaluator and the old `run_hageo.py` solver were removed.
+
+## Second hardening (2026-11-17)
+
+See `HARDENING.md`. JGEX-231 is now scored over 8 independent instances per problem; experiment weights are 0.3 / 0.7; proposer limits are CPU time (6 s / 2 s per problem, single-threaded numerics); `eval/test` is unreadable during proposer runs. A synthetic-problem generator was built and dropped (its problems were solved by the random baseline 169/188); its code and numbers are in `redteam/hardening2/synthetic_attempt/`.
