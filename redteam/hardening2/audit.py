@@ -7,8 +7,8 @@ audit cache (tmp/hardening/cache_{train,test}.jsonl, shared with the previous
 hardening audit), so identical attempts are never re-proved.
 
 Steps
-  1. generate and select the derived problems (eval/test/derive.py)
-  2. fixed baselines (DDAR alone, random auxiliaries) on the derived sets
+  1. generate and select the synthetic problems (eval/test/derive.py)
+  2. fixed baselines (DDAR alone, random auxiliaries) on the synthetic sets
   3. reference only: scripts/evaluate_test.sh and scripts/evaluate_train.sh
      -> scoring/scores_{test,train}.json
   4. variants, rules and shortcuts through the held-out evaluator
@@ -94,7 +94,7 @@ def selftest() -> None:
     sys.path.insert(0, str(ROOT / "eval" / "test"))
     import gate  # noqa: E402
 
-    probs = [json.loads(l) for l in (ROOT / "eval/test/problems_derived.jsonl").read_text().splitlines()
+    probs = [json.loads(l) for l in (ROOT / "eval/test/problems_synthetic.jsonl").read_text().splitlines()
              if l.strip()][:4]
     rows = [{"problem_id": p["problem_id"], "setup": p["setup"], "points": gate.setup_point_names(p["setup"]),
              "coords": p["coords"], "difficulty": None, "max_attempts": 16, "max_aux_per_attempt": 3,
@@ -125,7 +125,7 @@ def selftest() -> None:
 
 
 def train_rank(scores: dict, name: str, ref: str = "hageo") -> float:
-    r = scores["experiments"]["derived_aux"]["results"]
+    r = scores["experiments"]["synthetic_aux"]["results"]
     a, b = r.get(name), r.get(ref)
     if not a or not b:
         return float("-inf")
@@ -139,35 +139,34 @@ def main() -> None:
     os.environ.setdefault("MPLBACKEND", "Agg")
     os.environ.setdefault("MPLCONFIGDIR", "/tmp/mpl")
 
-    # 1. derived problems
-    step("derive_generate", lambda: sh([PY, "eval/test/derive.py", "generate", "--budget-seconds", "3600",
-                                        "--samples", "10", "--max-screen-seconds", "2.0"]))
-    step("derive_select", lambda: sh([PY, "eval/test/derive.py", "select", "--per-base", "2",
-                                      "--max-hidden-seconds", "2.0", "--max-test", "240", "--max-train", "120"]))
+    # 1. synthetic problems
+    step("derive_generate", lambda: sh([PY, "eval/test/derive.py", "generate", "--budget-seconds", "3000"]))
+    step("derive_select", lambda: sh([PY, "eval/test/derive.py", "select", "--max-test", "240",
+                                      "--max-train", "120"]))
 
     def sanity_select():
-        summary = json.loads((ROOT / "eval" / "test" / "derived_summary.json").read_text())
-        log(f"derived summary: {json.dumps(summary)}")
+        summary = json.loads((ROOT / "eval" / "test" / "synthetic_summary.json").read_text())
+        log(f"synthetic summary: {json.dumps(summary)}")
         if summary["test"]["problems"] < 100 or summary["train"]["problems"] < 50:
-            raise SystemExit("too few derived problems; stopping for inspection")
+            raise SystemExit("too few synthetic problems; stopping for inspection")
     step("sanity_select", sanity_select)
     step("selftest", selftest)
 
     # 2. fixed baselines on the new experiment
     for s in ("test", "train"):
-        step(f"baselines_{s}", lambda s=s: evaluate(s, "baselines_derived", None, ["derived_aux"],
+        step(f"baselines_{s}", lambda s=s: evaluate(s, "baselines_synth", None, ["synthetic_aux"],
                                                      ["--recompute-baselines", "--no-proposers"]))
 
     def sanity_baselines():
-        for s, path in (("test", ROOT / "eval/test/baselines_derived.json"),
-                        ("train", ROOT / "eval/train/baselines_derived.json")):
+        for s, path in (("test", ROOT / "eval/test/baselines_synthetic.json"),
+                        ("train", ROOT / "eval/train/baselines_synthetic.json")):
             b = json.loads(path.read_text())
             n = len(b["ddar"])
             ddar = sum(1 for v in b["ddar"].values() if v is not None)
             rnd = sum(1 for v in b["random_aux"].values() if v is not None)
             log(f"baselines {s}: n={n} ddar={ddar} random_aux={rnd}")
             if ddar:
-                raise SystemExit("DDAR alone proves derived problems; stopping for inspection")
+                raise SystemExit("DDAR alone proves synthetic problems; stopping for inspection")
     step("sanity_baselines", sanity_baselines)
 
     # 3. reference only, through the unchanged no-argument scripts (+ audit cache)
@@ -186,20 +185,20 @@ def main() -> None:
     derived_test = ["hageo_seed1", "hageo_ext_hybrid", "hageo_ext", "hageo_hybrid", "hageo_unfiltered",
                     "rule_mixed3", "rule_circumcenters", "hageo_seed2", "sc_lookahead", "systematic", "hageo_n1"]
     for n in derived_test[:4]:
-        step(f"derived_test_{n}", lambda n=n: run_variant(f"derived_{n}", [n], "test", ["derived_aux"]))
+        step(f"synth_test_{n}", lambda n=n: run_variant(f"synth_{n}", [n], "test", ["synthetic_aux"]))
 
     # 4c. candidate improvements on the visible train set (selection is made on train)
     for n in ("hageo_ext_hybrid", "hageo_ext", "hageo_hybrid"):
-        step(f"derived_train_{n}", lambda n=n: run_variant(f"derived_{n}", [n], "train", ["derived_aux"]))
+        step(f"synth_train_{n}", lambda n=n: run_variant(f"synth_{n}", [n], "train", ["synthetic_aux"]))
 
     def choose():
         ref_scores = json.loads((RES / "reference_scores_train.json").read_text())
         best, best_v = None, float("-inf")
         for n in ("hageo_ext_hybrid", "hageo_ext", "hageo_hybrid"):
-            sc = json.loads((RES / f"derived_{n}_scores_train.json").read_text())
-            merged = {"experiments": {"derived_aux": {"results": {
-                "hageo": ref_scores["experiments"]["derived_aux"]["results"]["hageo"],
-                n: sc["experiments"]["derived_aux"]["results"].get(n)}}}}
+            sc = json.loads((RES / f"synth_{n}_scores_train.json").read_text())
+            merged = {"experiments": {"synthetic_aux": {"results": {
+                "hageo": ref_scores["experiments"]["synthetic_aux"]["results"]["hageo"],
+                n: sc["experiments"]["synthetic_aux"]["results"].get(n)}}}}
             v = train_rank(merged, n)
             log(f"train selection {n}: {v:+.4f}")
             if v > best_v:
@@ -208,7 +207,7 @@ def main() -> None:
     step("choose_better", choose)
 
     for n in derived_test[4:]:
-        step(f"derived_test_{n}", lambda n=n: run_variant(f"derived_{n}", [n], "test", ["derived_aux"]))
+        step(f"synth_test_{n}", lambda n=n: run_variant(f"synth_{n}", [n], "test", ["synthetic_aux"]))
 
     # 4d. the train-selected variant and the lookahead on the two public-problem experiments
     better = (WORK / "better_variant.txt").read_text().strip()

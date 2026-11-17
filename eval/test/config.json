@@ -22,9 +22,9 @@
         "pass_auc"
       ]
     },
-    "derived_aux": {
-      "problems": "eval/test/problems_derived.jsonl",
-      "baselines": "eval/test/baselines_derived.json",
+    "synthetic_aux": {
+      "problems": "eval/test/problems_synthetic.jsonl",
+      "baselines": "eval/test/baselines_synthetic.json",
       "max_attempts": 16,
       "max_aux_per_attempt": 3,
       "metrics": [

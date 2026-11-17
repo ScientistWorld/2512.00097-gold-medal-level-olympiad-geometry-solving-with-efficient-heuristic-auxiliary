@@ -1,27 +1,31 @@
 #!/usr/bin/env python3
-"""Derived auxiliary-construction problems on public olympiad configurations.
+"""Synthetic auxiliary-construction problems (evaluator-owned, held-out side).
 
-Evaluator-owned (held-out side).  Enlarges the test with many problems that
-provably need an auxiliary point while keeping the answers private:
+Enlarges the test with many problems that provably need an auxiliary point,
+following AlphaGeometry's synthetic-theorem recipe ("dependency difference"),
+with every random choice drawn from a private salt so that no public file
+holds the goals or the needed constructions:
 
-``generate``  For every *base* configuration -- the premises of a public
-    HAGeo-409 or JGEX-231 problem whose DDAR closure is cheap -- run DDAR to
-    saturation, then add a few random *hidden* points E, each defined the way
-    olympiad statements define points (circumcentre, intersection of two
-    lines, foot, midpoint, second intersection with a circle, ...; weights
-    follow the construction frequencies of the two public benchmarks).  Every
-    fact about the *original* points that DDAR derives with E but not without
-    it is a candidate goal.  The draw of E uses a private salt, so neither the
-    goals nor the needed constructions exist in any public file.
+``generate``  Draw a configuration: either a triangle followed by 4-7 random
+    point definitions, or the premises of a cheap public HAGeo-409 / JGEX-231
+    problem followed by 2-3 random point definitions.  Point definitions are
+    drawn with the frequencies of the constructions in the two public
+    benchmarks (circumcentre, intersection of two lines, foot, midpoint, second
+    intersection with a circle, ...).  Run DDAR to saturation.  For every
+    derived fact, the *setup* is the set of clauses its points depend on (for
+    a public base, always the whole public statement); if DDAR cannot prove
+    the fact from the setup alone but can once one (or two) of the removed
+    random definitions is added back, the fact is a problem and those
+    definitions are a known solution.
 
-``select``  Per base keep a few (E, fact) pairs, re-check each with the
-    evaluator's own verifier (premises alone: DDAR saturates without the goal;
-    premises + E: DDAR proves it), fix the per-attempt CPU limit from the
-    measured times, store the evaluator's drawing, and split by base
+``select``  Keep a few problems per configuration, re-check each with the
+    evaluator's own verifier (setup alone: DDAR saturates without the goal;
+    setup + known solution: DDAR proves it), fix the per-attempt CPU limit from
+    the measured times, store the evaluator's drawing, and split by
     configuration into the hidden test file and the visible train file.
 
-The proposer sees only the original premises (identical to the public
-statement, renamed) and a drawing; the goal and E stay here.
+The proposer sees the setup and a drawing; the goal and the known solution
+stay here (the train file carries both).
 """
 
 from __future__ import annotations
@@ -40,11 +44,12 @@ HERE = Path(__file__).resolve().parent
 ROOT = HERE.parents[1]
 sys.path.insert(0, str(HERE))
 
-SALT = "hageo-gym-v3-derived-b82c92a5929afd33"
-POOL = HERE / "derived_pool.jsonl"
-TEST_OUT = HERE / "problems_derived.jsonl"
-SOLUTIONS_OUT = HERE / "derived_solutions.jsonl"
-TRAIN_OUT = ROOT / "data" / "benchmarks" / "derived_train.jsonl"
+SALT = "hageo-gym-v3-synthetic-b82c92a5929afd33"
+POOL = HERE / "synthetic_pool.jsonl"
+TEST_OUT = HERE / "problems_synthetic.jsonl"
+SOLUTIONS_OUT = HERE / "synthetic_solutions.jsonl"
+SUMMARY_OUT = HERE / "synthetic_summary.json"
+TRAIN_OUT = ROOT / "data" / "benchmarks" / "synthetic_train.jsonl"
 SCREENS = (("hageo409", HERE / "screening.jsonl"), ("jgex", HERE / "screening_jgex.jsonl"))
 EXISTING = {
     "test": (HERE / "problems.jsonl", HERE / "problems_jgex.jsonl"),
@@ -52,34 +57,30 @@ EXISTING = {
               ROOT / "data" / "benchmarks" / "jgex231_train.jsonl"),
 }
 PREDICATES = ("coll", "cyclic", "para", "perp", "cong", "midp", "eqangle", "eqratio")
-HIDDEN_NAMES = ("zz1", "zz2")
+AUX_NAMES = ("zz1", "zz2")
+NAME_POOL = [chr(c) for c in range(ord("a"), ord("z") + 1)] + [
+    f"{chr(c)}{i}" for i in range(1, 4) for c in range(ord("a"), ord("z") + 1)
+]
 
-# Point definitions used for the hidden points, weighted by how often olympiad
-# statements in HAGeo-409 / JGEX-231 define points this way (gate-legal forms).
+# Point definitions, weighted by how often olympiad statements in HAGeo-409 /
+# JGEX-231 define points this way.  All determinate forms are gate-legal
+# auxiliary constructions; the two semi-free forms only appear in setups.
 VOCAB = (
     ("circumcenter", 14), ("line_line", 13), ("foot", 12), ("midpoint", 10), ("line_circle", 10),
     ("circle_circle", 4), ("incenter", 4), ("tline_line", 4), ("orthocenter", 3), ("reflect", 3),
     ("pline_line", 3), ("mirror", 2), ("bisector_line", 2), ("bline_line", 2), ("tline_tline", 2),
     ("excenter", 1),
 )
+SEMI_FREE = (("on_line", 6), ("on_circum", 3))
 
 
 def stable_int(*parts) -> int:
     return int(hashlib.sha256("|".join(map(str, parts)).encode()).hexdigest()[:12], 16)
 
 
-def setup_names(setup: str) -> list[str]:
-    names: list[str] = []
-    for clause in setup.split("; "):
-        for n in clause.split(" = ", 1)[0].split():
-            n = n.split("@", 1)[0]
-            if n and n not in names:
-                names.append(n)
-    return names
-
-
-def sample_clause(x: str, pts: list[str], rng: random.Random) -> tuple[str, str]:
-    kinds, weights = zip(*VOCAB)
+def sample_clause(x: str, pts: list[str], rng: random.Random, semi_free: bool = False) -> tuple[str, str]:
+    table = VOCAB + (SEMI_FREE if semi_free else ())
+    kinds, weights = zip(*table)
     kind = rng.choices(kinds, weights)[0]
     s = lambda k: rng.sample(pts, k)  # noqa: E731
     if kind in ("circumcenter", "incenter", "excenter", "orthocenter"):
@@ -121,129 +122,300 @@ def sample_clause(x: str, pts: list[str], rng: random.Random) -> tuple[str, str]
         a, b, c = s(3)
         d, e, f = s(3)
         body = f"on_tline {x} {a} {b} {c}, on_tline {x} {d} {e} {f}"
+    elif kind == "on_line":
+        a, b = s(2)
+        body = f"on_line {x} {a} {b}"
+    elif kind == "on_circum":
+        a, b, c = s(3)
+        body = f"on_circum {x} {a} {b} {c}"
     else:  # pragma: no cover
         raise ValueError(kind)
     return kind, f"{x} = {body}"
+
+
+def clause_points(clause: str) -> tuple[list[str], set[str]]:
+    """(points defined, point-like tokens referenced) of one clause."""
+    lhs, rhs = clause.split(" = ", 1)
+    defined = [n.split("@", 1)[0] for n in lhs.split()]
+    refs = set()
+    for part in rhs.split(","):
+        for tok in part.split()[1:]:
+            if tok not in defined:
+                refs.add(tok)
+    return defined, refs
+
+
+def rename_token(clause: str, old: str, new: str) -> str:
+    lhs, rhs = clause.split(" = ", 1)
+    lhs = " ".join(new if t == old else t for t in lhs.split())
+    parts = []
+    for part in rhs.split(","):
+        toks = part.split()
+        parts.append(" ".join([toks[0]] + [new if t == old else t for t in toks[1:]]))
+    return f"{lhs} = " + ", ".join(parts)
+
+
+# --------------------------------------------------------------------------
+# DDAR helpers (evaluator's engine)
+
+
+def full_solve(A, g, p) -> list:
+    """ddar.solve to saturation, also collecting the AR derivations it applies."""
+    ddar, dd = A["ddar"], A["ddar"].dd
+    level_times: list = []
+    dervs, eq4 = g.derive_algebra(level=0, verbose=False)
+    derives, eq4s, all_added = [dervs], [eq4], []
+    while len(level_times) < 1000:
+        dervs, eq4, _, added = ddar.saturate_or_goal(g, A["rules"], level_times, p, 1000, timeout=100000)
+        all_added += added
+        derives += dervs
+        eq4s += eq4
+        if not derives:
+            break
+        added = []
+        while derives and not added:
+            added += dd.apply_derivations(g, derives.pop(0))
+        if added:
+            all_added += added
+            continue
+        while eq4s and not added:
+            added += dd.apply_derivations(g, eq4s.pop(0))
+        all_added += added
+        if not added:
+            break
+    return all_added
+
+
+def saturate(engine, clauses: list[str], seed: int, cpu: float, max_tries: int = 25):
+    """Draw + DDAR saturation.  Returns (graph or None, added deps, cpu seconds); raises engine._Timeout."""
+    A = engine.ag()
+    started = time.process_time()
+    with engine.hard_timeout(cpu):
+        g, p = engine.bounded_build("; ".join(clauses), seed, max_tries=max_tries)
+        if g is None:
+            return None, [], time.process_time() - started
+        added = full_solve(A, g, p)
+    return g, added, time.process_time() - started
 
 
 # --------------------------------------------------------------------------
 # generate
 
 
-def _saturate(engine, statement: str, seed: int, cpu: float, max_tries: int = 60):
-    """Draw and run DDAR to saturation (no goal).  Returns (graph, added, seconds) or raises."""
-    A = engine.ag()
-    started = time.process_time()
-    with engine.hard_timeout(cpu):
-        g, p = engine.bounded_build(statement, seed, max_tries=max_tries)
-        if g is None:
-            return None, [], time.process_time() - started
-        _, _, _, _, added = A["ddar"].solve(g, A["rules"], p, max_level=1000, timeout=100000)
-    return g, added, time.process_time() - started
+def build_config(engine, task: dict, rng: random.Random):
+    """Returns (clauses, kinds, required clause indices) or None."""
+    seed = task["seed"]
+    if task["kind"] == "public":
+        base = [c.strip() for c in task["setup"].split(";") if c.strip()]
+        kinds = ["public"] * len(base)
+        n_add = rng.choice((2, 3, 3))
+        required = set(range(len(base)))
+        semi = False
+    else:
+        names = NAME_POOL[:]
+        rng.shuffle(names)
+        a, b, c = names[:3]
+        base = [f"{a} {b} {c} = triangle {a} {b} {c}"]
+        kinds = ["triangle"]
+        n_add = rng.randint(4, 7)
+        required = {0}
+        semi = True
+    clauses = list(base)
+    pts = []
+    for cl in clauses:
+        pts += clause_points(cl)[0]
+    free_names = [n for n in NAME_POOL if n not in pts]
+    rng.shuffle(free_names)
+    for _ in range(n_add):
+        x = free_names.pop()
+        for _try in range(12):
+            try:
+                kind, cl = sample_clause(x, pts, rng, semi_free=semi)
+            except ValueError:
+                continue
+            try:
+                with engine.hard_timeout(5.0):
+                    g, _ = engine.bounded_build("; ".join(clauses + [cl]), seed, max_tries=6)
+            except engine._Timeout:
+                g = None
+            except Exception:  # noqa: BLE001
+                g = None
+            if g is not None:
+                clauses.append(cl)
+                kinds.append(kind)
+                pts.append(x)
+                break
+    if len(clauses) - len(base) < (1 if task["kind"] == "public" else 3):
+        return None
+    return clauses, kinds, required
 
 
-def process_base(task: dict) -> dict:
+def process_config(task: dict) -> dict:
     import engine  # noqa: E402
+    import gate  # noqa: E402
 
     A = engine.ag()
     nm = A["nm"]
-    base = dict(task["base"])
-    setup, seed = base["setup"], int(base["seed"])
-    names = setup_names(setup)
-    name_set = set(names)
-    rec = {k: base[k] for k in ("base_id", "source", "source_id", "split", "setup", "seed", "difficulty")}
-    public = base.get("public_goal", "").split()
-    public_key = (public[0], tuple(sorted(public[1:]))) if public else None
-    rec["samples"] = []
+    rng = random.Random(stable_int(SALT, "config", task["config_id"]))
+    rec = {k: task[k] for k in ("config_id", "kind", "split", "seed", "source", "source_id")}
+    rec["problems"] = []
+    built = build_config(engine, task, rng)
+    if built is None:
+        rec["status"] = "unbuildable"
+        return rec
+    clauses, kinds, required = built
+    rec.update(clauses=clauses, kinds=kinds)
     try:
-        g_s, _, t_s = _saturate(engine, setup, seed, task["cpu_base"])
+        g_t, added, t_t = saturate(engine, clauses, task["seed"], task["cpu_full"])
     except engine._Timeout:
-        rec.update(status="timeout_base")
+        rec["status"] = "timeout_full"
         return rec
     except Exception as exc:  # noqa: BLE001
-        rec.update(status=f"error_base:{type(exc).__name__}")
+        rec["status"] = f"error_full:{type(exc).__name__}"
         return rec
-    if g_s is None:
-        rec.update(status="unbuildable_base")
+    if g_t is None:
+        rec["status"] = "unbuildable_full"
         return rec
-    rec.update(status="ok", t_base=round(t_s, 3))
-    rng = random.Random(stable_int(SALT, "hidden", base["base_id"]))
-    for j in range(task["samples"]):
-        n_hidden = 1 if rng.random() < task["p_single"] else 2
-        pts = list(names)
-        clauses, kinds = [], []
-        for k in range(n_hidden):
-            for _ in range(20):
-                try:
-                    kind, clause = sample_clause(HIDDEN_NAMES[k], pts, rng)
-                    break
-                except ValueError:  # too few points for this construction
-                    continue
-            else:
-                break
-            kinds.append(kind)
-            clauses.append(clause)
-            pts.append(HIDDEN_NAMES[k])
-        if not clauses:
+    rec["t_full"] = round(t_t, 3)
+
+    # clause DAG
+    defined_by, deps = {}, []
+    for i, cl in enumerate(clauses):
+        d, refs = clause_points(cl)
+        for x in d:
+            defined_by[x] = i
+        deps.append({defined_by[r] for r in refs if r in defined_by})
+    all_pts = set(defined_by)
+
+    def closure(points) -> frozenset:
+        todo = [defined_by[p] for p in points] + sorted(required)
+        seen = set()
+        while todo:
+            i = todo.pop()
+            if i not in seen:
+                seen.add(i)
+                todo += deps[i]
+        return frozenset(seen)
+
+    facts = {}
+    for dep in added:
+        if dep.name not in PREDICATES:
             continue
-        sample = {"clauses": clauses, "kinds": kinds}
+        args = [getattr(a, "name", None) for a in dep.args]
+        if any(a not in all_pts for a in args):
+            continue
+        facts.setdefault((dep.name, tuple(args)), None)
+    groups: dict = {}
+    for name, args in facts:
+        idx = closure(args)
+        if len(idx) < len(clauses):
+            groups.setdefault(idx, []).append((name, args))
+    order = sorted(groups, key=lambda s: (len(clauses) - len(s), rng.random()))[: task["max_groups"]]
+    rec["n_facts"] = len(facts)
+    rec["n_groups"] = len(groups)
+    for idx in order:
+        setup = [clauses[i] for i in sorted(idx)]
+        setup_pts = set()
+        for cl in setup:
+            setup_pts |= set(clause_points(cl)[0])
         try:
-            g, added, t_se = _saturate(engine, setup + "; " + "; ".join(clauses), seed, task["cpu_hidden"],
-                                       max_tries=25)
-        except engine._Timeout:
-            sample["status"] = "timeout"
-            rec["samples"].append(sample)
+            g_a, _, t_a = saturate(engine, setup, task["seed"], task["cpu_part"])
+        except (engine._Timeout, Exception):  # noqa: BLE001
             continue
-        except Exception as exc:  # noqa: BLE001
-            sample["status"] = f"error:{type(exc).__name__}"
-            rec["samples"].append(sample)
+        if g_a is None:
             continue
-        if g is None:
-            sample["status"] = "unbuildable"
-            rec["samples"].append(sample)
-            continue
-        facts = {}
-        for dep in added:
-            if dep.name not in PREDICATES:
-                continue
-            arg_names = [getattr(a, "name", None) for a in dep.args]
-            if any(n not in name_set for n in arg_names):
-                continue
-            facts.setdefault((dep.name, tuple(arg_names)), None)
-        # Facts about the original points that the premises alone do not give.
-        # Checked in a random order per predicate, a bounded number each.
-        frng = random.Random(stable_int(SALT, "facts", base["base_id"], j))
-        by_pred: dict = {}
-        for name, arg_names in sorted(facts):
-            if public_key == (name, tuple(sorted(arg_names))):
-                continue  # the public problem's own goal is not a new problem
-            by_pred.setdefault(name, []).append(list(arg_names))
-        kept, checked = {}, {}
+        cands = list(groups[idx])
+        rng.shuffle(cands)
+        open_facts = []
         try:
-            with engine.hard_timeout(task["cpu_hidden"]):
-                for name in sorted(by_pred):
-                    items = by_pred[name]
-                    frng.shuffle(items)
-                    for arg_names in items[: task["checks_per_predicate"]]:
-                        checked[name] = checked.get(name, 0) + 1
-                        try:
-                            pts_s = g_s.names2points(list(arg_names))
-                            if g_s.check(name, pts_s) or not nm.check(name, pts_s):
-                                continue
-                        except Exception:  # noqa: BLE001
+            with engine.hard_timeout(task["cpu_part"]):
+                for name, args in cands[: task["checks_per_group"]]:
+                    try:
+                        pts_a = g_a.names2points(list(args))
+                        if g_a.check(name, pts_a) or not nm.check(name, pts_a):
                             continue
-                        kept.setdefault(name, []).append(arg_names)
-                        if len(kept[name]) >= task["facts_per_predicate"]:
-                            break
+                    except Exception:  # noqa: BLE001
+                        continue
+                    open_facts.append((name, args))
         except engine._Timeout:
-            sample["fact_check_timeout"] = True
-        sample.update(status="ok", t_hidden=round(t_se, 3), n_facts={k: len(v) for k, v in by_pred.items()},
-                      n_checked=checked, facts=kept)
-        rec["samples"].append(sample)
+            pass
+        if not open_facts:
+            continue
+        removed = [i for i in range(len(clauses)) if i not in idx]
+
+        def legal(cls: list[str]) -> list[str] | None:
+            """Rename the removed points to fresh names and check the gate."""
+            renamed = list(cls)
+            for k, cl in enumerate(cls):
+                x = clause_points(cl)[0][0]
+                renamed = [rename_token(c, x, AUX_NAMES[k]) for c in renamed]
+            existing = set(setup_pts)
+            try:
+                for cl in renamed:
+                    xx, _ = gate.normalize_clause(cl, existing)
+                    existing.add(xx)
+            except gate.GateError:
+                return None
+            return renamed
+
+        options = []
+        for i in removed:
+            if clause_points(clauses[i])[1] <= setup_pts and len(clause_points(clauses[i])[0]) == 1:
+                options.append([i])
+        if task["pairs"]:
+            for i in removed:
+                di, ri = clause_points(clauses[i])
+                if len(di) != 1 or not ri <= setup_pts:
+                    continue
+                for j in removed:
+                    dj, rj = clause_points(clauses[j])
+                    if j != i and len(dj) == 1 and di[0] in rj and rj <= setup_pts | set(di):
+                        options.append([i, j])
+        found = 0
+        for opt in options[: task["max_solutions"]]:
+            aux = legal([clauses[i] for i in opt])
+            if aux is None:
+                continue
+            try:
+                g_s, _, t_s = saturate(engine, setup + [clauses[i] for i in opt], task["seed"], task["cpu_part"])
+            except (engine._Timeout, Exception):  # noqa: BLE001
+                continue
+            if g_s is None:
+                continue
+            solved = []
+            for name, args in open_facts:
+                try:
+                    if g_s.check(name, g_s.names2points(list(args))):
+                        solved.append((name, args))
+                except Exception:  # noqa: BLE001
+                    continue
+            if not solved:
+                continue
+            found += 1
+            rng.shuffle(solved)
+            for name, args in solved[: task["facts_per_solution"]]:
+                rec["problems"].append({
+                    "setup": "; ".join(setup), "goal": " ".join([name, *args]), "predicate": name,
+                    "aux": aux, "aux_kinds": [kinds[i] for i in opt], "group": sorted(idx),
+                    "t_setup": round(t_a, 3), "t_solution_saturation": round(t_s, 3),
+                    "n_open": len(open_facts),
+                })
+            if len(opt) == 1 and found >= 2:
+                break
+    rec["status"] = "ok"
     return rec
 
 
-def load_bases(max_seconds: float, max_points: int) -> list[dict]:
+def process_config_safe(task: dict) -> dict:
+    try:
+        return process_config(task)
+    except BaseException as exc:  # noqa: BLE001 - one configuration must not stop generation
+        rec = {k: task[k] for k in ("config_id", "kind", "split", "seed", "source", "source_id")}
+        rec.update(status=f"crash:{type(exc).__name__}:{str(exc)[:200]}", problems=[])
+        return rec
+
+
+def load_public_bases(max_seconds: float, max_points: int) -> list[dict]:
     split_of = {}
     for split, paths in EXISTING.items():
         for path in paths:
@@ -261,23 +433,38 @@ def load_bases(max_seconds: float, max_points: int) -> list[dict]:
                 continue
             if r["seconds"] > max_seconds or int(r.get("n_points") or 99) > max_points:
                 continue
-            sid = r["source_id"]
-            split = split_of.get(sid)
-            if split is None:
-                split = "test" if (stable_int(SALT, "split", source, sid) % 1000) < 620 else "train"
-            bases.append({
-                "base_id": f"{source}:{sid}",
-                "source": source,
-                "source_id": sid,
-                "split": split,
-                "setup": r["setup"],
-                "seed": int(r["seed"]),
-                "difficulty": r.get("difficulty"),
-                "public_goal": r["goal"],
-                "screen_seconds": r["seconds"],
-            })
-    bases.sort(key=lambda b: (b["screen_seconds"], b["base_id"]))
+            bases.append({"source": source, "source_id": r["source_id"], "setup": r["setup"],
+                          "seed": int(r["seed"]), "split": split_of.get(r["source_id"])})
     return bases
+
+
+def make_tasks(args) -> list[dict]:
+    common = {"cpu_full": args.cpu_full, "cpu_part": args.cpu_part, "max_groups": args.max_groups,
+              "checks_per_group": args.checks_per_group, "max_solutions": args.max_solutions,
+              "facts_per_solution": args.facts_per_solution, "pairs": True}
+    tasks = []
+    for b in load_public_bases(args.max_screen_seconds, args.max_points):
+        cid = f"public:{b['source']}:{b['source_id']}"
+        split = b["split"] or ("test" if stable_int(SALT, "split", cid) % 1000 < 660 else "train")
+        tasks.append(dict(common, config_id=cid, kind="public", split=split, seed=b["seed"],
+                          source=b["source"], source_id=b["source_id"], setup=b["setup"]))
+    for i in range(args.random_configs):
+        cid = f"random:{i:05d}"
+        split = "test" if stable_int(SALT, "split", cid) % 1000 < 660 else "train"
+        tasks.append(dict(common, config_id=cid, kind="random", split=split,
+                          seed=stable_int(SALT, "seed", cid) % (2**31), source="random", source_id=cid))
+    random.Random(stable_int(SALT, "task-order")).shuffle(tasks)
+    # Interleave: one public base per `public_every` random configurations.
+    pub = [t for t in tasks if t["kind"] == "public"]
+    rnd = [t for t in tasks if t["kind"] == "random"]
+    out = []
+    while pub or rnd:
+        for _ in range(args.public_every):
+            if rnd:
+                out.append(rnd.pop(0))
+        if pub:
+            out.append(pub.pop(0))
+    return out
 
 
 def cmd_generate(args) -> None:
@@ -287,24 +474,29 @@ def cmd_generate(args) -> None:
     if POOL.exists():
         for line in POOL.read_text(encoding="utf-8").splitlines():
             if line.strip():
-                done.add(json.loads(line)["base_id"])
-    bases = [b for b in load_bases(args.max_screen_seconds, args.max_points) if b["base_id"] not in done]
+                done.add(json.loads(line)["config_id"])
+    tasks = [t for t in make_tasks(args) if t["config_id"] not in done]
     workers = args.workers or effective_cpus()
-    print(f"[derive] {len(done)} bases done, {len(bases)} to go, {workers} workers", file=sys.stderr, flush=True)
-    tasks = [{"base": b, "samples": args.samples, "p_single": args.p_single, "cpu_base": args.cpu_base,
-              "cpu_hidden": args.cpu_hidden, "facts_per_predicate": args.facts_per_predicate,
-              "checks_per_predicate": args.checks_per_predicate} for b in bases]
+    n_prob = 0
+    n_productive = 0
+    if POOL.exists():
+        for line in POOL.read_text(encoding="utf-8").splitlines():
+            if line.strip() and json.loads(line)["problems"]:
+                n_productive += 1
+    print(f"[synth] {len(done)} configs done, {len(tasks)} to go, {workers} workers", file=sys.stderr, flush=True)
     started = time.time()
     ctx = mp.get_context("fork")
-    with POOL.open("a", encoding="utf-8") as f, ctx.Pool(workers, maxtasksperchild=8) as pool:
-        for rec in pool.imap_unordered(process_base, tasks):
+    with POOL.open("a", encoding="utf-8") as f, ctx.Pool(workers, maxtasksperchild=10) as pool:
+        for rec in pool.imap_unordered(process_config_safe, tasks):
             f.write(json.dumps(rec, sort_keys=True) + "\n")
             f.flush()
-            n_ok = sum(1 for s in rec["samples"] if s.get("status") == "ok" and s.get("facts"))
-            print(f"[derive] {rec['base_id']} {rec['status']} t={rec.get('t_base')} productive={n_ok}/"
-                  f"{len(rec['samples'])} ({time.time() - started:.0f}s)", file=sys.stderr, flush=True)
-            if time.time() - started > args.budget_seconds:
-                print("[derive] time budget reached", file=sys.stderr, flush=True)
+            n_prob += len(rec["problems"])
+            n_productive = n_productive + (1 if rec["problems"] else 0)
+            print(f"[synth] {rec['config_id']} {rec['status']} t={rec.get('t_full')} facts={rec.get('n_facts')} "
+                  f"groups={rec.get('n_groups')} problems={len(rec['problems'])} total={n_prob} "
+                  f"({time.time() - started:.0f}s)", file=sys.stderr, flush=True)
+            if time.time() - started > args.budget_seconds or n_productive >= args.stop_productive:
+                print(f"[synth] stopping: productive={n_productive}", file=sys.stderr, flush=True)
                 pool.terminate()
                 break
 
@@ -317,33 +509,36 @@ def attempt_timeout(t_unsolved: float, t_solved: float) -> int:
     return int(min(12, max(4, math.ceil(3.0 * max(t_unsolved, t_solved) + 2.0))))
 
 
-def verify_base(task: dict) -> dict:
-    """Pick up to `per_base` verified problems from one base's candidate list."""
+def verify_config(task: dict) -> dict:
+    """Pick up to `per_config` verified problems of one configuration."""
     import engine  # noqa: E402
 
-    out = {"base_id": task["base_id"], "problems": [], "checked": 0, "rejected": {}}
-    used_kinds: set = set()
-    for cand in task["candidates"]:
-        if len(out["problems"]) >= task["per_base"]:
+    out = {"config_id": task["config_id"], "problems": [], "checked": 0, "rejected": {}}
+    used_groups: set = set()
+    used_preds: set = set()
+    cands = sorted(task["candidates"], key=lambda c: (tuple(c["group"]) in used_groups, c["_r"]))
+    for cand in cands:
+        if len(out["problems"]) >= task["per_config"]:
             break
-        if task["distinct_kinds"] and cand["kinds"][0] in used_kinds:
+        if tuple(cand["group"]) in used_groups or (cand["predicate"] in used_preds and len(cands) > 2):
             continue
         out["checked"] += 1
-        st0, t0 = engine.verify(task["setup"], cand["goal"], [], task["seed"], task["cpu_check"])
+        st0, t0 = engine.verify(cand["setup"], cand["goal"], [], task["seed"], task["cpu_check"])
         if st0 != "saturated":
             out["rejected"][f"alone:{st0}"] = out["rejected"].get(f"alone:{st0}", 0) + 1
             continue
-        st1, t1 = engine.verify(task["setup"], cand["goal"], cand["clauses"], task["seed"], task["cpu_check"])
+        st1, t1 = engine.verify(cand["setup"], cand["goal"], cand["aux"], task["seed"], task["cpu_check"])
         if st1 != "solved":
-            out["rejected"][f"hidden:{st1}"] = out["rejected"].get(f"hidden:{st1}", 0) + 1
+            out["rejected"][f"aux:{st1}"] = out["rejected"].get(f"aux:{st1}", 0) + 1
             continue
-        coords = engine.draw_coordinates(task["setup"], cand["goal"], task["seed"])
+        coords = engine.draw_coordinates(cand["setup"], cand["goal"], task["seed"])
         if coords is None:
             out["rejected"]["draw"] = out["rejected"].get("draw", 0) + 1
             continue
-        used_kinds.add(cand["kinds"][0])
+        used_groups.add(tuple(cand["group"]))
+        used_preds.add(cand["predicate"])
         out["problems"].append(dict(cand, t_alone=round(t0, 3), t_solution=round(t1, 3), coords=coords,
-                                    timeout=attempt_timeout(max(t0, cand["t_hidden"]), t1)))
+                                    timeout=attempt_timeout(max(t0, cand["t_solution_saturation"]), t1)))
     return out
 
 
@@ -351,41 +546,37 @@ def cmd_select(args) -> None:
     from evaluate import effective_cpus  # evaluator-owned helper
 
     recs = [json.loads(l) for l in POOL.read_text(encoding="utf-8").splitlines() if l.strip()]
+    by_id = {}
     tasks = []
     for rec in recs:
-        if rec.get("status") != "ok":
+        if rec.get("status") != "ok" or not rec["problems"]:
             continue
-        rng = random.Random(stable_int(SALT, "select", rec["base_id"]))
+        rng = random.Random(stable_int(SALT, "select", rec["config_id"]))
         cands = []
-        for j, s in enumerate(rec["samples"]):
-            if s.get("status") != "ok" or not s.get("facts"):
+        for c in rec["problems"]:
+            if c["t_solution_saturation"] > args.max_solution_seconds or c["t_setup"] > args.max_solution_seconds:
                 continue
-            if s["t_hidden"] > args.max_hidden_seconds:
-                continue
-            preds = sorted(s["facts"])
-            pred = rng.choice(preds)
-            args_ = rng.choice(s["facts"][pred])
-            cands.append({"sample": j, "clauses": s["clauses"], "kinds": s["kinds"], "t_hidden": s["t_hidden"],
-                          "goal": " ".join([pred] + list(args_)), "predicate": pred})
-        if cands:
-            tasks.append({"base_id": rec["base_id"], "setup": rec["setup"], "seed": int(rec["seed"]),
-                          "candidates": cands, "per_base": args.per_base, "distinct_kinds": True,
-                          "cpu_check": args.cpu_check, "_rec": rec})
-    by_id = {t["base_id"]: t.pop("_rec") for t in tasks}
+            cands.append(dict(c, _r=rng.random()))
+        if not cands:
+            continue
+        by_id[rec["config_id"]] = rec
+        tasks.append({"config_id": rec["config_id"], "seed": int(rec["seed"]), "candidates": cands,
+                      "per_config": args.per_config_public if rec["kind"] == "public" else args.per_config,
+                      "cpu_check": args.cpu_check})
     workers = args.workers or effective_cpus()
-    print(f"[select] {len(tasks)} productive bases, {workers} workers", file=sys.stderr, flush=True)
+    print(f"[select] {len(tasks)} productive configurations, {workers} workers", file=sys.stderr, flush=True)
     results = []
     ctx = mp.get_context("fork")
-    with ctx.Pool(workers, maxtasksperchild=8) as pool:
-        for res in pool.imap_unordered(verify_base, tasks):
+    with ctx.Pool(workers, maxtasksperchild=10) as pool:
+        for res in pool.imap_unordered(verify_config, tasks):
             results.append(res)
-            print(f"[select] {res['base_id']} kept={len(res['problems'])} checked={res['checked']} "
+            print(f"[select] {res['config_id']} kept={len(res['problems'])} checked={res['checked']} "
                   f"rejected={res['rejected']}", file=sys.stderr, flush=True)
-    results.sort(key=lambda r: r["base_id"])
+    results.sort(key=lambda r: r["config_id"])
 
     rows = {"test": [], "train": []}
     for res in results:
-        rec = by_id[res["base_id"]]
+        rec = by_id[res["config_id"]]
         for prob in res["problems"]:
             rows[rec["split"]].append((rec, prob))
     caps = {"test": args.max_test, "train": args.max_train}
@@ -394,33 +585,32 @@ def cmd_select(args) -> None:
         rng = random.Random(stable_int(SALT, "order", split))
         rng.shuffle(items)
         if len(items) > caps[split]:
-            # Drop whole problems, at most one per base first, to keep many bases.
             seen, first, rest = set(), [], []
             for rec, prob in items:
-                (rest if rec["base_id"] in seen else first).append((rec, prob))
-                seen.add(rec["base_id"])
+                (rest if rec["config_id"] in seen else first).append((rec, prob))
+                seen.add(rec["config_id"])
             items = (first + rest)[: caps[split]]
-        items.sort(key=lambda rp: (rp[0]["base_id"], rp[1]["sample"]))
-        prefix = "dtest" if split == "test" else "dtrain"
+        items.sort(key=lambda rp: (rp[0]["config_id"], rp[1]["goal"]))
+        prefix = "stest" if split == "test" else "strain"
         out_rows, sol_rows = [], []
         for idx, (rec, prob) in enumerate(items, start=1):
             pid = f"{prefix}_{idx:03d}"
             row = {
                 "problem_id": pid,
+                "config": rec["kind"],
                 "source_id": rec["source_id"],
-                "base": rec["source"],
                 "difficulty": None,
-                "setup": rec["setup"],
+                "setup": prob["setup"],
                 "goal": prob["goal"],
                 "seed": int(rec["seed"]),
                 "timeout": prob["timeout"],
                 "ddar_alone_seconds": prob["t_alone"],
                 "coords": prob["coords"],
             }
-            sol = {"problem_id": pid, "aux": prob["clauses"], "kinds": prob["kinds"],
+            sol = {"problem_id": pid, "aux": prob["aux"], "kinds": prob["aux_kinds"], "config": rec["kind"],
                    "predicate": prob["predicate"], "t_solution": prob["t_solution"]}
             if split == "train":
-                row["known_aux"] = prob["clauses"]
+                row["known_aux"] = prob["aux"]
             out_rows.append(row)
             sol_rows.append(sol)
         path = TEST_OUT if split == "test" else TRAIN_OUT
@@ -429,43 +619,53 @@ def cmd_select(args) -> None:
         if split == "test":
             SOLUTIONS_OUT.write_text("".join(json.dumps(r, sort_keys=True) + "\n" for r in sol_rows),
                                      encoding="utf-8")
-        kinds, preds = {}, {}
-        for s in sol_rows:
-            kinds[s["kinds"][0] + ("+1" if len(s["kinds"]) > 1 else "")] = kinds.get(
-                s["kinds"][0] + ("+1" if len(s["kinds"]) > 1 else ""), 0) + 1
-            preds[s["predicate"]] = preds.get(s["predicate"], 0) + 1
+
+        def count(key):
+            c = {}
+            for s in sol_rows:
+                k = key(s)
+                c[k] = c.get(k, 0) + 1
+            return dict(sorted(c.items(), key=lambda kv: -kv[1]))
+
         summary[split] = {
-            "problems": len(out_rows), "bases": len({r["source_id"] for r in out_rows}),
-            "kinds": dict(sorted(kinds.items(), key=lambda kv: -kv[1])),
-            "predicates": dict(sorted(preds.items(), key=lambda kv: -kv[1])),
+            "problems": len(out_rows), "configurations": len({r["source_id"] for r in out_rows}),
+            "config_kind": count(lambda s: s["config"]),
+            "aux_kinds": count(lambda s: "+".join(s["kinds"])),
+            "aux_count": count(lambda s: len(s["kinds"])),
+            "predicates": count(lambda s: s["predicate"]),
             "timeout_sum": sum(r["timeout"] for r in out_rows),
             "alone_seconds_sum": round(sum(r["ddar_alone_seconds"] for r in out_rows), 1),
+            "points_mean": round(sum(len(r["coords"]) for r in out_rows) / max(1, len(out_rows)), 2),
         }
     print(json.dumps(summary, indent=1))
-    (HERE / "derived_summary.json").write_text(json.dumps(summary, indent=1) + "\n", encoding="utf-8")
+    SUMMARY_OUT.write_text(json.dumps(summary, indent=1) + "\n", encoding="utf-8")
 
 
 def main() -> None:
     parser = argparse.ArgumentParser()
     sub = parser.add_subparsers(dest="cmd", required=True)
     g = sub.add_parser("generate")
-    g.add_argument("--max-screen-seconds", type=float, default=2.5)
+    g.add_argument("--random-configs", type=int, default=4000)
+    g.add_argument("--public-every", type=int, default=3)
+    g.add_argument("--max-screen-seconds", type=float, default=2.0)
     g.add_argument("--max-points", type=int, default=11)
-    g.add_argument("--samples", type=int, default=8)
-    g.add_argument("--p-single", type=float, default=0.75)
-    g.add_argument("--cpu-base", type=float, default=4.0)
-    g.add_argument("--cpu-hidden", type=float, default=8.0)
-    g.add_argument("--facts-per-predicate", type=int, default=6)
-    g.add_argument("--checks-per-predicate", type=int, default=200)
-    g.add_argument("--budget-seconds", type=float, default=3600)
+    g.add_argument("--cpu-full", type=float, default=6.0)
+    g.add_argument("--cpu-part", type=float, default=4.0)
+    g.add_argument("--max-groups", type=int, default=5)
+    g.add_argument("--checks-per-group", type=int, default=150)
+    g.add_argument("--max-solutions", type=int, default=4)
+    g.add_argument("--facts-per-solution", type=int, default=3)
+    g.add_argument("--budget-seconds", type=float, default=3000)
+    g.add_argument("--stop-productive", type=int, default=480)
     g.add_argument("--workers", type=int, default=0)
     g.set_defaults(func=cmd_generate)
     s = sub.add_parser("select")
-    s.add_argument("--per-base", type=int, default=2)
-    s.add_argument("--max-hidden-seconds", type=float, default=3.0)
+    s.add_argument("--per-config", type=int, default=2)
+    s.add_argument("--per-config-public", type=int, default=2)
+    s.add_argument("--max-solution-seconds", type=float, default=2.5)
     s.add_argument("--cpu-check", type=float, default=20.0)
-    s.add_argument("--max-test", type=int, default=260)
-    s.add_argument("--max-train", type=int, default=140)
+    s.add_argument("--max-test", type=int, default=240)
+    s.add_argument("--max-train", type=int, default=120)
     s.add_argument("--workers", type=int, default=0)
     s.set_defaults(func=cmd_select)
     args = parser.parse_args()
