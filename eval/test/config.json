@@ -10,7 +10,8 @@
         "solve_rate",
         "hard_solve_rate",
         "pass_auc"
-      ]
+      ],
+      "proposer_cpu_seconds_per_problem": 15
     },
     "jgex231_aux": {
       "problems": "eval/test/problems_jgex.jsonl",
@@ -20,23 +21,13 @@
       "metrics": [
         "solve_rate",
         "pass_auc"
-      ]
-    },
-    "synthetic_aux": {
-      "problems": "eval/test/problems_synthetic.jsonl",
-      "baselines": "eval/test/baselines_synthetic.json",
-      "max_attempts": 16,
-      "max_aux_per_attempt": 3,
-      "metrics": [
-        "solve_rate",
-        "pass_auc"
-      ]
+      ],
+      "proposer_cpu_seconds_per_problem": 5
     }
   },
   "baseline_proposers": {
     "random_aux": "baseline/random_aux.sh"
   },
-  "proposer_cpu_seconds_per_problem": 3,
   "proposer_cpu_min_seconds": 120,
   "proposer_wall_factor": 10
 }

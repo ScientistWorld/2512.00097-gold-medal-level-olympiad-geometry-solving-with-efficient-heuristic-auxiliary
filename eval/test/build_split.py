@@ -260,9 +260,57 @@ def cmd_coords(args) -> None:
             print(f"[coords] {path}: {len(rows)} problems", file=sys.stderr, flush=True)
 
 
+INSTANCE_SALT = "hageo-gym-v3-instances"
+
+
+def cmd_instances(args) -> None:
+    """Present every problem of a source as several independent instances.
+
+    Instance 1 is the problem as built by ``split``/``coords``; instances 2..k
+    use a fresh point renaming and a fresh drawing seed (each re-checked: DDAR
+    alone still saturates without the goal under the problem's CPU limit).
+    A seeded proposer therefore makes independent draws on every instance,
+    which shrinks proposer-randomness noise in paired comparisons.  The
+    number of distinct problems does not change.
+    """
+    sys.path.insert(0, str(HERE))
+    import engine
+
+    _screen, test_file, train_file, _prefixes = SOURCES[args.source]
+    for path in (test_file, train_file):
+        rows = [json.loads(l) for l in path.read_text(encoding="utf-8").splitlines() if l.strip()]
+        base = [r for r in rows if int(r.get("instance", 1)) == 1]
+        out = []
+        for r in base:
+            r = dict(r, instance=1)
+            out.append(r)
+            for k in range(2, args.copies + 1):
+                for attempt in range(8):
+                    key = f"{INSTANCE_SALT}|{r['source_id']}|{k}|{attempt}"
+                    setup, goal, _ = rename_statement(f"{r['setup']} ? {r['goal']}", key)
+                    seed = stable_int(INSTANCE_SALT, "seed", key) % (2**31)
+                    status, secs = engine.verify(setup, goal, [], seed, float(r["timeout"]))
+                    if status != "saturated":
+                        continue
+                    coords = engine.draw_coordinates(setup, goal, seed, timeout=600.0)
+                    if coords is None:
+                        continue
+                    out.append(dict(r, problem_id=f"{r['problem_id']}_v{k:02d}", setup=setup, goal=goal, seed=seed,
+                                    coords=coords, ddar_alone_seconds=round(secs, 3), instance=k))
+                    break
+                else:
+                    print(f"[instances] {r['problem_id']}: no valid instance {k}", file=sys.stderr, flush=True)
+        path.write_text("".join(json.dumps(x, sort_keys=True) + "\n" for x in out), encoding="utf-8")
+        print(f"[instances] {path}: {len(base)} problems -> {len(out)} instances", file=sys.stderr, flush=True)
+
+
 def main() -> None:
     parser = argparse.ArgumentParser()
     sub = parser.add_subparsers(dest="cmd", required=True)
+    i = sub.add_parser("instances")
+    i.add_argument("--source", choices=sorted(SOURCES), default="jgex")
+    i.add_argument("--copies", type=int, default=8)
+    i.set_defaults(func=cmd_instances)
     s = sub.add_parser("screen")
     s.add_argument("--source", choices=sorted(SOURCES), default="hageo409")
     s.add_argument("--timeout", type=float, default=6.0)

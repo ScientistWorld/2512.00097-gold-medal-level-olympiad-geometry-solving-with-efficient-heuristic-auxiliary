@@ -1,0 +1,104 @@
+{
+ "test": {
+  "problems": 188,
+  "ddar_solved": 0,
+  "random_aux_solved": 169,
+  "random_first_success_hist": {
+   "5": 7,
+   "None": 19,
+   "3": 18,
+   "2": 28,
+   "1": 76,
+   "7": 7,
+   "13": 2,
+   "4": 15,
+   "15": 1,
+   "10": 6,
+   "6": 4,
+   "12": 3,
+   "8": 2
+  }
+ },
+ "train": {
+  "problems": 101,
+  "ddar_solved": 0,
+  "random_aux_solved": 90,
+  "random_first_success_hist": {
+   "9": 2,
+   "1": 40,
+   "14": 2,
+   "2": 13,
+   "None": 11,
+   "3": 10,
+   "6": 6,
+   "4": 2,
+   "5": 4,
+   "11": 2,
+   "7": 4,
+   "10": 2,
+   "12": 1,
+   "8": 2
+  }
+ },
+ "summary": {
+  "test": {
+   "problems": 188,
+   "configurations": 181,
+   "config_kind": {
+    "random": 187,
+    "public": 1
+   },
+   "aux_count": {
+    "1": 141,
+    "2": 47
+   },
+   "predicates": {
+    "eqangle": 140,
+    "eqratio": 42,
+    "para": 3,
+    "cong": 2,
+    "coll": 1
+   },
+   "timeout_sum": 986,
+   "alone_seconds_sum": 18.8,
+   "points_mean": 5.66
+  },
+  "train": {
+   "problems": 101,
+   "configurations": 98,
+   "config_kind": {
+    "random": 100,
+    "public": 1
+   },
+   "aux_count": {
+    "1": 76,
+    "2": 25
+   },
+   "predicates": {
+    "eqangle": 74,
+    "eqratio": 23,
+    "para": 2,
+    "cong": 2
+   },
+   "timeout_sum": 554,
+   "alone_seconds_sum": 14.5,
+   "points_mean": 5.71
+  }
+ },
+ "generation": {
+  "configurations": 3469,
+  "status": {
+   "ok": 3082,
+   "timeout_full": 377,
+   "unbuildable": 2,
+   "error_full:Value": 6,
+   "error_full:Inval": 2
+  },
+  "productive": 300
+ },
+ "reference_cpu_limit_failure": {
+  "hageo409_aux": "failed: hageo409_aux: failed: proposer used 121s of CPU time, above its limit of 120s",
+  "jgex231_aux": "failed: hageo409_aux: failed: proposer used 121s of CPU time, above its limit of 120s",
+  "synthetic_aux": "failed: hageo409_aux: failed: proposer used 121s of CPU time, above its limit of 120s"
+ }
+}

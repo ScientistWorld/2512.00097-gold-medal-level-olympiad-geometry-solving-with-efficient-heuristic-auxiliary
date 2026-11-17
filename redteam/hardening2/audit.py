@@ -7,8 +7,8 @@ audit cache (tmp/hardening/cache_{train,test}.jsonl, shared with the previous
 hardening audit), so identical attempts are never re-proved.
 
 Steps
-  1. generate and select the synthetic problems (eval/test/derive.py)
-  2. fixed baselines (DDAR alone, random auxiliaries) on the synthetic sets
+  1. JGEX-231 problems as eight independent instances each (eval/test/build_split.py instances)
+  2. fixed baselines (DDAR alone, random auxiliaries) on the expanded JGEX sets
   3. reference only: scripts/evaluate_test.sh and scripts/evaluate_train.sh
      -> scoring/scores_{test,train}.json
   4. variants, rules and shortcuts through the held-out evaluator
@@ -90,15 +90,15 @@ def run_variant(tag: str, names: list[str], slice_: str, experiments: list[str] 
 
 
 def selftest() -> None:
-    """Run every audit proposer on four derived problems and check its output with the gate (log only)."""
+    """Run every audit proposer on four JGEX instances and check its output with the gate (log only)."""
     sys.path.insert(0, str(ROOT / "eval" / "test"))
     import gate  # noqa: E402
 
-    probs = [json.loads(l) for l in (ROOT / "eval/test/problems_synthetic.jsonl").read_text().splitlines()
+    probs = [json.loads(l) for l in (ROOT / "eval/test/problems_jgex.jsonl").read_text().splitlines()
              if l.strip()][:4]
     rows = [{"problem_id": p["problem_id"], "setup": p["setup"], "points": gate.setup_point_names(p["setup"]),
              "coords": p["coords"], "difficulty": None, "max_attempts": 16, "max_aux_per_attempt": 3,
-             "cpu_seconds_per_problem": 3.0} for p in probs]
+             "cpu_seconds_per_problem": 5.0} for p in probs]
     inp = WORK / "selftest_in.jsonl"
     inp.write_text("".join(json.dumps(r) + "\n" for r in rows))
     for f in sorted(REG.glob("*.sh")) + [ROOT / "proposers" / "hageo.sh", ROOT / "baseline" / "random_aux.sh"]:
@@ -107,7 +107,6 @@ def selftest() -> None:
         out = WORK / f"selftest_{f.stem}.jsonl"
         tmp_script = ROOT / "proposers" / f"_selftest_{f.stem}.sh"
         shutil.copy(f, tmp_script)
-        t = time.process_time()
         try:
             r = subprocess.run(["bash", str(tmp_script), str(inp), str(out)], cwd=ROOT, capture_output=True,
                                text=True, timeout=900)
@@ -124,12 +123,17 @@ def selftest() -> None:
         log(f"selftest {f.stem}: {'OK' if ok else 'FAIL'} {msg}")
 
 
-def train_rank(scores: dict, name: str, ref: str = "hageo") -> float:
-    r = scores["experiments"]["synthetic_aux"]["results"]
-    a, b = r.get(name), r.get(ref)
+def train_rank(ref: dict, var: dict) -> float:
+    """Selection score on the visible JGEX train instances."""
+    a, b = var, ref
     if not a or not b:
         return float("-inf")
     return (a["solve_rate"] - b["solve_rate"]) + 0.5 * (a["pass_auc"] - b["pass_auc"])
+
+
+ALL = None  # every experiment
+CHEAP_ON_HAGEO = ["hageo_seed1", "hageo_seed2", "hageo_hybrid", "hageo_unfiltered", "hageo_n1", "systematic"]
+CANDIDATES = ["hageo_ext_hybrid", "hageo_ext", "hageo_hybrid"]
 
 
 def main() -> None:
@@ -139,37 +143,26 @@ def main() -> None:
     os.environ.setdefault("MPLBACKEND", "Agg")
     os.environ.setdefault("MPLCONFIGDIR", "/tmp/mpl")
 
-    # 1. synthetic problems
-    # Public-base configurations proved slow and almost never productive in the first
-    # 12 minutes (2 of 147), so generation continues with random configurations only.
-    step("derive_generate", lambda: sh([PY, "eval/test/derive.py", "generate", "--budget-seconds", "7200",
-                                        "--stop-productive", "300", "--public-every", "100000"]))
-    step("derive_select", lambda: sh([PY, "eval/test/derive.py", "select", "--max-test", "240",
-                                      "--max-train", "120"]))
-
-    def sanity_select():
-        summary = json.loads((ROOT / "eval" / "test" / "synthetic_summary.json").read_text())
-        log(f"synthetic summary: {json.dumps(summary)}")
-        if summary["test"]["problems"] < 100 or summary["train"]["problems"] < 50:
-            raise SystemExit("too few synthetic problems; stopping for inspection")
-    step("sanity_select", sanity_select)
+    # 1. JGEX-231: eight independent instances per problem (test and train)
+    step("instances", lambda: sh([PY, "eval/test/build_split.py", "instances", "--source", "jgex",
+                                  "--copies", "8"]))
     step("selftest", selftest)
 
-    # 2. fixed baselines on the new experiment
+    # 2. fixed baselines for the expanded JGEX sets
     for s in ("test", "train"):
-        step(f"baselines_{s}", lambda s=s: evaluate(s, "baselines_synth", None, ["synthetic_aux"],
+        step(f"baselines_{s}", lambda s=s: evaluate(s, "baselines_jgex", None, ["jgex231_aux"],
                                                      ["--recompute-baselines", "--no-proposers"]))
 
     def sanity_baselines():
-        for s, path in (("test", ROOT / "eval/test/baselines_synthetic.json"),
-                        ("train", ROOT / "eval/train/baselines_synthetic.json")):
+        for s, path in (("test", ROOT / "eval/test/baselines_jgex.json"),
+                        ("train", ROOT / "eval/train/baselines_jgex.json")):
             b = json.loads(path.read_text())
             n = len(b["ddar"])
             ddar = sum(1 for v in b["ddar"].values() if v is not None)
             rnd = sum(1 for v in b["random_aux"].values() if v is not None)
-            log(f"baselines {s}: n={n} ddar={ddar} random_aux={rnd}")
+            log(f"baselines jgex {s}: n={n} ddar={ddar} random_aux={rnd}")
             if ddar:
-                raise SystemExit("DDAR alone proves synthetic problems; stopping for inspection")
+                raise SystemExit("DDAR alone proves JGEX instances; stopping for inspection")
     step("sanity_baselines", sanity_baselines)
 
     # 3. reference only, through the unchanged no-argument scripts (+ audit cache)
@@ -177,51 +170,52 @@ def main() -> None:
         sh(["bash", f"scripts/evaluate_{s}.sh"], env={"EVAL_CACHE": str(CACHE[s])})
         shutil.copy(ROOT / "scoring" / f"scores_{s}.json", RES / f"reference_scores_{s}.json")
         shutil.copy(ROOT / "outputs" / f"eval_{s}_details.json", RES / f"reference_details_{s}.json")
+        d = json.loads((RES / f"reference_details_{s}.json").read_text())
+        bad = {e: d[e]["hageo"]["status"] for e in d if not d[e]["hageo"]["status"].startswith("ok")}
+        if bad:
+            raise SystemExit(f"reference failed: {bad}")
     for s in ("test", "train"):
         step(f"reference_{s}", lambda s=s: ref(s))
 
-    # 4a. shortcut probes that end quickly (failures or cached reference attempts)
-    step("shortcuts_fast_test", lambda: run_variant("shortcuts_fast", ["sc_read_hidden", "sc_goal_lookup",
-                                                                        "sc_cpu_hog"], "test", None))
+    # 4. variants whose HAGeo-409 attempts are already verified (cache): every experiment
+    for n in CHEAP_ON_HAGEO:
+        step(f"test_{n}", lambda n=n: run_variant(n, [n], "test", ALL))
 
-    # 4b. variants on the new experiment (held-out), most informative first
-    derived_test = ["hageo_seed1", "hageo_ext_hybrid", "hageo_ext", "hageo_hybrid", "hageo_unfiltered",
-                    "rule_mixed3", "rule_circumcenters", "hageo_seed2", "sc_lookahead", "systematic", "hageo_n1"]
-    for n in derived_test[:4]:
-        step(f"synth_test_{n}", lambda n=n: run_variant(f"synth_{n}", [n], "test", ["synthetic_aux"]))
-
-    # 4c. candidate improvements on the visible train set (selection is made on train)
-    for n in ("hageo_ext_hybrid", "hageo_ext", "hageo_hybrid"):
-        step(f"synth_train_{n}", lambda n=n: run_variant(f"synth_{n}", [n], "train", ["synthetic_aux"]))
+    # 5. candidate improvements: JGEX test, JGEX train; choose on train
+    for n in ("hageo_ext_hybrid", "hageo_ext"):
+        step(f"test_jgex_{n}", lambda n=n: run_variant(f"jgex_{n}", [n], "test", ["jgex231_aux"]))
+    for n in CANDIDATES + ["hageo_seed1"]:
+        step(f"train_jgex_{n}", lambda n=n: run_variant(f"jgex_{n}", [n], "train", ["jgex231_aux"]))
 
     def choose():
-        ref_scores = json.loads((RES / "reference_scores_train.json").read_text())
+        ref_r = json.loads((RES / "reference_scores_train.json").read_text())
+        ref_r = ref_r["experiments"]["jgex231_aux"]["results"]["hageo"]
         best, best_v = None, float("-inf")
-        for n in ("hageo_ext_hybrid", "hageo_ext", "hageo_hybrid"):
-            sc = json.loads((RES / f"synth_{n}_scores_train.json").read_text())
-            merged = {"experiments": {"synthetic_aux": {"results": {
-                "hageo": ref_scores["experiments"]["synthetic_aux"]["results"]["hageo"],
-                n: sc["experiments"]["synthetic_aux"]["results"].get(n)}}}}
-            v = train_rank(merged, n)
+        for n in CANDIDATES:
+            sc = json.loads((RES / f"jgex_{n}_scores_train.json").read_text())
+            v = train_rank(ref_r, sc["experiments"]["jgex231_aux"]["results"].get(n))
             log(f"train selection {n}: {v:+.4f}")
             if v > best_v:
                 best, best_v = n, v
         (WORK / "better_variant.txt").write_text(best + "\n")
     step("choose_better", choose)
 
-    for n in derived_test[4:]:
-        step(f"synth_test_{n}", lambda n=n: run_variant(f"synth_{n}", [n], "test", ["synthetic_aux"]))
+    # 6. shortcut probes (fail fast or reuse verified reference attempts)
+    step("shortcuts_fast", lambda: run_variant("shortcuts_fast", ["sc_read_hidden", "sc_goal_lookup",
+                                                                  "sc_cpu_hog"], "test", ALL))
+    # 7. short rules and private lookahead on JGEX
+    for n in ("rule_mixed3", "rule_circumcenters", "sc_lookahead"):
+        step(f"test_jgex_{n}", lambda n=n: run_variant(f"jgex_{n}", [n], "test", ["jgex231_aux"]))
 
-    # 4d. the train-selected variant and the lookahead on the two public-problem experiments
+    # 8. train-selected variant on HAGeo-409 (test, train); lookahead and rules on HAGeo-409 last
     better = (WORK / "better_variant.txt").read_text().strip()
-    step("better_old_test", lambda: run_variant(f"old_{better}", [better], "test",
-                                                ["jgex231_aux", "hageo409_aux"]))
-    step("lookahead_jgex_test", lambda: run_variant("old_sc_lookahead_jgex", ["sc_lookahead"], "test",
-                                                    ["jgex231_aux"]))
-    step("better_old_train", lambda: run_variant(f"old_{better}", [better], "train",
-                                                 ["jgex231_aux", "hageo409_aux"]))
-    step("lookahead_hageo_test", lambda: run_variant("old_sc_lookahead_hageo", ["sc_lookahead"], "test",
-                                                     ["hageo409_aux"]))
+    if better not in CHEAP_ON_HAGEO:
+        step(f"test_hageo_{better}", lambda: run_variant(f"hageo409_{better}", [better], "test", ["hageo409_aux"]))
+    step(f"train_all_{better}", lambda: run_variant(f"train_{better}", [better], "train", ALL))
+    step("test_hageo_sc_lookahead", lambda: run_variant("hageo409_sc_lookahead", ["sc_lookahead"], "test",
+                                                        ["hageo409_aux"]))
+    for n in ("rule_mixed3", "rule_circumcenters"):
+        step(f"test_hageo_{n}", lambda n=n: run_variant(f"hageo409_{n}", [n], "test", ["hageo409_aux"]))
     uninstall_all()
     log("all steps done")
 

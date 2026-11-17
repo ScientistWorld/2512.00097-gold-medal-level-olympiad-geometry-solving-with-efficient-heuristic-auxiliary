@@ -243,7 +243,7 @@ def proposer_input(problems: list[dict], coords: dict, exp: dict, config: dict) 
                 "difficulty": p.get("difficulty"),
                 "max_attempts": int(exp["max_attempts"]),
                 "max_aux_per_attempt": int(exp["max_aux_per_attempt"]),
-                "cpu_seconds_per_problem": float(config["proposer_cpu_seconds_per_problem"]),
+                "cpu_seconds_per_problem": float(exp["proposer_cpu_seconds_per_problem"]),
             }
         )
     return rows
@@ -254,8 +254,9 @@ def _children_cpu() -> float:
     return ru.ru_utime + ru.ru_stime
 
 
-def proposer_cpu_limit(config: dict, n_rows: int) -> float:
-    return max(float(config["proposer_cpu_min_seconds"]), float(config["proposer_cpu_seconds_per_problem"]) * n_rows)
+def proposer_cpu_limit(config: dict, exp: dict, n_rows: int) -> float:
+    """CPU seconds the proposer may use for one experiment (whole process tree)."""
+    return max(float(config["proposer_cpu_min_seconds"]), float(exp["proposer_cpu_seconds_per_problem"]) * n_rows)
 
 
 def _audit_fingerprint(script: Path, in_path: Path) -> str:
@@ -268,7 +269,7 @@ def _audit_fingerprint(script: Path, in_path: Path) -> str:
     return h.hexdigest()
 
 
-def run_proposer(script: Path, rows: list[dict], config: dict, workdir: Path) -> tuple[list | None, str]:
+def run_proposer(script: Path, rows: list[dict], config: dict, exp: dict, workdir: Path) -> tuple[list | None, str]:
     in_path = workdir / "problems.jsonl"
     out_path = workdir / "proposals.jsonl"
     log_path = workdir / "proposer.log"
@@ -284,7 +285,7 @@ def run_proposer(script: Path, rows: list[dict], config: dict, workdir: Path) ->
     # The decisive limit is CPU time summed over the proposer's process tree, so
     # the verdict does not depend on machine load.  The wall-clock backstop only
     # stops a proposer that hangs; it sits far above any CPU-bound run.
-    cpu_limit = proposer_cpu_limit(config, len(rows))
+    cpu_limit = proposer_cpu_limit(config, exp, len(rows))
     wall_backstop = float(config.get("proposer_wall_factor", 10)) * cpu_limit + 300.0
 
     def _rlimit():
@@ -355,7 +356,7 @@ def evaluate_proposer(name, script, problems, coords, exp, config, workers):
     workdir = Path(tempfile.mkdtemp(prefix=f"hageo_eval_{SLICE}_"))
     log_tail = ""
     try:
-        output, message = run_proposer(script, rows, config, workdir)
+        output, message = run_proposer(script, rows, config, exp, workdir)
         log_file = workdir / "proposer.log"
         if log_file.exists():
             log_tail = log_file.read_text(encoding="utf-8", errors="replace")[-2000:]
