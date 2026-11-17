@@ -1,0 +1,848 @@
+{
+ "test": {
+  "metrics": {
+   "hageo409_aux": {
+    "ddar": {
+     "hard_solve_rate": 0.0,
+     "pass_auc": 0.0,
+     "solve_rate": 0.0
+    },
+    "hageo": {
+     "hard_solve_rate": 0.0,
+     "pass_auc": 0.05921052631578947,
+     "solve_rate": 0.07894736842105263
+    },
+    "hageo_ext_hybrid": {
+     "hard_solve_rate": 0.0,
+     "pass_auc": 0.044407894736842105,
+     "solve_rate": 0.07894736842105263
+    },
+    "hageo_hybrid": {
+     "hard_solve_rate": 0.0,
+     "pass_auc": 0.03289473684210526,
+     "solve_rate": 0.07894736842105263
+    },
+    "hageo_n1": {
+     "hard_solve_rate": 0.0,
+     "pass_auc": 0.011513157894736841,
+     "solve_rate": 0.02631578947368421
+    },
+    "hageo_seed1": {
+     "hard_solve_rate": 0.0,
+     "pass_auc": 0.029605263157894735,
+     "solve_rate": 0.05263157894736842
+    },
+    "hageo_seed2": {
+     "hard_solve_rate": 0.0,
+     "pass_auc": 0.047697368421052634,
+     "solve_rate": 0.07894736842105263
+    },
+    "hageo_unfiltered": {
+     "hard_solve_rate": 0.0,
+     "pass_auc": 0.024671052631578948,
+     "solve_rate": 0.02631578947368421
+    },
+    "random_aux": {
+     "hard_solve_rate": 0.05,
+     "pass_auc": 0.03618421052631579,
+     "solve_rate": 0.05263157894736842
+    },
+    "sc_cpu_hog": {
+     "hard_solve_rate": 0.0,
+     "pass_auc": 0.0,
+     "solve_rate": 0.0
+    },
+    "sc_goal_lookup": {
+     "hard_solve_rate": 0.0,
+     "pass_auc": 0.0,
+     "solve_rate": 0.0
+    },
+    "sc_lookahead": {
+     "hard_solve_rate": 0.0,
+     "pass_auc": 0.05921052631578947,
+     "solve_rate": 0.07894736842105263
+    },
+    "sc_read_hidden": {
+     "hard_solve_rate": 0.0,
+     "pass_auc": 0.05921052631578947,
+     "solve_rate": 0.07894736842105263
+    },
+    "systematic": {
+     "hard_solve_rate": 0.0,
+     "pass_auc": 0.06578947368421052,
+     "solve_rate": 0.07894736842105263
+    }
+   },
+   "jgex231_aux": {
+    "ddar": {
+     "pass_auc": 0.0,
+     "solve_rate": 0.0
+    },
+    "hageo": {
+     "pass_auc": 0.453125,
+     "solve_rate": 0.6180555555555556
+    },
+    "hageo_ext": {
+     "pass_auc": 0.4592013888888889,
+     "solve_rate": 0.6458333333333334
+    },
+    "hageo_ext_hybrid": {
+     "pass_auc": 0.66015625,
+     "solve_rate": 0.7361111111111112
+    },
+    "hageo_hybrid": {
+     "pass_auc": 0.6940104166666666,
+     "solve_rate": 0.7638888888888888
+    },
+    "hageo_n1": {
+     "pass_auc": 0.3541666666666667,
+     "solve_rate": 0.5
+    },
+    "hageo_seed1": {
+     "pass_auc": 0.4730902777777778,
+     "solve_rate": 0.6319444444444444
+    },
+    "hageo_seed2": {
+     "pass_auc": 0.4552951388888889,
+     "solve_rate": 0.6111111111111112
+    },
+    "hageo_unfiltered": {
+     "pass_auc": 0.22178819444444445,
+     "solve_rate": 0.3125
+    },
+    "random_aux": {
+     "pass_auc": 0.3372395833333333,
+     "solve_rate": 0.4791666666666667
+    },
+    "rule_circumcenters": {
+     "pass_auc": 0.3177083333333333,
+     "solve_rate": 0.3402777777777778
+    },
+    "rule_mixed3": {
+     "pass_auc": 0.4097222222222222,
+     "solve_rate": 0.4375
+    },
+    "sc_cpu_hog": {
+     "pass_auc": 0.0,
+     "solve_rate": 0.0
+    },
+    "sc_goal_lookup": {
+     "pass_auc": 0.0,
+     "solve_rate": 0.0
+    },
+    "sc_lookahead": {
+     "pass_auc": 0.5598958333333334,
+     "solve_rate": 0.6666666666666666
+    },
+    "sc_read_hidden": {
+     "pass_auc": 0.453125,
+     "solve_rate": 0.6180555555555556
+    },
+    "systematic": {
+     "pass_auc": 0.2261284722222222,
+     "solve_rate": 0.3333333333333333
+    }
+   }
+  },
+  "ranks": {
+   "final": {
+    "ddar": {
+     "experiments_present": [
+      "hageo409_aux",
+      "jgex231_aux"
+     ],
+     "parts": {
+      "hageo409_aux.hard_solve_rate": 0.0,
+      "hageo409_aux.pass_auc": -0.2308,
+      "hageo409_aux.solve_rate": -0.862,
+      "jgex231_aux.pass_auc": -0.9016,
+      "jgex231_aux.solve_rate": -2.1376
+     },
+     "rank": -4.1321
+    },
+    "hageo": {
+     "experiments_present": [
+      "hageo409_aux",
+      "jgex231_aux"
+     ],
+     "parts": {
+      "hageo409_aux.hard_solve_rate": 0.0,
+      "hageo409_aux.pass_auc": 0.0,
+      "hageo409_aux.solve_rate": 0.0,
+      "jgex231_aux.pass_auc": 0.0,
+      "jgex231_aux.solve_rate": 0.0
+     },
+     "rank": 0.0
+    },
+    "hageo_ext": {
+     "experiments_present": [
+      "jgex231_aux"
+     ],
+     "parts": {
+      "jgex231_aux.pass_auc": 0.0121,
+      "jgex231_aux.solve_rate": 0.0961
+     },
+     "rank": 0.1082
+    },
+    "hageo_ext_hybrid": {
+     "experiments_present": [
+      "hageo409_aux",
+      "jgex231_aux"
+     ],
+     "parts": {
+      "hageo409_aux.hard_solve_rate": 0.0,
+      "hageo409_aux.pass_auc": -0.0577,
+      "hageo409_aux.solve_rate": 0.0,
+      "jgex231_aux.pass_auc": 0.4119,
+      "jgex231_aux.solve_rate": 0.4083
+     },
+     "rank": 0.7625
+    },
+    "hageo_hybrid": {
+     "experiments_present": [
+      "hageo409_aux",
+      "jgex231_aux"
+     ],
+     "parts": {
+      "hageo409_aux.hard_solve_rate": 0.0,
+      "hageo409_aux.pass_auc": -0.1026,
+      "hageo409_aux.solve_rate": 0.0,
+      "jgex231_aux.pass_auc": 0.4793,
+      "jgex231_aux.solve_rate": 0.5044
+     },
+     "rank": 0.8811
+    },
+    "hageo_n1": {
+     "experiments_present": [
+      "hageo409_aux",
+      "jgex231_aux"
+     ],
+     "parts": {
+      "hageo409_aux.hard_solve_rate": 0.0,
+      "hageo409_aux.pass_auc": -0.1859,
+      "hageo409_aux.solve_rate": -0.5747,
+      "jgex231_aux.pass_auc": -0.1969,
+      "jgex231_aux.solve_rate": -0.4083
+     },
+     "rank": -1.3658
+    },
+    "hageo_seed1": {
+     "experiments_present": [
+      "hageo409_aux",
+      "jgex231_aux"
+     ],
+     "parts": {
+      "hageo409_aux.hard_solve_rate": 0.0,
+      "hageo409_aux.pass_auc": -0.1154,
+      "hageo409_aux.solve_rate": -0.2873,
+      "jgex231_aux.pass_auc": 0.0397,
+      "jgex231_aux.solve_rate": 0.048
+     },
+     "rank": -0.315
+    },
+    "hageo_seed2": {
+     "experiments_present": [
+      "hageo409_aux",
+      "jgex231_aux"
+     ],
+     "parts": {
+      "hageo409_aux.hard_solve_rate": 0.0,
+      "hageo409_aux.pass_auc": -0.0449,
+      "hageo409_aux.solve_rate": 0.0,
+      "jgex231_aux.pass_auc": 0.0043,
+      "jgex231_aux.solve_rate": -0.024
+     },
+     "rank": -0.0646
+    },
+    "hageo_unfiltered": {
+     "experiments_present": [
+      "hageo409_aux",
+      "jgex231_aux"
+     ],
+     "parts": {
+      "hageo409_aux.hard_solve_rate": 0.0,
+      "hageo409_aux.pass_auc": -0.1346,
+      "hageo409_aux.solve_rate": -0.5747,
+      "jgex231_aux.pass_auc": -0.4603,
+      "jgex231_aux.solve_rate": -1.0568
+     },
+     "rank": -2.2264
+    },
+    "random_aux": {
+     "experiments_present": [
+      "hageo409_aux",
+      "jgex231_aux"
+     ],
+     "parts": {
+      "hageo409_aux.hard_solve_rate": 0.3,
+      "hageo409_aux.pass_auc": -0.0898,
+      "hageo409_aux.solve_rate": -0.2873,
+      "jgex231_aux.pass_auc": -0.2306,
+      "jgex231_aux.solve_rate": -0.4804
+     },
+     "rank": -0.7881
+    },
+    "rule_circumcenters": {
+     "experiments_present": [
+      "jgex231_aux"
+     ],
+     "parts": {
+      "jgex231_aux.pass_auc": -0.2694,
+      "jgex231_aux.solve_rate": -0.9607
+     },
+     "rank": -1.2302
+    },
+    "rule_mixed3": {
+     "experiments_present": [
+      "jgex231_aux"
+     ],
+     "parts": {
+      "jgex231_aux.pass_auc": -0.0864,
+      "jgex231_aux.solve_rate": -0.6245
+     },
+     "rank": -0.7108
+    },
+    "sc_cpu_hog": {
+     "experiments_present": [
+      "hageo409_aux",
+      "jgex231_aux"
+     ],
+     "parts": {
+      "hageo409_aux.hard_solve_rate": 0.0,
+      "hageo409_aux.pass_auc": -0.2308,
+      "hageo409_aux.solve_rate": -0.862,
+      "jgex231_aux.pass_auc": -0.9016,
+      "jgex231_aux.solve_rate": -2.1376
+     },
+     "rank": -4.1321
+    },
+    "sc_goal_lookup": {
+     "experiments_present": [
+      "hageo409_aux",
+      "jgex231_aux"
+     ],
+     "parts": {
+      "hageo409_aux.hard_solve_rate": 0.0,
+      "hageo409_aux.pass_auc": -0.2308,
+      "hageo409_aux.solve_rate": -0.862,
+      "jgex231_aux.pass_auc": -0.9016,
+      "jgex231_aux.solve_rate": -2.1376
+     },
+     "rank": -4.1321
+    },
+    "sc_lookahead": {
+     "experiments_present": [
+      "hageo409_aux",
+      "jgex231_aux"
+     ],
+     "parts": {
+      "hageo409_aux.hard_solve_rate": 0.0,
+      "hageo409_aux.pass_auc": 0.0,
+      "hageo409_aux.solve_rate": 0.0,
+      "jgex231_aux.pass_auc": 0.2124,
+      "jgex231_aux.solve_rate": 0.1681
+     },
+     "rank": 0.3806
+    },
+    "sc_read_hidden": {
+     "experiments_present": [
+      "hageo409_aux",
+      "jgex231_aux"
+     ],
+     "parts": {
+      "hageo409_aux.hard_solve_rate": 0.0,
+      "hageo409_aux.pass_auc": 0.0,
+      "hageo409_aux.solve_rate": 0.0,
+      "jgex231_aux.pass_auc": 0.0,
+      "jgex231_aux.solve_rate": 0.0
+     },
+     "rank": 0.0
+    },
+    "systematic": {
+     "experiments_present": [
+      "hageo409_aux",
+      "jgex231_aux"
+     ],
+     "parts": {
+      "hageo409_aux.hard_solve_rate": 0.0,
+      "hageo409_aux.pass_auc": 0.0256,
+      "hageo409_aux.solve_rate": 0.0,
+      "jgex231_aux.pass_auc": -0.4516,
+      "jgex231_aux.solve_rate": -0.9848
+     },
+     "rank": -1.4108
+    }
+   },
+   "old_0.5_0.5": {
+    "ddar": {
+     "experiments_present": [
+      "hageo409_aux",
+      "jgex231_aux"
+     ],
+     "parts": {
+      "hageo409_aux.hard_solve_rate": 0.0,
+      "hageo409_aux.pass_auc": -0.3847,
+      "hageo409_aux.solve_rate": -1.4367,
+      "jgex231_aux.pass_auc": -0.644,
+      "jgex231_aux.solve_rate": -1.5269
+     },
+     "rank": -3.9923
+    },
+    "hageo": {
+     "experiments_present": [
+      "hageo409_aux",
+      "jgex231_aux"
+     ],
+     "parts": {
+      "hageo409_aux.hard_solve_rate": 0.0,
+      "hageo409_aux.pass_auc": 0.0,
+      "hageo409_aux.solve_rate": 0.0,
+      "jgex231_aux.pass_auc": 0.0,
+      "jgex231_aux.solve_rate": 0.0
+     },
+     "rank": 0.0
+    },
+    "hageo_ext": {
+     "experiments_present": [
+      "jgex231_aux"
+     ],
+     "parts": {
+      "jgex231_aux.pass_auc": 0.0086,
+      "jgex231_aux.solve_rate": 0.0686
+     },
+     "rank": 0.0773
+    },
+    "hageo_ext_hybrid": {
+     "experiments_present": [
+      "hageo409_aux",
+      "jgex231_aux"
+     ],
+     "parts": {
+      "hageo409_aux.hard_solve_rate": 0.0,
+      "hageo409_aux.pass_auc": -0.0962,
+      "hageo409_aux.solve_rate": 0.0,
+      "jgex231_aux.pass_auc": 0.2942,
+      "jgex231_aux.solve_rate": 0.2917
+     },
+     "rank": 0.4897
+    },
+    "hageo_hybrid": {
+     "experiments_present": [
+      "hageo409_aux",
+      "jgex231_aux"
+     ],
+     "parts": {
+      "hageo409_aux.hard_solve_rate": 0.0,
+      "hageo409_aux.pass_auc": -0.171,
+      "hageo409_aux.solve_rate": 0.0,
+      "jgex231_aux.pass_auc": 0.3423,
+      "jgex231_aux.solve_rate": 0.3603
+     },
+     "rank": 0.5316
+    },
+    "hageo_n1": {
+     "experiments_present": [
+      "hageo409_aux",
+      "jgex231_aux"
+     ],
+     "parts": {
+      "hageo409_aux.hard_solve_rate": 0.0,
+      "hageo409_aux.pass_auc": -0.3099,
+      "hageo409_aux.solve_rate": -0.9578,
+      "jgex231_aux.pass_auc": -0.1406,
+      "jgex231_aux.solve_rate": -0.2917
+     },
+     "rank": -1.7
+    },
+    "hageo_seed1": {
+     "experiments_present": [
+      "hageo409_aux",
+      "jgex231_aux"
+     ],
+     "parts": {
+      "hageo409_aux.hard_solve_rate": 0.0,
+      "hageo409_aux.pass_auc": -0.1923,
+      "hageo409_aux.solve_rate": -0.4789,
+      "jgex231_aux.pass_auc": 0.0284,
+      "jgex231_aux.solve_rate": 0.0343
+     },
+     "rank": -0.6086
+    },
+    "hageo_seed2": {
+     "experiments_present": [
+      "hageo409_aux",
+      "jgex231_aux"
+     ],
+     "parts": {
+      "hageo409_aux.hard_solve_rate": 0.0,
+      "hageo409_aux.pass_auc": -0.0748,
+      "hageo409_aux.solve_rate": 0.0,
+      "jgex231_aux.pass_auc": 0.0031,
+      "jgex231_aux.solve_rate": -0.0172
+     },
+     "rank": -0.0889
+    },
+    "hageo_unfiltered": {
+     "experiments_present": [
+      "hageo409_aux",
+      "jgex231_aux"
+     ],
+     "parts": {
+      "hageo409_aux.hard_solve_rate": 0.0,
+      "hageo409_aux.pass_auc": -0.2244,
+      "hageo409_aux.solve_rate": -0.9578,
+      "jgex231_aux.pass_auc": -0.3288,
+      "jgex231_aux.solve_rate": -0.7549
+     },
+     "rank": -2.2659
+    },
+    "random_aux": {
+     "experiments_present": [
+      "hageo409_aux",
+      "jgex231_aux"
+     ],
+     "parts": {
+      "hageo409_aux.hard_solve_rate": 0.5,
+      "hageo409_aux.pass_auc": -0.1496,
+      "hageo409_aux.solve_rate": -0.4789,
+      "jgex231_aux.pass_auc": -0.1647,
+      "jgex231_aux.solve_rate": -0.3431
+     },
+     "rank": -0.6363
+    },
+    "rule_circumcenters": {
+     "experiments_present": [
+      "jgex231_aux"
+     ],
+     "parts": {
+      "jgex231_aux.pass_auc": -0.1925,
+      "jgex231_aux.solve_rate": -0.6862
+     },
+     "rank": -0.8787
+    },
+    "rule_mixed3": {
+     "experiments_present": [
+      "jgex231_aux"
+     ],
+     "parts": {
+      "jgex231_aux.pass_auc": -0.0617,
+      "jgex231_aux.solve_rate": -0.4461
+     },
+     "rank": -0.5077
+    },
+    "sc_cpu_hog": {
+     "experiments_present": [
+      "hageo409_aux",
+      "jgex231_aux"
+     ],
+     "parts": {
+      "hageo409_aux.hard_solve_rate": 0.0,
+      "hageo409_aux.pass_auc": -0.3847,
+      "hageo409_aux.solve_rate": -1.4367,
+      "jgex231_aux.pass_auc": -0.644,
+      "jgex231_aux.solve_rate": -1.5269
+     },
+     "rank": -3.9923
+    },
+    "sc_goal_lookup": {
+     "experiments_present": [
+      "hageo409_aux",
+      "jgex231_aux"
+     ],
+     "parts": {
+      "hageo409_aux.hard_solve_rate": 0.0,
+      "hageo409_aux.pass_auc": -0.3847,
+      "hageo409_aux.solve_rate": -1.4367,
+      "jgex231_aux.pass_auc": -0.644,
+      "jgex231_aux.solve_rate": -1.5269
+     },
+     "rank": -3.9923
+    },
+    "sc_lookahead": {
+     "experiments_present": [
+      "hageo409_aux",
+      "jgex231_aux"
+     ],
+     "parts": {
+      "hageo409_aux.hard_solve_rate": 0.0,
+      "hageo409_aux.pass_auc": 0.0,
+      "hageo409_aux.solve_rate": 0.0,
+      "jgex231_aux.pass_auc": 0.1517,
+      "jgex231_aux.solve_rate": 0.1201
+     },
+     "rank": 0.2718
+    },
+    "sc_read_hidden": {
+     "experiments_present": [
+      "hageo409_aux",
+      "jgex231_aux"
+     ],
+     "parts": {
+      "hageo409_aux.hard_solve_rate": 0.0,
+      "hageo409_aux.pass_auc": 0.0,
+      "hageo409_aux.solve_rate": 0.0,
+      "jgex231_aux.pass_auc": 0.0,
+      "jgex231_aux.solve_rate": 0.0
+     },
+     "rank": 0.0
+    },
+    "systematic": {
+     "experiments_present": [
+      "hageo409_aux",
+      "jgex231_aux"
+     ],
+     "parts": {
+      "hageo409_aux.hard_solve_rate": 0.0,
+      "hageo409_aux.pass_auc": 0.0427,
+      "hageo409_aux.solve_rate": 0.0,
+      "jgex231_aux.pass_auc": -0.3226,
+      "jgex231_aux.solve_rate": -0.7034
+     },
+     "rank": -0.9833
+    }
+   }
+  },
+  "seed_rank_range": [
+   -0.315,
+   0.0
+  ]
+ },
+ "train": {
+  "metrics": {
+   "hageo409_aux": {
+    "ddar": {
+     "hard_solve_rate": 0.0,
+     "pass_auc": 0.0,
+     "solve_rate": 0.0
+    },
+    "hageo": {
+     "hard_solve_rate": 0.07692307692307693,
+     "pass_auc": 0.1025,
+     "solve_rate": 0.12
+    },
+    "hageo_ext_hybrid": {
+     "hard_solve_rate": 0.15384615384615385,
+     "pass_auc": 0.2125,
+     "solve_rate": 0.28
+    },
+    "random_aux": {
+     "hard_solve_rate": 0.0,
+     "pass_auc": 0.0375,
+     "solve_rate": 0.04
+    }
+   },
+   "jgex231_aux": {
+    "ddar": {
+     "pass_auc": 0.0,
+     "solve_rate": 0.0
+    },
+    "hageo": {
+     "pass_auc": 0.3209635416666667,
+     "solve_rate": 0.46875
+    },
+    "hageo_ext": {
+     "pass_auc": 0.4244791666666667,
+     "solve_rate": 0.6041666666666666
+    },
+    "hageo_ext_hybrid": {
+     "pass_auc": 0.6608072916666666,
+     "solve_rate": 0.75
+    },
+    "hageo_hybrid": {
+     "pass_auc": 0.4407552083333333,
+     "solve_rate": 0.4895833333333333
+    },
+    "hageo_seed1": {
+     "pass_auc": 0.3326822916666667,
+     "solve_rate": 0.4791666666666667
+    },
+    "random_aux": {
+     "pass_auc": 0.24674479166666666,
+     "solve_rate": 0.3854166666666667
+    }
+   }
+  },
+  "ranks": {
+   "final": {
+    "ddar": {
+     "experiments_present": [
+      "hageo409_aux",
+      "jgex231_aux"
+     ],
+     "parts": {
+      "hageo409_aux.hard_solve_rate": -0.1085,
+      "hageo409_aux.pass_auc": -0.0953,
+      "hageo409_aux.solve_rate": -0.3357,
+      "jgex231_aux.pass_auc": -0.6009,
+      "jgex231_aux.solve_rate": -1.5273
+     },
+     "rank": -2.6678
+    },
+    "hageo": {
+     "experiments_present": [
+      "hageo409_aux",
+      "jgex231_aux"
+     ],
+     "parts": {
+      "hageo409_aux.hard_solve_rate": 0.0,
+      "hageo409_aux.pass_auc": 0.0,
+      "hageo409_aux.solve_rate": 0.0,
+      "jgex231_aux.pass_auc": 0.0,
+      "jgex231_aux.solve_rate": 0.0
+     },
+     "rank": 0.0
+    },
+    "hageo_ext": {
+     "experiments_present": [
+      "jgex231_aux"
+     ],
+     "parts": {
+      "jgex231_aux.pass_auc": 0.1938,
+      "jgex231_aux.solve_rate": 0.4412
+     },
+     "rank": 0.635
+    },
+    "hageo_ext_hybrid": {
+     "experiments_present": [
+      "hageo409_aux",
+      "jgex231_aux"
+     ],
+     "parts": {
+      "hageo409_aux.hard_solve_rate": 0.1085,
+      "hageo409_aux.pass_auc": 0.1023,
+      "hageo409_aux.solve_rate": 0.4476,
+      "jgex231_aux.pass_auc": 0.6363,
+      "jgex231_aux.solve_rate": 0.9164
+     },
+     "rank": 2.2111
+    },
+    "hageo_hybrid": {
+     "experiments_present": [
+      "jgex231_aux"
+     ],
+     "parts": {
+      "jgex231_aux.pass_auc": 0.2243,
+      "jgex231_aux.solve_rate": 0.0679
+     },
+     "rank": 0.2922
+    },
+    "hageo_seed1": {
+     "experiments_present": [
+      "jgex231_aux"
+     ],
+     "parts": {
+      "jgex231_aux.pass_auc": 0.0219,
+      "jgex231_aux.solve_rate": 0.0339
+     },
+     "rank": 0.0559
+    },
+    "random_aux": {
+     "experiments_present": [
+      "hageo409_aux",
+      "jgex231_aux"
+     ],
+     "parts": {
+      "hageo409_aux.hard_solve_rate": -0.1085,
+      "hageo409_aux.pass_auc": -0.0605,
+      "hageo409_aux.solve_rate": -0.2238,
+      "jgex231_aux.pass_auc": -0.139,
+      "jgex231_aux.solve_rate": -0.2715
+     },
+     "rank": -0.8033
+    }
+   },
+   "old_0.5_0.5": {
+    "ddar": {
+     "experiments_present": [
+      "hageo409_aux",
+      "jgex231_aux"
+     ],
+     "parts": {
+      "hageo409_aux.hard_solve_rate": -0.1809,
+      "hageo409_aux.pass_auc": -0.1589,
+      "hageo409_aux.solve_rate": -0.5595,
+      "jgex231_aux.pass_auc": -0.4292,
+      "jgex231_aux.solve_rate": -1.0909
+     },
+     "rank": -2.4195
+    },
+    "hageo": {
+     "experiments_present": [
+      "hageo409_aux",
+      "jgex231_aux"
+     ],
+     "parts": {
+      "hageo409_aux.hard_solve_rate": 0.0,
+      "hageo409_aux.pass_auc": 0.0,
+      "hageo409_aux.solve_rate": 0.0,
+      "jgex231_aux.pass_auc": 0.0,
+      "jgex231_aux.solve_rate": 0.0
+     },
+     "rank": 0.0
+    },
+    "hageo_ext": {
+     "experiments_present": [
+      "jgex231_aux"
+     ],
+     "parts": {
+      "jgex231_aux.pass_auc": 0.1384,
+      "jgex231_aux.solve_rate": 0.3152
+     },
+     "rank": 0.4536
+    },
+    "hageo_ext_hybrid": {
+     "experiments_present": [
+      "hageo409_aux",
+      "jgex231_aux"
+     ],
+     "parts": {
+      "hageo409_aux.hard_solve_rate": 0.1809,
+      "hageo409_aux.pass_auc": 0.1705,
+      "hageo409_aux.solve_rate": 0.746,
+      "jgex231_aux.pass_auc": 0.4545,
+      "jgex231_aux.solve_rate": 0.6545
+     },
+     "rank": 2.2065
+    },
+    "hageo_hybrid": {
+     "experiments_present": [
+      "jgex231_aux"
+     ],
+     "parts": {
+      "jgex231_aux.pass_auc": 0.1602,
+      "jgex231_aux.solve_rate": 0.0485
+     },
+     "rank": 0.2087
+    },
+    "hageo_seed1": {
+     "experiments_present": [
+      "jgex231_aux"
+     ],
+     "parts": {
+      "jgex231_aux.pass_auc": 0.0157,
+      "jgex231_aux.solve_rate": 0.0242
+     },
+     "rank": 0.0399
+    },
+    "random_aux": {
+     "experiments_present": [
+      "hageo409_aux",
+      "jgex231_aux"
+     ],
+     "parts": {
+      "hageo409_aux.hard_solve_rate": -0.1809,
+      "hageo409_aux.pass_auc": -0.1008,
+      "hageo409_aux.solve_rate": -0.373,
+      "jgex231_aux.pass_auc": -0.0993,
+      "jgex231_aux.solve_rate": -0.1939
+     },
+     "rank": -0.9479
+    }
+   }
+  },
+  "seed_rank_range": [
+   0.0,
+   0.0559
+  ]
+ }
+}

@@ -1,0 +1,50 @@
+{
+  "experiments": {
+    "hageo409_aux": {
+      "_status": {
+        "ddar": "ok (fixed evaluator baseline)",
+        "hageo_n1": "ok",
+        "random_aux": "ok (fixed evaluator baseline)"
+      },
+      "results": {
+        "ddar": {
+          "hard_solve_rate": 0.0,
+          "pass_auc": 0.0,
+          "solve_rate": 0.0
+        },
+        "hageo_n1": {
+          "hard_solve_rate": 0.0,
+          "pass_auc": 0.011513157894736841,
+          "solve_rate": 0.02631578947368421
+        },
+        "random_aux": {
+          "hard_solve_rate": 0.05,
+          "pass_auc": 0.03618421052631579,
+          "solve_rate": 0.05263157894736842
+        }
+      }
+    },
+    "jgex231_aux": {
+      "_status": {
+        "ddar": "ok (fixed evaluator baseline)",
+        "hageo_n1": "ok",
+        "random_aux": "ok (fixed evaluator baseline)"
+      },
+      "results": {
+        "ddar": {
+          "pass_auc": 0.0,
+          "solve_rate": 0.0
+        },
+        "hageo_n1": {
+          "pass_auc": 0.3541666666666667,
+          "solve_rate": 0.5
+        },
+        "random_aux": {
+          "pass_auc": 0.3372395833333333,
+          "solve_rate": 0.4791666666666667
+        }
+      }
+    }
+  },
+  "slice": "test"
+}

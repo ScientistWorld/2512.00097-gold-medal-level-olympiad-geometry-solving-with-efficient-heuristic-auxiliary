@@ -1,0 +1,72 @@
+{
+  "experiments": {
+    "hageo409_aux": {
+      "_status": {
+        "ddar": "ok (fixed evaluator baseline)",
+        "random_aux": "ok (fixed evaluator baseline)",
+        "sc_cpu_hog": "failed: hageo409_aux: failed: proposer used 774s of CPU time, above its limit of 570s",
+        "sc_goal_lookup": "failed: hageo409_aux: failed: proposer exited with status 1",
+        "sc_read_hidden": "ok"
+      },
+      "results": {
+        "ddar": {
+          "hard_solve_rate": 0.0,
+          "pass_auc": 0.0,
+          "solve_rate": 0.0
+        },
+        "random_aux": {
+          "hard_solve_rate": 0.05,
+          "pass_auc": 0.03618421052631579,
+          "solve_rate": 0.05263157894736842
+        },
+        "sc_cpu_hog": {
+          "hard_solve_rate": 0.0,
+          "pass_auc": 0.0,
+          "solve_rate": 0.0
+        },
+        "sc_goal_lookup": {
+          "hard_solve_rate": 0.0,
+          "pass_auc": 0.0,
+          "solve_rate": 0.0
+        },
+        "sc_read_hidden": {
+          "hard_solve_rate": 0.0,
+          "pass_auc": 0.05921052631578947,
+          "solve_rate": 0.07894736842105263
+        }
+      }
+    },
+    "jgex231_aux": {
+      "_status": {
+        "ddar": "ok (fixed evaluator baseline)",
+        "random_aux": "ok (fixed evaluator baseline)",
+        "sc_cpu_hog": "failed: hageo409_aux: failed: proposer used 774s of CPU time, above its limit of 570s",
+        "sc_goal_lookup": "failed: hageo409_aux: failed: proposer exited with status 1",
+        "sc_read_hidden": "ok"
+      },
+      "results": {
+        "ddar": {
+          "pass_auc": 0.0,
+          "solve_rate": 0.0
+        },
+        "random_aux": {
+          "pass_auc": 0.3372395833333333,
+          "solve_rate": 0.4791666666666667
+        },
+        "sc_cpu_hog": {
+          "pass_auc": 0.0,
+          "solve_rate": 0.0
+        },
+        "sc_goal_lookup": {
+          "pass_auc": 0.0,
+          "solve_rate": 0.0
+        },
+        "sc_read_hidden": {
+          "pass_auc": 0.453125,
+          "solve_rate": 0.6180555555555556
+        }
+      }
+    }
+  },
+  "slice": "test"
+}

@@ -85,7 +85,7 @@
     "train_024": null,
     "train_025": null
    },
-   "proposer": "ok (cpu 152.6s of 375s, wall 27s)",
+   "proposer": "ok (cpu 18.8s of 150s, wall 19s)",
    "status": "ok",
    "verify_seconds": 0.0
   },
@@ -392,9 +392,9 @@
     "jtrain_012_v07": null,
     "jtrain_012_v08": null
    },
-   "proposer": "ok (cpu 217.6s of 480s, wall 48s)",
+   "proposer": "ok (cpu 39.2s of 192s, wall 40s)",
    "status": "ok",
-   "verify_seconds": 418.0
+   "verify_seconds": 0.0
   },
   "random_aux": {
    "status": "ok (fixed evaluator baseline)"

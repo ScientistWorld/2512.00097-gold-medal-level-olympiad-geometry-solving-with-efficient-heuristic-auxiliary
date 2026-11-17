@@ -124,7 +124,7 @@
     "test_037": null,
     "test_038": null
    },
-   "proposer": "ok (cpu 262.6s of 570s, wall 45s)",
+   "proposer": "ok (memo)",
    "status": "ok",
    "verify_seconds": 0.0
   },
@@ -575,9 +575,9 @@
     "jtest_018_v07": null,
     "jtest_018_v08": null
    },
-   "proposer": "ok (cpu 121.9s of 720s, wall 35s)",
+   "proposer": "ok (memo)",
    "status": "ok",
-   "verify_seconds": 652.9
+   "verify_seconds": 0.1
   },
   "random_aux": {
    "status": "ok (fixed evaluator baseline)"

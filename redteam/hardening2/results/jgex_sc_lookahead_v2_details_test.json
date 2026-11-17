@@ -1,0 +1,14 @@
+{
+ "jgex231_aux": {
+  "ddar": {
+   "status": "ok (fixed evaluator baseline)"
+  },
+  "random_aux": {
+   "status": "ok (fixed evaluator baseline)"
+  },
+  "sc_lookahead": {
+   "log_tail": "[lookahead] jtest_001 share=1.59s used=1.59s productive=0\n",
+   "status": "failed: jgex231_aux: failed: proposer used 293s of CPU time, above its limit of 288s"
+  }
+ }
+}

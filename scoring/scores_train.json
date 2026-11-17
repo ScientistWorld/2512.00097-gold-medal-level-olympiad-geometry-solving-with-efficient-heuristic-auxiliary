@@ -36,12 +36,12 @@
           "solve_rate": 0.0
         },
         "hageo": {
-          "pass_auc": 0.20833333333333334,
-          "solve_rate": 0.4166666666666667
+          "pass_auc": 0.3209635416666667,
+          "solve_rate": 0.46875
         },
         "random_aux": {
-          "pass_auc": 0.328125,
-          "solve_rate": 0.5
+          "pass_auc": 0.24674479166666666,
+          "solve_rate": 0.3854166666666667
         }
       }
     }
