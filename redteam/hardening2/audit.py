@@ -140,7 +140,10 @@ def main() -> None:
     os.environ.setdefault("MPLCONFIGDIR", "/tmp/mpl")
 
     # 1. synthetic problems
-    step("derive_generate", lambda: sh([PY, "eval/test/derive.py", "generate", "--budget-seconds", "3000"]))
+    # Public-base configurations proved slow and almost never productive in the first
+    # 12 minutes (2 of 147), so generation continues with random configurations only.
+    step("derive_generate", lambda: sh([PY, "eval/test/derive.py", "generate", "--budget-seconds", "7200",
+                                        "--stop-productive", "300", "--public-every", "100000"]))
     step("derive_select", lambda: sh([PY, "eval/test/derive.py", "select", "--max-test", "240",
                                       "--max-train", "120"]))
 
