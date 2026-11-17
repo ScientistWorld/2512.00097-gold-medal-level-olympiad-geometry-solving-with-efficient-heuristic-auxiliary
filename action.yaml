@@ -3,4 +3,4 @@ action: submit
 gpus: 0
 test: false
 milestone: core_claim
-notes: "Hardening 2 (resume): continue synthetic generation from the saved pool (random configurations only, stop at 300 productive or 2h), select/verify, baselines, reference-only scores, audit (redteam/hardening2/audit.py, resumable)."
+notes: "Hardening 2: JGEX-231 expanded to 8 independent instances per problem, recompute JGEX baselines, reference-only scores (per-experiment CPU limits), then audit variants/rules/shortcuts through the held-out evaluator (redteam/hardening2/audit.py, resumable)."
