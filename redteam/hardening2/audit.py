@@ -220,6 +220,10 @@ def main() -> None:
     # 10. private lookahead re-measured on JGEX under the tightened CPU allowance (2 s per problem)
     step("test_jgex_sc_lookahead_v2", lambda: run_variant("jgex_sc_lookahead_v2", ["sc_lookahead"], "test",
                                                           ["jgex231_aux"]))
+    # 10b. same probe with robust budget control (the v2 run overshot: AlphaGeometry's bare
+    #      `except:` clauses swallowed its one-shot CPU timer)
+    step("test_jgex_sc_lookahead_v3", lambda: run_variant("jgex_sc_lookahead_v3", ["sc_lookahead"], "test",
+                                                          ["jgex231_aux"]))
     # 11. final configuration: fixed baselines (all experiments) and the reference, through the
     #     unchanged scripts; attempts are identical, so verification comes from the cache.
     for s in ("test", "train"):

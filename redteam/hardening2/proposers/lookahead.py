@@ -51,7 +51,9 @@ def cpu_limit(seconds: float):
         raise _Stop()
 
     prev = signal.signal(signal.SIGPROF, _raise)
-    signal.setitimer(signal.ITIMER_PROF, max(0.01, seconds))
+    # Re-armed every 20 ms after the deadline: AlphaGeometry has bare `except:`
+    # clauses that can swallow a single signal.
+    signal.setitimer(signal.ITIMER_PROF, max(0.01, seconds), 0.02)
     try:
         yield
     finally:
@@ -117,7 +119,7 @@ def main() -> None:
     total_budget = max(120.0, 3.0 * len(rows))
     if rows:
         total_budget = max(120.0, float(rows[0].get("cpu_seconds_per_problem", 3.0)) * len(rows))
-    usable = 0.8 * total_budget
+    usable = 0.6 * total_budget
     with outp.open("w") as f:
         for i, row in enumerate(rows):
             attempts_ref = hp.propose_problem(row, int(row["max_attempts"]), 2, 0)
@@ -130,11 +132,14 @@ def main() -> None:
                 pool = full_pool(geo, random.Random(0))
                 pool.sort(key=lambda e: (-e["count"], e["reps"][0][0]))
                 started = time.process_time()
+                deadline = started + share
                 try:
                     with cpu_limit(share):
                         g_s, _ = saturate(row["setup"], 0)
                         if g_s is not None:
                             for e in pool:
+                                if time.process_time() > deadline:
+                                    break
                                 clause = "zz9 = " + e["reps"][0][2].format(x="zz9")
                                 try:
                                     g, added = saturate(row["setup"] + "; " + clause, 0)

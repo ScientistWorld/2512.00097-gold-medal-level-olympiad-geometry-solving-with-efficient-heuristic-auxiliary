@@ -34,10 +34,15 @@ def load(slice_: str) -> dict:
     files.sort(key=lambda f: 0 if Path(f).name.startswith("reference_") else 1)
     for f in files:
         d = json.loads(Path(f).read_text())
+        tag = Path(f).name.split(f"_scores_{slice_}")[0]
         for e, v in d["experiments"].items():
             for name, m in v["results"].items():
                 if m is None:
                     continue
+                if name == "sc_lookahead":
+                    # private-search probe measured under different CPU allowances
+                    name = {"jgex_sc_lookahead": "sc_lookahead_old_5s_per_problem",
+                            "jgex_sc_lookahead_v2": "sc_lookahead_v2_budget_overshoot"}.get(tag, name)
                 merged.setdefault(e, {}).setdefault(name, m)
     return merged
 

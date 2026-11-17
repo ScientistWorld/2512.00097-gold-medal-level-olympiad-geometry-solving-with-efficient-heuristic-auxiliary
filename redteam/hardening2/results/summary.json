@@ -130,9 +130,13 @@
      "pass_auc": 0.0,
      "solve_rate": 0.0
     },
-    "sc_lookahead": {
+    "sc_lookahead_old_5s_per_problem": {
      "pass_auc": 0.5598958333333334,
      "solve_rate": 0.6666666666666666
+    },
+    "sc_lookahead_v2_budget_overshoot": {
+     "pass_auc": 0.0,
+     "solve_rate": 0.0
     },
     "sc_read_hidden": {
      "pass_auc": 0.453125,
@@ -332,17 +336,34 @@
     },
     "sc_lookahead": {
      "experiments_present": [
-      "hageo409_aux",
-      "jgex231_aux"
+      "hageo409_aux"
      ],
      "parts": {
       "hageo409_aux.hard_solve_rate": 0.0,
       "hageo409_aux.pass_auc": 0.0,
-      "hageo409_aux.solve_rate": 0.0,
+      "hageo409_aux.solve_rate": 0.0
+     },
+     "rank": 0.0
+    },
+    "sc_lookahead_old_5s_per_problem": {
+     "experiments_present": [
+      "jgex231_aux"
+     ],
+     "parts": {
       "jgex231_aux.pass_auc": 0.2124,
       "jgex231_aux.solve_rate": 0.1681
      },
      "rank": 0.3806
+    },
+    "sc_lookahead_v2_budget_overshoot": {
+     "experiments_present": [
+      "jgex231_aux"
+     ],
+     "parts": {
+      "jgex231_aux.pass_auc": -0.9016,
+      "jgex231_aux.solve_rate": -2.1376
+     },
+     "rank": -3.0392
     },
     "sc_read_hidden": {
      "experiments_present": [
@@ -560,17 +581,34 @@
     },
     "sc_lookahead": {
      "experiments_present": [
-      "hageo409_aux",
-      "jgex231_aux"
+      "hageo409_aux"
      ],
      "parts": {
       "hageo409_aux.hard_solve_rate": 0.0,
       "hageo409_aux.pass_auc": 0.0,
-      "hageo409_aux.solve_rate": 0.0,
+      "hageo409_aux.solve_rate": 0.0
+     },
+     "rank": 0.0
+    },
+    "sc_lookahead_old_5s_per_problem": {
+     "experiments_present": [
+      "jgex231_aux"
+     ],
+     "parts": {
       "jgex231_aux.pass_auc": 0.1517,
       "jgex231_aux.solve_rate": 0.1201
      },
      "rank": 0.2718
+    },
+    "sc_lookahead_v2_budget_overshoot": {
+     "experiments_present": [
+      "jgex231_aux"
+     ],
+     "parts": {
+      "jgex231_aux.pass_auc": -0.644,
+      "jgex231_aux.solve_rate": -1.5269
+     },
+     "rank": -2.1709
     },
     "sc_read_hidden": {
      "experiments_present": [
