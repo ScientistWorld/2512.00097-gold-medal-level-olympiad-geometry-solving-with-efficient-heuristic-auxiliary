@@ -3,4 +3,4 @@ action: submit
 gpus: 0
 test: false
 milestone: core_claim
-notes: "Hardening 2 (retry): AlphaGeometry-style dependency-difference synthetic problems with secret seeds (eval/test/derive.py), their fixed baselines, reference-only scores, then audit variants/rules/shortcuts through the held-out evaluator (redteam/hardening2/audit.py, resumable)."
+notes: "Hardening 2 (resume): continue synthetic generation from the saved pool (random configurations only, stop at 300 productive or 2h), select/verify, baselines, reference-only scores, audit (redteam/hardening2/audit.py, resumable)."
