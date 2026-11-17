@@ -42,6 +42,15 @@ HERE = Path(__file__).resolve().parent
 ROOT = HERE.parents[1]
 sys.path.insert(0, str(HERE))
 
+# Numerical libraries run single-threaded in the evaluator and in every
+# proposer it starts: idle BLAS/OpenMP worker threads would otherwise add CPU
+# time that depends on the machine's core count, and the proposer limit and
+# the verification limits are CPU-time limits.  A proposer may still use
+# several processes or threads explicitly; their CPU time counts.
+SINGLE_THREAD_ENV = {k: "1" for k in ("OMP_NUM_THREADS", "OPENBLAS_NUM_THREADS", "MKL_NUM_THREADS",
+                                      "NUMEXPR_NUM_THREADS", "VECLIB_MAXIMUM_THREADS", "BLIS_NUM_THREADS")}
+os.environ.update(SINGLE_THREAD_ENV)
+
 import gate  # noqa: E402
 
 SLICE = "train"
@@ -302,6 +311,7 @@ def run_proposer(script: Path, rows: list[dict], config: dict, exp: dict, workdi
             stderr=subprocess.STDOUT,
             start_new_session=True,
             preexec_fn=_rlimit,
+            env=dict(os.environ, **SINGLE_THREAD_ENV),
         )
         try:
             code = proc.wait(timeout=wall_backstop)
